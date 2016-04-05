@@ -1,0 +1,104 @@
+  * The file 'parameters_file_ASCII.dat' has been loaded!
+Variables are ready to use!
+-----------------------------------------------------------------
+Ascii data file has been read succesfully!
+-----------------------------------------------------------------
+Simulation parameters
+GV.NCELLS:         256 GV.NTOTALCELLS:    16777216
+GV.BoxSize:    400.00000000 GV.CellSize:      1.56250000
+----------------------------------------------------------------
+Cosmological parameters
+GV.z_RS=0.000000 GV.H0=100.000000 
+GV.Hz=100.000000 GV.a_SF=1.000000
+-----------------------------------------------------------------
+Input of contrast density sorted in C-order (row-major order)!
+-----------------------------------------------------------------
+FFT: density contrast r2k finished!
+-----------------------------------------------------------------
+k vectors computed!
+------------------------------------------------
+Computing density contrast in k space with CIC weight-function!
+------------------------------------------------
+Density contrast in k-space with CIC weight fn ready!!
+-----------------------------------------------------------------
+Destroying plans!
+--------------------------------------------------
+plan_r2k destroyed!Freeing up memory!
+--------------------------------------------------
+FFT_transform code finished!
+--------------------------------------------------
+FFT of density contrast finished!
+-----------------------------------------------------------------
+Computing potential in k-space
+-----------------------------------------
+Potential in k-space saved!
+-----------------------------------------
+FFT potential k2r finished!
+---------------------------------------
+---------------------------------------
+Grid-sorted potential in r space saved!
+---------------------------------------
+FFT_potential code finished!
+----------------------------
+FFT of gravitational potential finished!
+-----------------------------------------------------------------
+Dealing with FFT momentum_cm in X!
+---------------------------------
+FFT of momentum_cm in X finished!
+---------------------------------
+ Dealing with FFT momentum_cm in Y!
+---------------------------------
+FFT of momentum_cm in Y finished!
+---------------------------------
+ Dealing with FFT momentum_cm in Z!
+---------------------------------
+FFT of momentum_cm in Z finished!
+---------------------------------
+Weighted momentum with CIC window function computed!
+-----------------------------------------------------------------
+FFT of momentum finished!
+-----------------------------------------------------------------
+Computing time derivative of potential in k-space!
+-----------------------------------------------------------------
+Data time derivative of potential in k-space assigned!
+-----------------------------------------------------------------
+FFT of potential derivative in r finished!
+-----------------------------------------
+FFT_pot_dot code finished!
+--------------------------
+FFT of time derivative of gravitational potential finished!
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+First approximation to f(t)
+OmegaL0=0.742000,  growth rate f(t)=0.716756
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+Second approximation to f(t)
+mu=1.422093, OmegaM(a)=0.066564, growth rate f(t)=0.196763
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+Second approximation to f(t)
+mu=1.422093, OmegaM(a)=0.066564, growth rate f(t)=0.196763
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+First approximation to f(t)
+OmegaL0=0.742000,  growth rate f(t)=0.716756
+-----------------------------------------------------------------
+GR_OmegaL0=0.716756 GR_OmegaM=0.196763 a_SF=1.000000
+---------------------------------------
+Time derivative of potential in k-space saved!
+--------------------------------------------------
+FFT of potential derivative in r finished!
+-----------------------------------------
+FFT of potential derivative in r finished!
+-----------------------------------------
+FFT_pot_dot lineal code finished!
+--------------------------
+FFT of time derivative of gravitational potential in linear approximation finished!
+-----------------------------------------------------------------
+All FFT transforms have finished succesfully!
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+All codes have run succesfully!
+FFT code finished!
+-----------------------------------------------------------------

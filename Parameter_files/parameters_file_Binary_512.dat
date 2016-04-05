@@ -1,0 +1,9 @@
+#---------------------------------------
+#--------- PARAMETERS FILE -------------
+#---------------------------------------
+#+++++++++++++++++++++++++++++++++++++++
+#Number of cells per axis is N
+#Total number of cells is N^3
+N = 512
+#Path of data file
+FILENAME = /home/dvalencia/Simulation_400Mpc/FFT_code/Processed_data/CIC_DenCon_field_512.bin
