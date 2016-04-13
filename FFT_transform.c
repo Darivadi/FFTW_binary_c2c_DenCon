@@ -9,11 +9,11 @@ contains 11 columns: 1.Cell ID - 2.Density -  3,4,5.gp[m].pos[X,Y,Z]
 columns are used.
 RETURN: The output of the FFT ordered in c-order
 ******************************************************************************/
-int transform()
+int transform(double *DenConCell)
 {
   /*--- DEFINITIONS ---*/
   int m, i, j, k;
-  double norm, fx, fy, fz, k2, wx_NGP, wy_NGP, wz_NGP, wx_CIC, wy_CIC, wz_CIC;
+  double fx, fy, fz, k2, wx, wy, wz;
   double aux_sinx, aux_siny, aux_sinz;
   
   fftw_complex *in=NULL;
@@ -24,8 +24,6 @@ int transform()
 
   FILE *pf=NULL;
 
-
-  norm = sqrt(GV.NTOTALCELLS);
   
   /*----------------------------------------------------------------------------
                                FFT OF DENSITIES
@@ -37,7 +35,7 @@ int transform()
   /* Sorting the densities array  in C-order (row-major order) */
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      in[m][0] = gp[m].DenConCell; //Re(den_in)
+      in[m][0] = DenConCell[m]; //Re(den_in)
       in[m][1] = 0.0; //Im(den_in)	     	     
     }//for m
 
@@ -53,24 +51,13 @@ int transform()
   printf("-----------------------------------------------------------------\n");
   
   /*--- Saving the output ---*/  
-  //This is the first normalization I used!
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].DenCon_FFTout[0] = out[m][0]/norm; //Re()
-      gp[m].DenCon_FFTout[1] = out[m][1]/norm; //Im()
+      gp[m].DenCon_K[0] = GV.r2k_norm * out[m][0]; //Re()
+      gp[m].DenCon_K[1] = GV.r2k_norm * out[m][1]; //Im()
     }//for m
-  
+ 
 
-  //This is the normalization according to Hockney & Eastwood, that should be equivalent
-  //to that I used before!
-  /*
-  norm = GV.CellSize * GV.CellSize * GV.CellSize;
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].DenCon_FFTout[0] = norm * out[m][0]; //Re()
-      gp[m].DenCon_FFTout[1] = norm * out[m][1]; //Im()
-    }//for m
-  */
   /*--- K vector: components and module ---*/
   for(i=0; i<GV.NCELLS; i++)
     {
@@ -129,44 +116,44 @@ int transform()
       if(fabs(gp[m].k_vector[X]) > GV.ZERO)
 	{
 	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wx_NGP = (sin(fx)/fx);
+	  wx= (sin(fx)/fx);
 	}//if 1
       else
 	{
-	  wx_NGP = 1.0;
+	  wx = 1.0;
 	}//else
       
       /*----- Weight function in y -----*/
       if(fabs(gp[m].k_vector[Y]) > GV.ZERO)
 	{
 	  fy = (gp[m].k_vector[Y]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wy_NGP = (sin(fy)/fy);
+	  wy = (sin(fy)/fy);
 	}//if 1
       else
 	{
-	  wy_NGP = 1.0;
+	  wy = 1.0;
 	}//else
       
       /*----- Weight function in z -----*/
       if(fabs(gp[m].k_vector[Z]) > GV.ZERO)
 	{
 	  fz = (gp[m].k_vector[Z]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wz_NGP = (sin(fz)/fz);  
+	  wz = (sin(fz)/fz);  
 	}//if 1
       else
 	{
-	  wz_NGP = 1.0;
+	  wz = 1.0;
 	}//else
       
       /*----- Total weight function -----*/
-      gp[m].weight_NGP = wx_NGP*wy_NGP*wz_NGP;
+      gp[m].weight = wx*wy*wz;
       
       
       /*----- Deconvolution of DenCon -----*/
-      if(fabs(gp[m].weight_NGP) > GV.ZERO)
+      if(fabs(gp[m].weight) > GV.ZERO)
 	{
-	  gp[m].DenCon_K[0] = gp[m].DenCon_FFTout[0] / gp[m].weight_NGP;
-	  gp[m].DenCon_K[1] = gp[m].DenCon_FFTout[1] / gp[m].weight_NGP;	  
+	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
+	  gp[m].DenCon_K[1] = gp[m].DenCon_K[1] / gp[m].weight;
 	}//if
       else
 	{
@@ -194,57 +181,50 @@ int transform()
       if(fabs(gp[m].k_vector[X]) > GV.ZERO)
 	{
 	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wx_CIC = (sin(fx)/fx)*(sin(fx)/fx);
+	  wx = (sin(fx)/fx)*(sin(fx)/fx);
 	}//if 1
       else
 	{
-	  wx_CIC = 1.0;
+	  wx = 1.0;
 	}//else
       
       /*----- Weight function in y -----*/
       if(fabs(gp[m].k_vector[Y]) > GV.ZERO)
 	{
 	  fy = (gp[m].k_vector[Y]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wy_CIC = (sin(fy)/fy)*(sin(fy)/fy);
+	  wy = (sin(fy)/fy)*(sin(fy)/fy);
 	}//if 1
       else
 	{
-	  wy_CIC = 1.0;
+	  wy = 1.0;
 	}//else
       
       /*----- Weight function in z -----*/
       if(fabs(gp[m].k_vector[Z]) > GV.ZERO)
 	{
 	  fz = (gp[m].k_vector[Z]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wz_CIC = (sin(fz)/fz)*(sin(fz)/fz);  
+	  wz = (sin(fz)/fz)*(sin(fz)/fz);  
 	}//if 1
       else
 	{
-	  wz_CIC = 1.0;
+	  wz = 1.0;
 	}//else
       
       /*----- Total weight function -----*/
-      gp[m].weight_CIC = wx_CIC*wy_CIC*wz_CIC;
+      gp[m].weight = wx * wy * wz;
 
       /*
       fprintf(pf, "%10d %16.8lf %16.8lf %16.8lf %16.8lf\n",
 	      m,
-	      wx_CIC, wy_CIC, wz_CIC,
-	      gp[m].weight_CIC);
+	      wx, wy, wz,
+	      gp[m].weight);
       */   
       
-      /*----- Deconvolution of DenCon with the total weight function -----*/
-
-      /*wo deconvolution*/
-      /*
-      gp[m].DenCon_K[0] = gp[m].DenCon_FFTout[0];
-      gp[m].DenCon_K[1] = gp[m].DenCon_FFTout[1];
-      */
-      
-      if(fabs(gp[m].weight_CIC) > GV.ZERO)
+      /*----- Deconvolution of DenCon with the total weight function -----*/  
+      if(fabs(gp[m].weight) > GV.ZERO)
 	{
-	  gp[m].DenCon_K[0] = gp[m].DenCon_FFTout[0] / gp[m].weight_CIC;
-	  gp[m].DenCon_K[1] = gp[m].DenCon_FFTout[1] / gp[m].weight_CIC;
+	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
+	  gp[m].DenCon_K[1] = gp[m].DenCon_K[1] / gp[m].weight;
 	}//if
       else
 	{

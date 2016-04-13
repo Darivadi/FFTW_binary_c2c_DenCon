@@ -4,11 +4,11 @@ FUNCTION: Calculates the momentum density using the contrast density and the cen
 INPUT: density contrast and center of mass velocities in r-space, grid[m]-ordered
 RETURN: FFT of momentums
 **********************************************************************/
-int momentum_den_cm()
+int momentum_den_cm(double **p_r)
 {  
   int m, i, j, k;
   FILE *pf=NULL;
-  double norm;
+  double norm, Nparts;
   
   fftw_complex *in=NULL;
   fftw_complex *out=NULL;
@@ -20,40 +20,16 @@ int momentum_den_cm()
   //norm = sqrt(GV.NTOTALCELLS);
     
   /*--- Momentun density in position-space ---*/
+#ifdef NGP      
+  Nparts = 512.0*512.0*512.0
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      //Smith et al: NGP
-#ifdef NGP      
-      /*
-      gp[m].p_r[X] = ( 1.0 + (gp[m].DensityInCell - GV.MeanDen)/GV.MeanDen ) * gp[m].v_cm[X];
-      gp[m].p_r[Y] = ( 1.0 + (gp[m].DensityInCell - GV.MeanDen)/GV.MeanDen ) * gp[m].v_cm[Y];
-      gp[m].p_r[Z] = ( 1.0 + (gp[m].DensityInCell - GV.MeanDen)/GV.MeanDen ) * gp[m].v_cm[Z];
-      */
-      gp[m].p_r[X] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[X]/(512.0*512.0*512.0);
-      gp[m].p_r[Y] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[Y]/(512.0*512.0*512.0);
-      gp[m].p_r[Z] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[Z]/(512.0*512.0*512.0);
-
-#endif
-
-      //CIC
-#ifdef CIC
-      //First CIC: WORKS!
-      /*
-	gp[m].p_r[X] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[X]/(512.0*512.0*512.0);
-	gp[m].p_r[Y] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[Y]/(512.0*512.0*512.0);
-	gp[m].p_r[Z] = (GV.NCELLS*GV.NCELLS*GV.NCELLS)*gp[m].gridParts*gp[m].v_cm[Z]/(512.0*512.0*512.0);
-      */
-
-      //Smith et al: CIC
-      /*
-      gp[m].p_r[X] = gp[m].v_cm[X];
-      gp[m].p_r[Y] = gp[m].v_cm[Y];
-      gp[m].p_r[Z] = gp[m].v_cm[Z];
-      */
-#endif      
+      gp[m].p_r[X] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[X] / Nparts;
+      gp[m].p_r[Y] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[Y] / Nparts;
+      gp[m].p_r[Z] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[Z] / Nparts;
     }//for m
-	  
-
+#endif	  
+  
   /*----------------------------------------------------------------------------
                                FFT of momentum in X
   ----------------------------------------------------------------------------*/
@@ -66,7 +42,7 @@ int momentum_den_cm()
   /*--- Assigning momentum to the input of the fft ---*/
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      in[m][0] = gp[m].p_r[X]; //Re()
+      in[m][0] = p_r[m][X]; //Re()
       in[m][1] = 0.0; //Im()	      
     }//for m
   
@@ -78,20 +54,10 @@ int momentum_den_cm()
   printf("---------------------------------\n");
 
   /*--- Saving output data ---*/
-  //First normalization
-  /*
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_k[X][0] = out[m][0]/norm; //Re()
-      gp[m].p_k[X][1] = out[m][1]/norm; //Im()
-    }//for m
-  */
-  //Hockney & Eastwood norm
-  norm = GV.CellSize * GV.CellSize * GV.CellSize;
-    for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_k[X][0] = out[m][0]*norm; //Re()
-      gp[m].p_k[X][1] = out[m][1]*norm; //Im()
+      gp[m].p_w_k[X][0] = GV.r2k_norm * out[m][0]; //Re()
+      gp[m].p_w_k[X][1] = GV.r2k_norm * out[m][1]; //Im()
     }//for m
   
 
@@ -120,7 +86,7 @@ int momentum_den_cm()
   /* Sorting the momentum density in Y as input of the FFT */
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      in[m][0] = gp[m].p_r[Y]; //Re()
+      in[m][0] = p_r[m][Y]; //Re()
       in[m][1] = 0.0; //Im()
     }//for m
 
@@ -132,19 +98,11 @@ int momentum_den_cm()
   printf("---------------------------------\n");
   
   /* Saving output data */
-  /*
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_k[Y][0] = out[m][0]/norm; //Re()
-      gp[m].p_k[Y][1] = out[m][1]/norm; //Im()
-    }//for m
-  */
-  //Hockney & Eastwood norm
   norm = GV.CellSize * GV.CellSize * GV.CellSize;
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_k[Y][0] = out[m][0]*norm; //Re()
-      gp[m].p_k[Y][1] = out[m][1]*norm; //Im()
+      gp[m].p_w_k[Y][0] = GV.r2k_norm * out[m][0]; //Re()
+      gp[m].p_w_k[Y][1] = GV.r2k_norm * out[m][1]; //Im()
     }//for m
   
 
@@ -172,7 +130,7 @@ int momentum_den_cm()
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      in[m][0] = gp[m].p_r[Z]; //Re()
+      in[m][0] = p_r[m][Z]; //Re()
       in[m][1] = 0.0; //Im()
     }//for m
   
@@ -184,19 +142,10 @@ int momentum_den_cm()
   printf("---------------------------------\n");
   
   /* Saving output data */
-  /*
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_k[Z][0] = out[m][0]/norm;
-      gp[m].p_k[Z][1] = out[m][1]/norm;
-    }//for m
-  */
-    //Hockney & Eastwood norm
-  norm = GV.CellSize * GV.CellSize * GV.CellSize;
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_k[Z][0] = out[m][0]*norm; //Re()
-      gp[m].p_k[Z][1] = out[m][1]*norm; //Im()
+      gp[m].p_w_k[Z][0] = GV.r2k_norm * out[m][0]; //Re()
+      gp[m].p_w_k[Z][1] = GV.r2k_norm * out[m][1]; //Im()
     }//for m
 
 
@@ -218,112 +167,34 @@ int momentum_den_cm()
                                    Weighted Momentum
   ----------------------------------------------------------------------------*/
 
-  /*--- NGP ---*/
-#ifdef NGP
-  for(m=0; m<GV.NTOTALCELLS; m++)
-   {
-     if( fabs(gp[m].weight_NGP) > GV.ZERO)
-       {
-       //p_w_k(x) NGP
-       gp[m].p_w_k[X][0] = gp[m].p_k[X][0]/gp[m].weight_NGP;
-       gp[m].p_w_k[X][1] = gp[m].p_k[X][1]/gp[m].weight_NGP;
-
-       //p_w_k(y) NGP
-       gp[m].p_w_k[Y][0] = gp[m].p_k[Y][0]/gp[m].weight_NGP;
-       gp[m].p_w_k[Y][1] = gp[m].p_k[Y][1]/gp[m].weight_NGP;
-       
-       //p_w_k(z) NGP
-       gp[m].p_w_k[Z][0] = gp[m].p_k[Z][0]/gp[m].weight_NGP;
-       gp[m].p_w_k[Z][1] = gp[m].p_k[Z][1]/gp[m].weight_NGP;     
-
-       }//if
-     else
-     {
-	 gp[m].p_w_k[X][0] = 0.0;
-	 gp[m].p_w_k[X][1] = 0.0;
-	 
-	 gp[m].p_w_k[Y][0] = 0.0;
-	 gp[m].p_w_k[Y][1] = 0.0;
-	 
-	 gp[m].p_w_k[Z][0] = 0.0;
-	 gp[m].p_w_k[Z][1] = 0.0;
-     }//else
-   }//for m
-
-  printf("Weighted momentum with NGP window function computed!\n");
-  printf("-----------------------------------------------------------------\n");
-#endif
-
-
-  /*--- CIC ---*/
-#ifdef CIC
-  /*
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      if( fabs(gp[m].weight_CIC) > GV.ZERO )
-	{
-	  //p_w_k(x) CIC
-	  gp[m].p_w_k[X][0] = gp[m].p_k[X][0]/gp[m].weight_CIC;
-	  gp[m].p_w_k[X][1] = gp[m].p_k[X][1]/gp[m].weight_CIC;		  
-	  
-	  //p_w_k(y) CIC
-	  gp[m].p_w_k[Y][0] = gp[m].p_k[Y][0]/gp[m].weight_CIC;
-	  gp[m].p_w_k[Y][1] = gp[m].p_k[Y][1]/gp[m].weight_CIC;
-	  
-	  //p_w_k(z) CIC
-	  gp[m].p_w_k[Z][0] = gp[m].p_k[Z][0]/gp[m].weight_CIC;
-	  gp[m].p_w_k[Z][1] = gp[m].p_k[Z][1]/gp[m].weight_CIC;
-	}//if
-      else
-	{
-	  //p_w_k(x) CIC
-	  gp[m].p_w_k[X][0] = 0.0;
-	  gp[m].p_w_k[X][1] = 0.0;
-	  
-	  //p_w_k(x) CIC
-	  gp[m].p_w_k[Y][0] = 0.0;
-	  gp[m].p_w_k[Y][1] = 0.0;
-	  
-	  //p_w_k(x) CIC
-	  gp[m].p_w_k[Z][0] = 0.0;
-	  gp[m].p_w_k[Z][1] = 0.0;
-	}//else
-	      
-    }//for m
-
-  printf("Weighted momentum with CIC window function computed!\n");
-  printf("-----------------------------------------------------------------\n");
-  */
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-
       /*::::: Computing ik.p in k-space :::::*/
 
       /* Real part of dot product is with the imaginary part of the momentum. */
-      gp[m].p_w_k[X][0] = gp[m].k_vector[X] * gp[m].p_k[X][1];
-      gp[m].p_w_k[Y][0] = gp[m].k_vector[Y] * gp[m].p_k[Y][1];
-      gp[m].p_w_k[Z][0] = gp[m].k_vector[Z] * gp[m].p_k[Z][1];
+      gp[m].p_w_k[X][0] = gp[m].k_vector[X] * gp[m].p_w_k[X][1];
+      gp[m].p_w_k[Y][0] = gp[m].k_vector[Y] * gp[m].p_w_k[Y][1];
+      gp[m].p_w_k[Z][0] = gp[m].k_vector[Z] * gp[m].p_w_k[Z][1];
 
       /* Imaginary part of dot product is with the real part of the momentum. */
-      gp[m].p_w_k[X][1] = gp[m].k_vector[X] * gp[m].p_k[X][0];
-      gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * gp[m].p_k[Y][0];
-      gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * gp[m].p_k[Z][0];
+      gp[m].p_w_k[X][1] = gp[m].k_vector[X] * gp[m].p_w_k[X][0];
+      gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * gp[m].p_w_k[Y][0];
+      gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * gp[m].p_w_k[Z][0];
 
 
       /* Once the dot product is performed, it's necessary to deconvolve 
 	 with the window function */
-      if( fabs(gp[m].weight_CIC) > GV.ZERO )
+      if( fabs(gp[m].weight) > GV.ZERO )
 	{
 	  //Re
-	  gp[m].p_w_k[X][0] /= gp[m].weight_CIC;
-	  gp[m].p_w_k[Y][0] /= gp[m].weight_CIC;
-	  gp[m].p_w_k[Z][0] /= gp[m].weight_CIC;
+	  gp[m].p_w_k[X][0] /= gp[m].weight;
+	  gp[m].p_w_k[Y][0] /= gp[m].weight;
+	  gp[m].p_w_k[Z][0] /= gp[m].weight;
 
 	  //Im
-	  gp[m].p_w_k[X][1] /= gp[m].weight_CIC;
-	  gp[m].p_w_k[Y][1] /= gp[m].weight_CIC;
-	  gp[m].p_w_k[Z][1] /= gp[m].weight_CIC;
+	  gp[m].p_w_k[X][1] /= gp[m].weight;
+	  gp[m].p_w_k[Y][1] /= gp[m].weight;
+	  gp[m].p_w_k[Z][1] /= gp[m].weight;
 	}//if
       else
 	{
@@ -340,7 +211,6 @@ int momentum_den_cm()
 
     }//for m
   
-#endif 
 
   return 0;
 } // momentum_den_cm

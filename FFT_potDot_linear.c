@@ -58,12 +58,13 @@ RETURN: none
 ****************************************************************************************************/
 
 /****** COMPUTING LINEAR POTDOT ******/
-int potential_dot_linear(void)
+int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 {  
-  int m;
-  double norm, alpha, z, a_SF, fn_app1, fn_app2, factor;
+  int m, i, j, k;
+  double pos_aux[3];
+  double alpha, fn_app1, fn_app2, factor;
   double Green_factor;
-  FILE *pf=NULL;
+  FILE *pf1=NULL, *pf2=NULL;
   
   /*+++++ FFTW DEFINITIONS +++++*/
   fftw_complex *in=NULL;
@@ -72,8 +73,6 @@ int potential_dot_linear(void)
   fftw_plan plan_k2r; // FFTW from k-space to r-space
   fftw_plan plan_r2k; // FFTW from r-space to k-space
   
-
-  norm = sqrt( GV.NTOTALCELLS );
 
   /*----- Computing the approximations to the linear growth rate f -----*/
   fn_app1 = 1.0 - ( growth_rate_OmegaL0(GV.a_SF) );
@@ -84,26 +83,7 @@ int potential_dot_linear(void)
   printf("---------------------------------------\n");
  
 
-  /*
-  a_SF = 0.0;
-  pf = fopen("Dimensionless_growth_rate_verification.dat", "w");
-  fprintf(pf, "#z a fth fth*(1+z)^2  1-fth*(1+z)^2 fapp1 fapp1*(1+z)^2  1-fapp1*(1+z)^2 fapp1 fapp1*(1+z)^2\t  1-fapp1*(1+z)^2\n");
-  for ( z=0; z<3; z+=0.1 )
-    {
-      a_SF = 1 / ((double) (1+z) );
-      fprintf(pf, "%10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf %10.5lf\n",
-	      z, a_SF, 
-	      growth_rate(a_SF), growth_rate(a_SF)/(a_SF*a_SF), 1 - growth_rate(a_SF)/(a_SF*a_SF),
-	      growth_rate_app1(a_SF), growth_rate_app1(a_SF)/(a_SF*a_SF), 1 - growth_rate_app1(a_SF)/(a_SF*a_SF),
-	      growth_rate_app2(a_SF), growth_rate_app2(a_SF)/(a_SF*a_SF), 1 - growth_rate_app2(a_SF)/(a_SF*a_SF));
-      a_SF = 0.0;
-    }//for z
-  fclose(pf);
-  */
-
-
   /*----- Computing the time derivative of potential in k-space -----*/
-  //factor = (3.0/2.0) * GV.H0 * GV.H0 * (GV.Hz / GV.a_SF) * GV.Omega_M0;
   factor = (-3.0/2.0) * GV.H0 * GV.H0 * (GV.Hz / GV.a_SF) * GV.Omega_M0;
 
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -132,7 +112,7 @@ int potential_dot_linear(void)
       
     }//for m
   
-    
+  //factor = (3.0/2.0) * GV.H0 * GV.H0 * (GV.Hz / GV.a_SF) * GV.Omega_M0;
   //for( m=0; m<GV.NTOTALCELLS; m++ )
   //{
   // if( fabs(gp[m].k_module) > GV.ZERO )
@@ -184,20 +164,10 @@ int potential_dot_linear(void)
    
   
   /*+++++ Saving data +++++*/
-  //First norm
-  /*
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      gp[m].potDot_r_l_app1[0] = out[m][0]/norm; //Re()
-      gp[m].potDot_r_l_app1[1] = out[m][1]/norm; //Im()	     
-    }//for m
-  */
-  //H&E Norm
-  norm = 1.0 / (GV.BoxSize*GV.BoxSize*GV.BoxSize);
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      gp[m].potDot_r_l_app1[0] = out[m][0]/norm; //Re()
-      gp[m].potDot_r_l_app1[1] = out[m][1]/norm; //Im()	     
+      potDot_r_l_app1[m][0] = GV.k2r_norm * out[m][0]; //Re()
+      //potDot_r_l_app1[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
     }//for m
 
   /*+++++ Recreating input array +++++*/
@@ -248,20 +218,10 @@ int potential_dot_linear(void)
    
   
   /*+++++ Saving data +++++*/
-  //First norm
-  /*
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      gp[m].potDot_r_l_app2[0] = out[m][0]/norm; //Re()
-      gp[m].potDot_r_l_app2[1] = out[m][1]/norm; //Im()	     
-    }//for m
-  */
-  //H&E Norm
-  norm = 1.0 / (GV.BoxSize*GV.BoxSize*GV.BoxSize);
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      gp[m].potDot_r_l_app2[0] = out[m][0]/norm; //Re()
-      gp[m].potDot_r_l_app2[1] = out[m][1]/norm; //Im()	     
+      potDot_r_l_app2[m][0] = GV.k2r_norm * out[m][0]; //Re()
+      //potDot_r_l_app2[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
     }//for m
 
 
@@ -295,6 +255,49 @@ int potential_dot_linear(void)
   //fftw_destroy_plan( plan_r2k );
   printf("FFT_pot_dot lineal code finished!\n");
   printf("--------------------------\n");
+
+  printf("Saving data in binary file for both approximations\n");
+  printf("--------------------------\n");
+
+
+  pf1 = fopen("./../Processed_data/PotDot_app1.bin", "w");
+  pf2 = fopen("./../Processed_data/PotDot_app2.bin", "w");
+  
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize, sizeof(double), 1, pf1);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS, sizeof(double), 1, pf1);  // Redshift
+  fwrite(&GV.H0, sizeof(double), 1, pf1);  // Hubble parameter
+
+  fwrite(&GV.BoxSize, sizeof(double), 1, pf2);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf2);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf2);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS, sizeof(double), 1, pf2);  // Redshift
+  fwrite(&GV.H0, sizeof(double), 1, pf2);  // Hubble parameter
+
+  for(i=0; i<GV.NCELLS; i++)  
+    {
+      for(j=0; j<GV.NCELLS; j++)
+	{
+	  for(k=0; k<GV.NCELLS; k++)
+	    {
+	      m = INDEX_C_ORDER(i,j,k);
+	      pos_aux[X] = i * GV.CellSize;
+	      pos_aux[Y] = j * GV.CellSize;
+	      pos_aux[Z] = k * GV.CellSize;
+	      
+	      fwrite(&pos_aux[0], sizeof(double), 3, pf1);
+	      fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf1);
+
+	      fwrite(&pos_aux[0], sizeof(double), 3, pf2);
+	      fwrite(&potDot_r_l_app2[m][0], sizeof(double), 1, pf2);
+	    }//for k	  
+	}//for j
+    }//for i
+  
+  fclose(pf1);
+  fclose(pf2);
 
   return 0;  
 }//potential_dot_linear

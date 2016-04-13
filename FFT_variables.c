@@ -35,64 +35,36 @@ Gravitational constant in the interal units G = 43.0071
 ******************************************************************/
 
 struct grid
-{
-  double pos[3];     //Cell position
-  int gridParts;     //Number of particles in the cell
-  int GID;           // Gid; Cell ID (m)
-
-  
+{  
   /*+++ Mass density in r-space and k-space and wave vectors +++*/
-  double DenConCell;        // Density contrast in each cell in r-space (Used for CIC)
-  double DenCon_FFTout[2];  /* Density contrast as output from FFTW. [0] is real, 
-			       [1] imaginary */
-  double DenCon_K[2];       /* Density contrast deconvolved with weight function. 
+  double DenCon_K[2];       /* Density contrast in Fourier space deconvolved with weight function. 
 			       [0] is real, [1] imaginary */
   double k_vector[3];       // Wave vector components in c-order
   double k_module;          // Wave vector module in c-order
-  double weight_NGP;        // Weight function of NPG
-  double weight_CIC;        // Weight function of CIC
+  double weight;             // Weight function for the mass assignment scheme
   double k_mod_sin;         //Discretized module of k vector
   
   /*+++ Velocities and momentum density +++*/
-#ifdef NGP
-  double v_cm[3];     /* Center of mass' velocity of each cell.                                                 
-                         [0] is X, [1] is Y, [2] is Z */
-#endif
-
-  double p_r[3];      /* momentum_den_cm_r;Momentum density (from v_cm)                                         
-                         in r-space with grid[m] order.  [0] is X, [1]                                          
-                         is Y, [2] is Z */
-  double p_k[3][2];   /* momentum_den_cm_k; Momentum density (from v_cm)                                        
-                         in k-space with FFT[p] order.  [0][i] is X,                                            
+  double p_w_k[3][2];   /* Momentum density (from v_cm) in k-space.  [0][i] is X,                                            
                          [1][i] is Y, [2][i] is Z.  [i][0] is Re(),                                             
-                         [i][1]  is Im() */
-  double p_w_k[3][2]; // momentum_w_k; Momentum in k-space with weight function
+                         [i][1]  is Im(). This momentum is deconvolved with 
+			 the weight function of the mass assignment scheme */
 
   /*+++ Potential and its time derivative +++*/
-  double poten_k[2];      /* Potential in k-space (Fourier space). 
-			     [0] is real, [1] imaginary */
-  double poten_r[2];      /* potential in real space.  [0] is real, 
-			     [1] imaginary */
-  double potDot_r[2];     /* Potential's time derivative in r-space,                                            
-                             grid[m]-order. [0] is Re(), [1] is Im() */
   double potDot_k[2];     /* pot_dot_k; Potential's time derivative in                                          
                              k-space, FFTW[p] order.  [0] is Re(), [1]                                          
                              is Im() */
 
   /*+++ Linear approximation for the time derivative of the potential +++*/
-  double potDot_r_l_app1[2]; /* Time derivative of gravitational potential 
-				in r-space with linear approximation. [0] 
-				is Re(), [1] is Im() */
+#ifdef POTDOTLINEAR
   double potDot_k_l_app1[2]; /*Time derivative of gravitational potentia in 
 			       k-space with linear approximation. [0] is 
 			       Re(), [1] is Im() */
 
-  double potDot_r_l_app2[2]; /* Time derivative of gravitational potentia in 
-				r-space with linear approximation. [0] is 
-				Re(), [1] is Im() */
   double potDot_k_l_app2[2]; /* Time derivative of gravitational potentia in 
 				k-space with linear approximation. [0] is 
 				Re(), [1] is Im() */
+#endif
 
 }*gp; //grid
 
@@ -109,6 +81,8 @@ struct GlobalVariables
   double Mpart;     // Mass of the particles
   double CellSize;  // Size of the cell
   double ZERO;      // Zero for the computer
+  double r2k_norm;  // Normalization factor from r2k
+  double k2r_norm;  // Normalization factor from k2r
  
   /*+++ Cosmological Parameters +++*/
   double H0;      //= 100.0 Hubble's constant in the inner units

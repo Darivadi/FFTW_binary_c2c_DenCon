@@ -4,10 +4,10 @@ FUNCTION: Calculates the potential of the contrast density in the k-space (from 
 INPUT: density contrast in the k-space
 RETURN: File with the input and outputs (sorted in the grid[m] order)
 **********************************************************************/
-int potential()
+int potential(double *poten_r, double **poten_k)
 {
-  int m, p, i, j, k;
-  double norm, factor;
+  int m, i, j, k;
+  double factor;
   FILE *pf=NULL, *pf1=NULL;
   
   fftw_complex *in=NULL;
@@ -16,7 +16,6 @@ int potential()
   //fftw_complex *in2=NULL;
   //fftw_plan plan_r2k; // FFTW from r-space to k-space
     
-  //norm = sqrt( GV.NTOTALCELLS );
     
   /*----- Computing the potential in k-space -----*/
   printf("Computing potential in k-space\n");
@@ -29,18 +28,18 @@ int potential()
     {
       if( gp[m].k_module > GV.ZERO )
 	{
-	  gp[m].poten_k[0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
-	  gp[m].poten_k[1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
+	  poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
+	  poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
 	}//if 
       else
 	{
-	  gp[m].poten_k[0] = 0.0; //Re()
-	  gp[m].poten_k[1] = 0.0; //Im()
+	  poten_k[m][0] = 0.0; //Re()
+	  poten_k[m][1] = 0.0; //Im()
 	}//else
 
-      if(m%1000000==0)
+      if(m%5000000==0)
 	{
-	  printf("%lf %lf\n", gp[m].poten_k[0], gp[m].poten_k[1]);
+	  printf("%lf %lf\n", poten_k[m][0], poten_k[m][1]);
 	}//if
       
     }//for m
@@ -56,8 +55,8 @@ int potential()
   /* Saving the potential input of the FFT */
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      in[m][0] = gp[m].poten_k[0]; //Re()
-      in[m][1] = gp[m].poten_k[1]; //Im()
+      in[m][0] = poten_k[m][0]; //Re()
+      in[m][1] = poten_k[m][1]; //Im()
     }//for m
 
   
@@ -70,26 +69,16 @@ int potential()
   
   /*Sorting and saving the output data */
   //First normalization I used
-  /*
+  
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      gp[m].poten_r[0] = out[m][0]/norm; //Re()
-      gp[m].poten_r[1] = out[m][1]/norm; //Im()
-
+      poten_r[m] = GV.k2r_norm * out[m][0]; //Re()
+      
       if(m%1000000==0)
 	{
-	  printf("%lf %lf\n", gp[m].poten_r[0], gp[m].poten_r[1]);
+	  printf("%d %lf\n", m,  poten_r[m]);
 	}//if
 	          
-    }//for m
-  */
-  
-  //Hockney & Eastwood normalization
-  norm = 1.0 / (GV.BoxSize * GV.BoxSize * GV.BoxSize);
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      gp[m].poten_r[0] = norm * out[m][0]; //Re()
-      gp[m].poten_r[1] = norm * out[m][1]; //Im()	          
     }//for m
   
   printf("---------------------------------------\n");
@@ -113,6 +102,27 @@ int potential()
   
   printf("FFT_potential code finished!\n");
   printf("----------------------------\n");   
+
+  printf("Proceeding to the writing of binary file with potential field\n");
+  printf("----------------------------\n");   
+  
+  pf = fopen("./../Processed_data/Potential.bin", "w");
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS, sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0, sizeof(double), 1, pf);  // Hubble parameter
+  
+  for(m=0; m< GV.NTOTALCELLS; m++)
+    {
+      fwrite(&poten_r[m], sizeof(double), 1, pf);
+    }//for m
+
+  fclose(pf);
+
+  free(poten_r);
+  free(poten_k);
 
   return 0;
 }//potential

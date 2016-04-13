@@ -8,11 +8,12 @@ INPUT: density contrast in the k-space, wave vectors, momentum field
 in k-space.
 RETURN: File with the input and outputs (sorted in the grid[m] order)
 *************************************************************************************/
-int potential_dot()
+int potential_dot(double **potDot_r)
 {
   int m, i, j, k;
-  double norm, alpha, pot_Re1, pot_Re2, pot_Im1, pot_Im2, factor;
+  double alpha, pot_Re1, pot_Re2, pot_Im1, pot_Im2, factor;
   double Green_factor;
+  double pos_aux[3];
   FILE *pf=NULL;
   
   /*+++ FFTW DEFINITIONS +++*/
@@ -22,13 +23,11 @@ int potential_dot()
   //fftw_complex *in2=NULL;
   //fftw_plan plan_r2k; // FFTW from r-space to k-space
   
-  norm = sqrt( GV.NTOTALCELLS );
 
   printf("Computing time derivative of potential in k-space!\n");
   printf("-----------------------------------------------------------------\n");
 
   /*+++ Computing the time derivative of potential in k-space +++*/
-  //factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
 
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -50,7 +49,7 @@ int potential_dot()
 	  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
 	  gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
 
-	  if(m%1000000==0)
+	  if(m%5000000==0)
 	    {
 	      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
 	    }//if
@@ -71,6 +70,7 @@ int potential_dot()
     }//for m
   
   /*
+  factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
       if( fabs(gp[m].k_module) > GV.ZERO ) 
@@ -123,21 +123,11 @@ int potential_dot()
   printf("-----------------------------------------\n");
   
   
-  /*+++ Saving data +++*/
-  //First normalization
-  /*
+  /*+++++ Saving data +++++*/  
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      gp[m].potDot_r[0] = out[m][0]/norm; //Re()
-      gp[m].potDot_r[1] = out[m][1]/norm; //Im()	     
-    }//for m
-  */
-  //Hockney & Eastwood norm
-  norm = 1.0/(GV.BoxSize * GV.BoxSize * GV.BoxSize);
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      gp[m].potDot_r[0] = out[m][0]*norm; //Re()
-      gp[m].potDot_r[1] = out[m][1]*norm; //Im()	     
+      potDot_r[m][0] = GV.k2r_norm * out[m][0]; //Re()
+      //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
     }//for m
    
   /*Recreating input array*/
@@ -157,5 +147,38 @@ int potential_dot()
   printf("FFT_pot_dot code finished!\n");
   printf("--------------------------\n");
 
+  
+  printf("Writing binary file with PotDot\n");
+  printf("--------------------------\n");
+
+  pf = fopen("./../Processed_data/PotDot.bin", "w");
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS, sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0, sizeof(double), 1, pf);  // Hubble parameter
+  
+
+  for(i=0; i<GV.NCELLS; i++)  
+    {
+      for(j=0; j<GV.NCELLS; j++)
+	{
+	  for(k=0; k<GV.NCELLS; k++)
+	    {
+	      m = INDEX_C_ORDER(i,j,k);
+	      pos_aux[X] = i * GV.CellSize;
+	      pos_aux[Y] = j * GV.CellSize;
+	      pos_aux[Z] = k * GV.CellSize;
+	      
+	      fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&potDot_r[m][0], sizeof(double), 1, pf);
+	    }//for k	  
+	}//for j
+    }//for i
+  fclose(pf);
+
+  free(potDot_r);
+  
   return 0;
 }//potential_dot

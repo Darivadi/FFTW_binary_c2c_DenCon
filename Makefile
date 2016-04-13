@@ -1,7 +1,8 @@
 CC = gcc
 
 #CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DASCIIDATA -DPOTDOTEXACT -DPOTDOTLINEAR
-CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYDATA -DPOTDOTEXACT -DPOTDOTLINEAR
+CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYDATA -DPOTDOTEXACT -DPOTDOTLINEAR -DCIC_400
+CFLAGSMDR = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DASCIIDATA -DPOTDOTLINEAR -DCIC_MDR
 CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC -DBINARYDATA	
 CFLAGSASCII = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC -DASCIIDATA
 LFLAGS = -L$(HOME)/local/lib
@@ -19,9 +20,9 @@ debug:
 	$(CC) $(CFLAGSDEBUG) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lfftw3 -lm -o $(PROGRAM).x
 
-asciidata:
-	echo Compiling for debug $(PROGRAM).c
-	$(CC) $(CFLAGSASCII) $(PROGRAM).c -o $(PROGRAM).o
+mdr:
+	echo Compiling for MDR $(PROGRAM).c
+	$(CC) $(CFLAGSMDR) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lfftw3 -lm -o $(PROGRAM).x
 
 clean:

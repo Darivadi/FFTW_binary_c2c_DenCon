@@ -8,9 +8,10 @@ RETURN: 0
 int conf2dump( char filename[] )
 {
     char cmd[1000];
+    int nread;
     sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump", 
 	     filename, filename );
-    system( cmd );
+    nread = system( cmd );
 
     return 0;
 }
@@ -85,7 +86,7 @@ INPUT: data file: data_complete_NCELLSXXX.dat (densities data file)
 RETURN: 0
 *****************************************************************************/
 #ifdef ASCIIDATA
-int read_data(char *infile)
+int read_data(char *infile, double *DenConCell, double **p_r)
 {
   int m, nread;
   FILE *pf=NULL;
@@ -101,35 +102,62 @@ int read_data(char *infile)
 #ifdef NGP
   for(m=0; m<GV.NTOTALCELLS; m++)
     {      
-      nread=fscanf(pf,"%d %d %lf %lf %lf %lf %lf %lf %lf %lf", 
-		   &gp[m].GID, &gp[m].gridParts,
-		   &gp[m].pos[X], &gp[m].pos[Y], &gp[m].pos[Z],
-		   &gp[m].v_cm[X], &gp[m].v_cm[Y], &gp[m].v_cm[Z],
-		   &dummy, &gp[m].DenConCell);
+      nread=fscanf(pf,"%lf %lf %lf %lf %lf %lf %lf %lf",
+		   &dummy, &dummy, &dummy,
+		   &p_r[m][X], &p_r[m][Y], &p_r[m][Z],
+		   &DenConCell[m]);
+
+      if(m%5000000==0)
+	{
+	  printf("%d %lf %lf %lf %lf\n",
+		 m,
+		 p_r[m][X], p_r[m][Y], p_r[m][Z],
+		 DenConCell[m]);
+	}//if
+
 
     }//for m
 #endif 
 
-#ifdef CIC
+
+#ifdef CIC_400
   for(m=0; m<GV.NTOTALCELLS; m++)
     {      
-      nread=fscanf(pf,"%d %d %lf %lf %lf %lf %lf %lf %lf", 
-		   &gp[m].GID, &gp[m].gridParts,
-		   &gp[m].pos[X], &gp[m].pos[Y], &gp[m].pos[Z],
-		   &gp[m].p_r[X], &gp[m].p_r[Y], &gp[m].p_r[Z],
-		   &gp[m].DenConCell);
+      nread=fscanf(pf,"%lf %lf %lf %lf %lf %lf %lf", 
+		   &dummy, &dummy, &dummy,
+		   &p_r[m][X], &p_r[m][Y], &p_r[m][Z],
+		   &DenConCell[m]);
 
-      if(m%1000000==0)
+      if(m%5000000==0)
 	{
-	  printf("%d %lf %lf %lf %lf %lf %lf %lf\n",
+	  printf("%d %lf %lf %lf %lf\n",
 		 m,
-		 gp[m].pos[X], gp[m].pos[Y], gp[m].pos[Z],
-		 gp[m].p_r[X], gp[m].p_r[Y], gp[m].p_r[Z],
-		 gp[m].DenConCell);
+		 p_r[m][X], p_r[m][Y], p_r[m][Z],
+		 DenConCell[m]);
 	}//if
       
     }//for m
 #endif
+  
+  
+#ifdef CIC_MDR
+  free(p_r);
+
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {      
+      nread=fscanf(pf,"%lf %lf %lf %lf", 
+		   &dummy, &dummy, &dummy,
+		   &DenConCell[m]);
+      
+      if(m%5000000==0)
+	{
+	  printf("%d lf\n",
+		 m, DenConCell[m]);
+	}//if
+      
+    }//for m
+#endif
+  
   fclose(pf);
   
   return 0;  
@@ -144,10 +172,11 @@ INPUT: None
 RETURN: 0 
 ****************************************************************************************************/
 
-int read_binary(void)
+int read_binary(double *DenConCell, double **p_r)
 {
-  int i, nread;
+  int m, nread;
   double pos_aux[3];
+  double dummy;
   FILE *inFile=NULL;
   
   inFile = fopen(GV.FILENAME, "r");
@@ -176,31 +205,49 @@ int read_binary(void)
   printf("-----------------------------------------------\n");
 
 
-  for(i=0; i<GV.NTOTALCELLS; i++ )
-    { 
-      nread = fread(&gp[i].GID, sizeof(int), 1, inFile);
-      nread = fread(&gp[i].gridParts, sizeof(int), 1, inFile);
-
+#ifdef CIC_400
+  for(m=0; m<GV.NTOTALCELLS; m++ )
+    {             
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
+      nread = fread(&p_r[m][0], sizeof(double), 3, inFile);
+      nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
       
-      /*----- Positions -----*/
-      gp[i].pos[X] = pos_aux[X];
-      gp[i].pos[Y] = pos_aux[Y];
-      gp[i].pos[Z] = pos_aux[Z];
-
-      nread = fread(&gp[i].DenConCell, sizeof(double), 1, inFile);
-      /*            
-      if(i%100000==0)
+      if(m%5000000==0)
 	{
-	  printf("Reading i=%d x=%lf y=%lf z=%lf DenCon=%lf\n", 
-		 i, gp[i].pos[X], gp[i].pos[Y], gp[i].pos[Z], gp[i].DenConCell);
+	  printf("Reading m=%d x=%lf y=%lf z=%lf px=%lf py=%lf pz=%lf DenCon=%lf\n", 
+		 m, pos_aux[X], pos_aux[Y], pos_aux[Z],
+		 p_r[m][X], p_r[m][Y], p_r[m][Z], 
+		 DenConCell[m]);
 	}//if
-      */
-    }//for i
+      
+    }//for m
+#endif
+  
+  
+#ifdef CIC_MDR
+  free(p_r);
+  
+  for(m=0; m<GV.NTOTALCELLS; i++ )
+    {             
+      nread = fread(&pos_aux[0], sizeof(double), 3, inFile);      
+      nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
+      
+      if(m%5000000==0)
+	{
+	  printf("Reading m=%d x=%lf y=%lf z=%lf DenCon=%lf\n", 
+		 m, 
+		 pos_aux[X], pos_aux[Y], pos_aux[Z], 
+		 DenConCell[m]);
+	}//if
+      
+    }//for m
+#endif
+  
 
   fclose(inFile);
   return 0;
 }//read_binary
+
 
 
 /****************************************************************************************************           
@@ -209,7 +256,7 @@ FUNCTION: Writes binary data file
 INPUT: none                                                                
 RETURN: 0                                                                                                       
 ****************************************************************************************************/
-
+/*
 int write_binary(void)
 {
   int i, nread;
@@ -217,7 +264,7 @@ int write_binary(void)
   FILE *outFile=NULL;
   outFile = fopen("./../Processed_data/DenCon_Pot_PotDot_fields_256.bin", "w");
 
-  /*+++++ Saving Simulation parameters +++++*/
+  //+++++ Saving Simulation parameters +++++
   fwrite(&GV.BoxSize, sizeof(double), 1, outFile);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, outFile);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, outFile);  // Cosmological constant density parameter
@@ -229,7 +276,7 @@ int write_binary(void)
     { 
       fwrite(&gp[i].GID, sizeof(int), 1, outFile);
       
-      /*----- Positions -----*/
+      //----- Positions -----
       pos_aux[X] = gp[i].pos[X];
       pos_aux[Y] = gp[i].pos[Y];
       pos_aux[Z] = gp[i].pos[Z];
@@ -246,3 +293,4 @@ int write_binary(void)
   fclose(outFile);  
   return 0;  
 }//write_binary
+*/
