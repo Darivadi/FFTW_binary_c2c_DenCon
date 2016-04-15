@@ -38,7 +38,7 @@ int potential_dot(double **potDot_r)
 
       //Im
       pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] )/GV.a_SF;
+      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
       
       //Unifying      
       if(gp[m].k_mod_sin > GV.ZERO)
@@ -126,8 +126,8 @@ int potential_dot(double **potDot_r)
   /*+++++ Saving data +++++*/  
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r[m][0] = GV.k2r_norm * out[m][0]; //Re()
-      //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
+      potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im() 
     }//for m
    
   /*Recreating input array*/

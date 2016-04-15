@@ -20,16 +20,17 @@ int momentum_den_cm(double **p_r)
   //norm = sqrt(GV.NTOTALCELLS);
     
   /*--- Momentun density in position-space ---*/
+  /*
 #ifdef NGP      
   Nparts = 512.0*512.0*512.0
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_r[X] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[X] / Nparts;
-      gp[m].p_r[Y] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[Y] / Nparts;
-      gp[m].p_r[Z] = (GV.NTOTALCELLS)*gp[m].gridParts*gp[m].p_r[Z] / Nparts;
+      p_r[m][X] = (GV.NTOTALCELLS)*gp[m].gridParts*p_r[m][X] / Nparts;
+      p_r[m][Y] = (GV.NTOTALCELLS)*gp[m].gridParts*p_r[m][Y] / Nparts;
+      p_r[m][Z] = (GV.NTOTALCELLS)*gp[m].gridParts*p_r[m][Z] / Nparts;
     }//for m
 #endif	  
-  
+  */
   /*----------------------------------------------------------------------------
                                FFT of momentum in X
   ----------------------------------------------------------------------------*/
@@ -56,8 +57,8 @@ int momentum_den_cm(double **p_r)
   /*--- Saving output data ---*/
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[X][0] = GV.r2k_norm * out[m][0]; //Re()
-      gp[m].p_w_k[X][1] = GV.r2k_norm * out[m][1]; //Im()
+      gp[m].p_w_k[X][0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
+      gp[m].p_w_k[X][1] = GV.r2k_norm * GV.fftw_norm * out[m][1]; //Im()
     }//for m
   
 
@@ -101,8 +102,8 @@ int momentum_den_cm(double **p_r)
   norm = GV.CellSize * GV.CellSize * GV.CellSize;
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[Y][0] = GV.r2k_norm * out[m][0]; //Re()
-      gp[m].p_w_k[Y][1] = GV.r2k_norm * out[m][1]; //Im()
+      gp[m].p_w_k[Y][0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
+      gp[m].p_w_k[Y][1] = GV.r2k_norm * GV.fftw_norm * out[m][1]; //Im()
     }//for m
   
 
@@ -144,8 +145,8 @@ int momentum_den_cm(double **p_r)
   /* Saving output data */
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[Z][0] = GV.r2k_norm * out[m][0]; //Re()
-      gp[m].p_w_k[Z][1] = GV.r2k_norm * out[m][1]; //Im()
+      gp[m].p_w_k[Z][0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
+      gp[m].p_w_k[Z][1] = GV.r2k_norm * GV.fftw_norm * out[m][1]; //Im()
     }//for m
 
 

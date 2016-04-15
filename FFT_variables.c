@@ -83,6 +83,8 @@ struct GlobalVariables
   double ZERO;      // Zero for the computer
   double r2k_norm;  // Normalization factor from r2k
   double k2r_norm;  // Normalization factor from k2r
+  double fftw_norm; // Normalization from fftw equal to 1/sqrt(NTOTALCELLS)
+  double conv_norm; // Normalization according to the convention of the Fourier transform. It is equal to 1/(2 * pi)**3
  
   /*+++ Cosmological Parameters +++*/
   double H0;      //= 100.0 Hubble's constant in the inner units

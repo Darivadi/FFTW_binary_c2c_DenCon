@@ -53,8 +53,8 @@ int transform(double *DenConCell)
   /*--- Saving the output ---*/  
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].DenCon_K[0] = GV.r2k_norm * out[m][0]; //Re()
-      gp[m].DenCon_K[1] = GV.r2k_norm * out[m][1]; //Im()
+      gp[m].DenCon_K[0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
+      gp[m].DenCon_K[1] = GV.r2k_norm * GV.fftw_norm * out[m][1]; //Im()
     }//for m
  
 

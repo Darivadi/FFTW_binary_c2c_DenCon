@@ -3889,7 +3889,7 @@ int transform(double *DenConCell)
 int potential(double *poten_r, double **poten_k)
 {
   int m, i, j, k;
-  double factor;
+  double factor, pos_aux[3];
   FILE *pf=((void *)0), *pf1=((void *)0);
 
   fftw_complex *in=((void *)0);
@@ -3988,11 +3988,24 @@ int potential(double *poten_r, double **poten_k)
   fwrite(&GV.z_RS, sizeof(double), 1, pf);
   fwrite(&GV.H0, sizeof(double), 1, pf);
 
-  for(m=0; m< GV.NTOTALCELLS; m++)
-    {
-      fwrite(&poten_r[m], sizeof(double), 1, pf);
-    }
 
+  for(i=0; i<GV.NCELLS; i++)
+    {
+      for(j=0; j<GV.NCELLS; j++)
+        {
+          for(k=0; k<GV.NCELLS; k++)
+            {
+              m = (k)+GV.NCELLS*((j)+GV.NCELLS*(i));
+              pos_aux[0] = i * GV.CellSize;
+              pos_aux[1] = j * GV.CellSize;
+              pos_aux[2] = k * GV.CellSize;
+
+              fwrite(&pos_aux[0], sizeof(double), 3, pf);
+       fwrite(&poten_r[m], sizeof(double), 1, pf);
+            }
+        }
+    }
+# 142 "FFT_potential.c"
   fclose(pf);
 
   free(poten_r);

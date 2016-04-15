@@ -7,7 +7,7 @@ RETURN: File with the input and outputs (sorted in the grid[m] order)
 int potential(double *poten_r, double **poten_k)
 {
   int m, i, j, k;
-  double factor;
+  double factor, pos_aux[3];
   FILE *pf=NULL, *pf1=NULL;
   
   fftw_complex *in=NULL;
@@ -72,7 +72,7 @@ int potential(double *poten_r, double **poten_k)
   
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      poten_r[m] = GV.k2r_norm * out[m][0]; //Re()
+      poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       
       if(m%1000000==0)
 	{
@@ -113,11 +113,31 @@ int potential(double *poten_r, double **poten_k)
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
   fwrite(&GV.z_RS, sizeof(double), 1, pf);  // Redshift
   fwrite(&GV.H0, sizeof(double), 1, pf);  // Hubble parameter
-  
+
+
+  for(i=0; i<GV.NCELLS; i++)  
+    {
+      for(j=0; j<GV.NCELLS; j++)
+        {
+          for(k=0; k<GV.NCELLS; k++)
+            {
+              m = INDEX_C_ORDER(i,j,k);
+              pos_aux[X] = i * GV.CellSize;
+              pos_aux[Y] = j * GV.CellSize;
+              pos_aux[Z] = k * GV.CellSize;
+              
+              fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&poten_r[m], sizeof(double), 1, pf);
+            }//for k      
+        }//for j
+    }//for i
+
+  /*  
   for(m=0; m< GV.NTOTALCELLS; m++)
     {
       fwrite(&poten_r[m], sizeof(double), 1, pf);
     }//for m
+  */
 
   fclose(pf);
 
