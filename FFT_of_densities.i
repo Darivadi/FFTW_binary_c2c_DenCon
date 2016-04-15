@@ -3578,6 +3578,8 @@ struct GlobalVariables
   double ZERO;
   double r2k_norm;
   double k2r_norm;
+  double fftw_norm;
+  double conv_norm;
 
 
   double H0;
@@ -3747,8 +3749,8 @@ int transform(double *DenConCell)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].DenCon_K[0] = GV.r2k_norm * out[m][0];
-      gp[m].DenCon_K[1] = GV.r2k_norm * out[m][1];
+      gp[m].DenCon_K[0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
+      gp[m].DenCon_K[1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
     }
 
 
@@ -3954,7 +3956,7 @@ int potential(double *poten_r, double **poten_k)
 
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      poten_r[m] = GV.k2r_norm * out[m][0];
+      poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm;
 
       if(m%1000000==0)
  {
@@ -4030,7 +4032,7 @@ int momentum_den_cm(double **p_r)
   fftw_complex *in=((void *)0);
   fftw_complex *out=((void *)0);
   fftw_plan plan_r2k;
-# 36 "FFT_momentum_den_cm.c"
+# 37 "FFT_momentum_den_cm.c"
   printf("Dealing with FFT momentum_cm in X!\n");
   printf("---------------------------------\n");
 
@@ -4054,10 +4056,10 @@ int momentum_den_cm(double **p_r)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[0][0] = GV.r2k_norm * out[m][0];
-      gp[m].p_w_k[0][1] = GV.r2k_norm * out[m][1];
+      gp[m].p_w_k[0][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
+      gp[m].p_w_k[0][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
     }
-# 72 "FFT_momentum_den_cm.c"
+# 73 "FFT_momentum_den_cm.c"
   free(in);
 
   fftw_free(out);
@@ -4090,10 +4092,10 @@ int momentum_den_cm(double **p_r)
   norm = GV.CellSize * GV.CellSize * GV.CellSize;
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[1][0] = GV.r2k_norm * out[m][0];
-      gp[m].p_w_k[1][1] = GV.r2k_norm * out[m][1];
+      gp[m].p_w_k[1][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
+      gp[m].p_w_k[1][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
     }
-# 116 "FFT_momentum_den_cm.c"
+# 117 "FFT_momentum_den_cm.c"
   free(in);
 
   fftw_free(out);
@@ -4125,10 +4127,10 @@ int momentum_den_cm(double **p_r)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      gp[m].p_w_k[2][0] = GV.r2k_norm * out[m][0];
-      gp[m].p_w_k[2][1] = GV.r2k_norm * out[m][1];
+      gp[m].p_w_k[2][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
+      gp[m].p_w_k[2][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
     }
-# 159 "FFT_momentum_den_cm.c"
+# 160 "FFT_momentum_den_cm.c"
   fftw_destroy_plan( plan_r2k );
 
   fftw_free(in);
@@ -4220,7 +4222,7 @@ int potential_dot(double **potDot_r)
 
 
       pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-      pot_Im2 = ( gp[m].p_w_k[0][1] + gp[m].p_w_k[1][1] + gp[m].p_w_k[2][1] )/GV.a_SF;
+      pot_Im2 = ( gp[m].p_w_k[0][1] + gp[m].p_w_k[1][1] + gp[m].p_w_k[2][1] ) / GV.a_SF;
 
 
       if(gp[m].k_mod_sin > GV.ZERO)
@@ -4277,7 +4279,7 @@ int potential_dot(double **potDot_r)
 
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r[m][0] = GV.k2r_norm * out[m][0];
+      potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm;
 
     }
 # 140 "FFT_pot_dot.c"
@@ -4451,7 +4453,7 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r_l_app1[m][0] = GV.k2r_norm * out[m][0];
+      potDot_r_l_app1[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm;
 
     }
 # 194 "FFT_potDot_linear.c"
@@ -4484,7 +4486,7 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r_l_app2[m][0] = GV.k2r_norm * out[m][0];
+      potDot_r_l_app2[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm;
 
     }
 # 249 "FFT_potDot_linear.c"
@@ -4644,6 +4646,8 @@ int main( int argc, char *argv[] )
 
   GV.r2k_norm = (GV.BoxSize * GV.BoxSize * GV.BoxSize ) / (1.0 * GV.NTOTALCELLS);
   GV.k2r_norm = 1.0 / ( GV.BoxSize * GV.BoxSize * GV.BoxSize );
+  GV.fftw_norm = 1.0 / sqrt(GV.NTOTALCELLS);
+  GV.conv_norm = 1.0 / ( (2*3.14159265358979323846)*(2*3.14159265358979323846)*(2*3.14159265358979323846) )
 
   printf("r2k norm = %lf, k2r norm = %lf\n", GV.r2k_norm, GV.k2r_norm);
   printf("r2k 1D = %lf\n", GV.BoxSize / (1.0*GV.NCELLS) );

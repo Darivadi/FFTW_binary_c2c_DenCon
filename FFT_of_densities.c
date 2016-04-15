@@ -136,7 +136,7 @@ int main( int argc, char *argv[] )
   GV.r2k_norm = (GV.BoxSize * GV.BoxSize * GV.BoxSize ) / (1.0 * GV.NTOTALCELLS);
   GV.k2r_norm = 1.0 / ( GV.BoxSize * GV.BoxSize * GV.BoxSize );
   GV.fftw_norm = 1.0 / sqrt(GV.NTOTALCELLS);
-  GV.conv_norm = 1.0 / ( (2*M_PI)*(2*M_PI)*(2*M_PI) )
+  GV.conv_norm = 1.0 / ( (2*M_PI)*(2*M_PI)*(2*M_PI) );
 
   printf("r2k norm = %lf, k2r norm = %lf\n", GV.r2k_norm, GV.k2r_norm);
   printf("r2k 1D = %lf\n", GV.BoxSize / (1.0*GV.NCELLS) );
