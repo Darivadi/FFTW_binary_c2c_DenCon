@@ -17,7 +17,7 @@ int momentum_den_cm(double **p_r)
   //fftw_plan plan_k2r; // FFTW from k-space to r-space
 
  
-  //norm = sqrt(GV.NTOTALCELLS);
+
     
   /*--- Momentun density in position-space ---*/
   /*
