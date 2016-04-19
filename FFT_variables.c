@@ -44,6 +44,7 @@ struct grid
   double weight;             // Weight function for the mass assignment scheme
   double k_mod_sin;         //Discretized module of k vector
   
+#ifdef CIC_400
   /*+++ Velocities and momentum density +++*/
   double p_w_k[3][2];   /* Momentum density (from v_cm) in k-space.  [0][i] is X,                                            
                          [1][i] is Y, [2][i] is Z.  [i][0] is Re(),                                             
@@ -54,6 +55,7 @@ struct grid
   double potDot_k[2];     /* pot_dot_k; Potential's time derivative in                                          
                              k-space, FFTW[p] order.  [0] is Re(), [1]                                          
                              is Im() */
+#endif
 
   /*+++ Linear approximation for the time derivative of the potential +++*/
 #ifdef POTDOTLINEAR

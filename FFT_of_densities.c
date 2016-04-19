@@ -14,10 +14,15 @@
 #include "FFT_routines.c"
 #include "FFT_transform.c"
 #include "FFT_potential.c"
+
+#ifdef POTDOTEXACT
 #include "FFT_momentum_den_cm.c"
 #include "FFT_pot_dot.c"
+#endif
+
+#ifdef POTDOTLINEAR
 #include "FFT_potDot_linear.c"
- 
+#endif
 
 /*************************************************************************************
 NAME: main

@@ -3538,20 +3538,7 @@ struct grid
   double k_module;
   double weight;
   double k_mod_sin;
-
-
-  double p_w_k[3][2];
-
-
-
-
-
-  double potDot_k[2];
-
-
-
-
-
+# 62 "FFT_variables.c"
   double potDot_k_l_app1[2];
 
 
@@ -4065,319 +4052,13 @@ int potential(double *poten_r, double **poten_k)
   return 0;
 }
 # 17 "FFT_of_densities.c" 2
-# 1 "FFT_momentum_den_cm.c" 1
 
 
 
 
 
 
-int momentum_den_cm(double **p_r)
-{
-  int m, i, j, k;
-  FILE *pf=((void *)0);
-  double norm, Nparts;
 
-  fftw_complex *in=((void *)0);
-  fftw_complex *out=((void *)0);
-  fftw_plan plan_r2k;
-# 37 "FFT_momentum_den_cm.c"
-  printf("Dealing with FFT momentum_cm in X!\n");
-  printf("---------------------------------\n");
-
-  in = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      in[m][0] = p_r[m][0];
-      in[m][1] = 0.0;
-    }
-
-
-
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, (-1), (1U << 6));
-  fftw_execute( plan_r2k );
-  printf("FFT of momentum_cm in X finished!\n");
-  printf("---------------------------------\n");
-
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_w_k[0][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
-      gp[m].p_w_k[0][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
-    }
-# 73 "FFT_momentum_den_cm.c"
-  free(in);
-
-  fftw_free(out);
-
-
-
-
-
-  printf(" Dealing with FFT momentum_cm in Y!\n");
-  printf("---------------------------------\n");
-
-  in = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-  out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      in[m][0] = p_r[m][1];
-      in[m][1] = 0.0;
-    }
-
-
-
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, (-1), (1U << 6));
-  fftw_execute( plan_r2k );
-  printf("FFT of momentum_cm in Y finished!\n");
-  printf("---------------------------------\n");
-
-
-  norm = GV.CellSize * GV.CellSize * GV.CellSize;
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_w_k[1][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
-      gp[m].p_w_k[1][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
-    }
-# 117 "FFT_momentum_den_cm.c"
-  free(in);
-
-  fftw_free(out);
-
-
-
-
-
-  printf(" Dealing with FFT momentum_cm in Z!\n");
-  printf("---------------------------------\n");
-
-
-  in = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
-  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      in[m][0] = p_r[m][2];
-      in[m][1] = 0.0;
-    }
-
-
-
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, (-1), (1U << 6));
-  fftw_execute( plan_r2k );
-  printf("FFT of momentum_cm in Z finished!\n");
-  printf("---------------------------------\n");
-
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      gp[m].p_w_k[2][0] = GV.r2k_norm * GV.fftw_norm * out[m][0];
-      gp[m].p_w_k[2][1] = GV.r2k_norm * GV.fftw_norm * out[m][1];
-    }
-# 160 "FFT_momentum_den_cm.c"
-  fftw_destroy_plan( plan_r2k );
-
-  fftw_free(in);
-
-  fftw_free(out);
-
-
-
-
-
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-
-
-
-      gp[m].p_w_k[0][0] = gp[m].k_vector[0] * gp[m].p_w_k[0][1];
-      gp[m].p_w_k[1][0] = gp[m].k_vector[1] * gp[m].p_w_k[1][1];
-      gp[m].p_w_k[2][0] = gp[m].k_vector[2] * gp[m].p_w_k[2][1];
-
-
-      gp[m].p_w_k[0][1] = gp[m].k_vector[0] * gp[m].p_w_k[0][0];
-      gp[m].p_w_k[1][1] = gp[m].k_vector[1] * gp[m].p_w_k[1][0];
-      gp[m].p_w_k[2][1] = gp[m].k_vector[2] * gp[m].p_w_k[2][0];
-
-
-
-
-      if( fabs(gp[m].weight) > GV.ZERO )
- {
-
-   gp[m].p_w_k[0][0] /= gp[m].weight;
-   gp[m].p_w_k[1][0] /= gp[m].weight;
-   gp[m].p_w_k[2][0] /= gp[m].weight;
-
-
-   gp[m].p_w_k[0][1] /= gp[m].weight;
-   gp[m].p_w_k[1][1] /= gp[m].weight;
-   gp[m].p_w_k[2][1] /= gp[m].weight;
- }
-      else
- {
-
-   gp[m].p_w_k[0][0] = 0.0;
-   gp[m].p_w_k[1][0] = 0.0;
-   gp[m].p_w_k[2][0] = 0.0;
-
-
-   gp[m].p_w_k[0][1] = 0.0;
-   gp[m].p_w_k[1][1] = 0.0;
-   gp[m].p_w_k[2][1] = 0.0;
- }
-
-    }
-
-
-  return 0;
-}
-# 18 "FFT_of_densities.c" 2
-# 1 "FFT_pot_dot.c" 1
-# 11 "FFT_pot_dot.c"
-int potential_dot(double **potDot_r)
-{
-  int m, i, j, k;
-  double alpha, pot_Re1, pot_Re2, pot_Im1, pot_Im2, factor;
-  double Green_factor;
-  double pos_aux[3];
-  FILE *pf=((void *)0);
-
-
-  fftw_complex *in=((void *)0);
-  fftw_complex *out=((void *)0);
-  fftw_plan plan_k2r;
-
-
-
-
-  printf("Computing time derivative of potential in k-space!\n");
-  printf("-----------------------------------------------------------------\n");
-
-
-  factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-
-      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
-      pot_Re2 = -1.0*( gp[m].p_w_k[0][0] + gp[m].p_w_k[1][0] + gp[m].p_w_k[2][0] )/GV.a_SF;
-
-
-      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-      pot_Im2 = ( gp[m].p_w_k[0][1] + gp[m].p_w_k[1][1] + gp[m].p_w_k[2][1] ) / GV.a_SF;
-
-
-      if(gp[m].k_mod_sin > GV.ZERO)
- {
-   Green_factor = -1.0 / gp[m].k_mod_sin;
-   alpha = factor * Green_factor;
-
-   gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 );
-   gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 );
-
-   if(m%5000000==0)
-     {
-       printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
-     }
-
- }
-      else
- {
-   gp[m].potDot_k[0] = 0.0;
-   gp[m].potDot_k[1] = 0.0;
- }
-
-      Green_factor = 0.0;
-      pot_Re1 = 0.0;
-      pot_Re2 = 0.0;
-      pot_Im1 = 0.0;
-      pot_Im2 = 0.0;
-
-    }
-# 103 "FFT_pot_dot.c"
-  printf("Data time derivative of potential in k-space assigned!\n");
-  printf("-----------------------------------------------------------------\n");
-
-
-
-  in = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
-  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
-
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      in[m][0] = gp[m].potDot_k[0];
-      in[m][1] = gp[m].potDot_k[1];
-    }
-
-
-
-  plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, (+1), (1U << 6));
-  fftw_execute(plan_k2r);
-
-  printf("FFT of potential derivative in r finished!\n");
-  printf("-----------------------------------------\n");
-
-
-
-  for( m=0; m<GV.NTOTALCELLS; m++ )
-    {
-      potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm;
-
-    }
-# 140 "FFT_pot_dot.c"
-  fftw_destroy_plan( plan_k2r );
-
-
-  free(in);
-
-  fftw_free(out);
-
-  printf("FFT_pot_dot code finished!\n");
-  printf("--------------------------\n");
-
-
-  printf("Writing binary file with PotDot\n");
-  printf("--------------------------\n");
-
-  pf = fopen("./../../Processed_data/PotDot.bin", "w");
-
-  fwrite(&GV.BoxSize, sizeof(double), 1, pf);
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);
-  fwrite(&GV.z_RS, sizeof(double), 1, pf);
-  fwrite(&GV.H0, sizeof(double), 1, pf);
-
-
-  for(i=0; i<GV.NCELLS; i++)
-    {
-      for(j=0; j<GV.NCELLS; j++)
- {
-   for(k=0; k<GV.NCELLS; k++)
-     {
-       m = (k)+GV.NCELLS*((j)+GV.NCELLS*(i));
-       pos_aux[0] = i * GV.CellSize;
-       pos_aux[1] = j * GV.CellSize;
-       pos_aux[2] = k * GV.CellSize;
-
-       fwrite(&pos_aux[0], sizeof(double), 3, pf);
-       fwrite(&potDot_r[m][0], sizeof(double), 1, pf);
-     }
- }
-    }
-  fclose(pf);
-
-  free(potDot_r);
-
-  return 0;
-}
-# 19 "FFT_of_densities.c" 2
 # 1 "FFT_potDot_linear.c" 1
 
 
@@ -4594,8 +4275,8 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 
   return 0;
 }
-# 20 "FFT_of_densities.c" 2
-# 28 "FFT_of_densities.c"
+# 25 "FFT_of_densities.c" 2
+# 33 "FFT_of_densities.c"
 int main( int argc, char *argv[] )
 {
   int m, i, j, k;
@@ -4649,7 +4330,7 @@ int main( int argc, char *argv[] )
     {
       poten_k[m] = (double *) calloc(2, sizeof(double));
     }
-# 107 "FFT_of_densities.c"
+# 112 "FFT_of_densities.c"
   read_data( GV.FILENAME, DenConCell, p_r );
   printf("Ascii data file has been read succesfully!\n");
   printf("-----------------------------------------------------------------\n");
@@ -4699,7 +4380,7 @@ int main( int argc, char *argv[] )
   potential( poten_r, poten_k );
   printf("FFT of gravitational potential finished!\n");
   printf("-----------------------------------------------------------------\n");
-# 177 "FFT_of_densities.c"
+# 182 "FFT_of_densities.c"
   potDot_r_l_app1 = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
   potDot_r_l_app2 = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
 

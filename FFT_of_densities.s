@@ -599,12 +599,12 @@ transform:
 .L37:
 	movsd	(%rax), %xmm1
 	addq	$16, %rax
-	addq	$160, %rdx
+	addq	$96, %rdx
 	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -160(%rdx)
+	movsd	%xmm1, -96(%rdx)
 	movsd	-8(%rax), %xmm1
 	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -152(%rdx)
+	movsd	%xmm1, -88(%rdx)
 	cmpq	%rcx, %rax
 	jne	.L37
 .L32:
@@ -690,7 +690,7 @@ transform:
 	imull	%ebx, %eax
 	addl	%ebp, %eax
 	cltq
-	leaq	(%rax,%rax,4), %r15
+	leaq	(%rax,%rax,2), %r15
 	salq	$5, %r15
 	cmpl	%edx, %r13d
 	leaq	(%r14,%r15), %rax
@@ -750,10 +750,10 @@ transform:
 	movq	gp(%rip), %rbx
 	subl	$1, %edx
 	movl	GV+1016(%rip), %ebp
-	leaq	(%rdx,%rdx,4), %r15
+	leaq	(%rdx,%rdx,2), %r15
 	movsd	GV+1008(%rip), %xmm6
 	movsd	GV+1040(%rip), %xmm4
-	leaq	160(%rbx), %r13
+	leaq	96(%rbx), %r13
 	salq	$5, %r15
 	movsd	%xmm6, 16(%rsp)
 	movsd	.LC35(%rip), %xmm3
@@ -796,7 +796,7 @@ transform:
 	movsd	%xmm0, (%rbx)
 	movq	%r13, %rbx
 	je	.L59
-	addq	$160, %r13
+	addq	$96, %r13
 .L60:
 	movsd	16(%rbx), %xmm1
 	movsd	.LC7(%rip), %xmm2
@@ -1024,7 +1024,7 @@ potential:
 	je	.L110
 .L89:
 	addl	$1, %ebx
-	addq	$160, %rbp
+	addq	$96, %rbp
 	addq	$8, %r12
 	cmpl	%ebx, GV+1020(%rip)
 	jle	.L90
@@ -1272,692 +1272,26 @@ potential:
 	.cfi_endproc
 .LFE47:
 	.size	potential, .-potential
-	.section	.rodata.str1.8
-	.align 8
-.LC49:
-	.string	"Dealing with FFT momentum_cm in X!"
-	.align 8
-.LC50:
-	.string	"---------------------------------"
-	.align 8
+	.section	.rodata.str1.1
 .LC51:
-	.string	"FFT of momentum_cm in X finished!"
-	.align 8
-.LC52:
-	.string	" Dealing with FFT momentum_cm in Y!"
-	.align 8
-.LC53:
-	.string	"FFT of momentum_cm in Y finished!"
-	.align 8
-.LC54:
-	.string	" Dealing with FFT momentum_cm in Z!"
-	.align 8
-.LC55:
-	.string	"FFT of momentum_cm in Z finished!"
-	.text
-	.p2align 4,,15
-	.globl	momentum_den_cm
-	.type	momentum_den_cm, @function
-momentum_den_cm:
-.LFB48:
-	.cfi_startproc
-	pushq	%r12
-	.cfi_def_cfa_offset 16
-	.cfi_offset 12, -16
-	pushq	%rbp
-	.cfi_def_cfa_offset 24
-	.cfi_offset 6, -24
-	pushq	%rbx
-	.cfi_def_cfa_offset 32
-	.cfi_offset 3, -32
-	movq	%rdi, %rbx
-	movl	$.LC49, %edi
-	subq	$16, %rsp
-	.cfi_def_cfa_offset 48
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movslq	GV+1020(%rip), %rdi
-	salq	$4, %rdi
-	call	fftw_malloc
-	movslq	GV+1020(%rip), %rdi
-	movq	%rax, %rbp
-	salq	$4, %rdi
-	call	fftw_malloc
-	movq	%rax, %r12
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L116
-	subl	$1, %eax
-	xorl	%edx, %edx
-	leaq	8(,%rax,8), %rax
-	.p2align 4,,10
-	.p2align 3
-.L117:
-	movq	(%rbx,%rdx), %rcx
-	movsd	(%rcx), %xmm0
-	movq	$0, 8(%rbp,%rdx,2)
-	movsd	%xmm0, 0(%rbp,%rdx,2)
-	addq	$8, %rdx
-	cmpq	%rax, %rdx
-	jne	.L117
-.L116:
-	movl	GV+1016(%rip), %edi
-	movl	$-1, %r9d
-	movq	%r12, %r8
-	movq	%rbp, %rcx
-	movl	$64, (%rsp)
-	movl	%edi, %edx
-	movl	%edi, %esi
-	call	fftw_plan_dft_3d
-	movq	%rax, %rdi
-	call	fftw_execute
-	movl	$.LC51, %edi
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L115
-	movsd	GV+1048(%rip), %xmm0
-	subl	$1, %eax
-	movq	gp(%rip), %rsi
-	salq	$4, %rax
-	movq	%r12, %rdx
-	mulsd	GV+1064(%rip), %xmm0
-	leaq	16(%r12,%rax), %rcx
-	.p2align 4,,10
-	.p2align 3
-.L120:
-	movsd	(%rdx), %xmm1
-	addq	$16, %rdx
-	addq	$160, %rsi
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -96(%rsi)
-	movsd	-8(%rdx), %xmm1
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -88(%rsi)
-	cmpq	%rcx, %rdx
-	jne	.L120
-.L115:
-	movq	%rbp, %rdi
-	call	free
-	movq	%r12, %rdi
-	call	fftw_free
-	movl	$.LC52, %edi
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movslq	GV+1020(%rip), %rdi
-	salq	$4, %rdi
-	call	fftw_malloc
-	movslq	GV+1020(%rip), %rdi
-	movq	%rax, %rbp
-	salq	$4, %rdi
-	call	fftw_malloc
-	movq	%rax, %r12
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L119
-	subl	$1, %eax
-	xorl	%edx, %edx
-	leaq	8(,%rax,8), %rax
-	.p2align 4,,10
-	.p2align 3
-.L123:
-	movq	(%rbx,%rdx), %rcx
-	movsd	8(%rcx), %xmm0
-	movq	$0, 8(%rbp,%rdx,2)
-	movsd	%xmm0, 0(%rbp,%rdx,2)
-	addq	$8, %rdx
-	cmpq	%rax, %rdx
-	jne	.L123
-.L119:
-	movl	GV+1016(%rip), %edi
-	movl	$-1, %r9d
-	movq	%r12, %r8
-	movq	%rbp, %rcx
-	movl	$64, (%rsp)
-	movl	%edi, %edx
-	movl	%edi, %esi
-	call	fftw_plan_dft_3d
-	movq	%rax, %rdi
-	call	fftw_execute
-	movl	$.LC53, %edi
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L122
-	movsd	GV+1048(%rip), %xmm0
-	subl	$1, %eax
-	movq	gp(%rip), %rsi
-	salq	$4, %rax
-	movq	%r12, %rdx
-	mulsd	GV+1064(%rip), %xmm0
-	leaq	16(%r12,%rax), %rcx
-	.p2align 4,,10
-	.p2align 3
-.L126:
-	movsd	(%rdx), %xmm1
-	addq	$16, %rdx
-	addq	$160, %rsi
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -80(%rsi)
-	movsd	-8(%rdx), %xmm1
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -72(%rsi)
-	cmpq	%rcx, %rdx
-	jne	.L126
-.L122:
-	movq	%rbp, %rdi
-	call	free
-	movq	%r12, %rdi
-	call	fftw_free
-	movl	$.LC54, %edi
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movslq	GV+1020(%rip), %rdi
-	salq	$4, %rdi
-	call	fftw_malloc
-	movslq	GV+1020(%rip), %rdi
-	movq	%rax, %rbp
-	salq	$4, %rdi
-	call	fftw_malloc
-	movq	%rax, %r12
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L125
-	subl	$1, %eax
-	xorl	%edx, %edx
-	leaq	8(,%rax,8), %rax
-	.p2align 4,,10
-	.p2align 3
-.L129:
-	movq	(%rbx,%rdx), %rcx
-	movsd	16(%rcx), %xmm0
-	movq	$0, 8(%rbp,%rdx,2)
-	movsd	%xmm0, 0(%rbp,%rdx,2)
-	addq	$8, %rdx
-	cmpq	%rax, %rdx
-	jne	.L129
-.L125:
-	movl	GV+1016(%rip), %edi
-	movl	$-1, %r9d
-	movq	%r12, %r8
-	movq	%rbp, %rcx
-	movl	$64, (%rsp)
-	movl	%edi, %edx
-	movl	%edi, %esi
-	call	fftw_plan_dft_3d
-	movq	%rax, %rdi
-	movq	%rax, %rbx
-	call	fftw_execute
-	movl	$.LC55, %edi
-	call	puts
-	movl	$.LC50, %edi
-	call	puts
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L128
-	movsd	GV+1048(%rip), %xmm0
-	leal	-1(%rax), %ecx
-	movq	gp(%rip), %rsi
-	movq	%r12, %rdx
-	mulsd	GV+1064(%rip), %xmm0
-	salq	$4, %rcx
-	leaq	16(%r12,%rcx), %rcx
-	.p2align 4,,10
-	.p2align 3
-.L132:
-	movsd	(%rdx), %xmm1
-	addq	$16, %rdx
-	addq	$160, %rsi
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -64(%rsi)
-	movsd	-8(%rdx), %xmm1
-	mulsd	%xmm0, %xmm1
-	movsd	%xmm1, -56(%rsi)
-	cmpq	%rcx, %rdx
-	jne	.L132
-.L128:
-	movq	%rbx, %rdi
-	call	fftw_destroy_plan
-	movq	%rbp, %rdi
-	call	fftw_free
-	movq	%r12, %rdi
-	call	fftw_free
-	movl	GV+1020(%rip), %ecx
-	testl	%ecx, %ecx
-	jle	.L138
-	movsd	GV+1040(%rip), %xmm9
-	movq	gp(%rip), %rax
-	xorl	%edx, %edx
-	movsd	.LC35(%rip), %xmm8
-	jmp	.L136
-	.p2align 4,,10
-	.p2align 3
-.L141:
-	divsd	%xmm0, %xmm3
-	addl	$1, %edx
-	addq	$160, %rax
-	divsd	%xmm0, %xmm2
-	movsd	%xmm3, -96(%rax)
-	divsd	%xmm0, %xmm1
-	movsd	%xmm2, -80(%rax)
-	divsd	%xmm0, %xmm5
-	movsd	%xmm1, -64(%rax)
-	divsd	%xmm0, %xmm4
-	movsd	%xmm5, -88(%rax)
-	divsd	%xmm0, %xmm6
-	movsd	%xmm4, -72(%rax)
-	movsd	%xmm6, -56(%rax)
-	cmpl	%ecx, %edx
-	jge	.L138
-.L136:
-	movsd	32(%rax), %xmm0
-	movsd	104(%rax), %xmm1
-	movapd	%xmm0, %xmm6
-	movsd	16(%rax), %xmm5
-	mulsd	%xmm0, %xmm1
-	movsd	48(%rax), %xmm0
-	movsd	72(%rax), %xmm3
-	movsd	24(%rax), %xmm4
-	movapd	%xmm0, %xmm7
-	movsd	88(%rax), %xmm2
-	mulsd	%xmm5, %xmm3
-	movsd	%xmm1, 96(%rax)
-	mulsd	%xmm4, %xmm2
-	andpd	%xmm8, %xmm7
-	mulsd	%xmm1, %xmm6
-	mulsd	%xmm3, %xmm5
-	movsd	%xmm3, 64(%rax)
-	mulsd	%xmm2, %xmm4
-	movsd	%xmm2, 80(%rax)
-	ucomisd	%xmm9, %xmm7
-	movsd	%xmm6, 104(%rax)
-	movsd	%xmm5, 72(%rax)
-	movsd	%xmm4, 88(%rax)
-	ja	.L141
-	addl	$1, %edx
-	movq	$0, 64(%rax)
-	addq	$160, %rax
-	movq	$0, -80(%rax)
-	movq	$0, -64(%rax)
-	movq	$0, -88(%rax)
-	movq	$0, -72(%rax)
-	movq	$0, -56(%rax)
-	cmpl	%ecx, %edx
-	jl	.L136
-.L138:
-	addq	$16, %rsp
-	.cfi_def_cfa_offset 32
-	xorl	%eax, %eax
-	popq	%rbx
-	.cfi_def_cfa_offset 24
-	popq	%rbp
-	.cfi_def_cfa_offset 16
-	popq	%r12
-	.cfi_def_cfa_offset 8
-	ret
-	.cfi_endproc
-.LFE48:
-	.size	momentum_den_cm, .-momentum_den_cm
-	.section	.rodata.str1.8
-	.align 8
-.LC56:
-	.string	"Computing time derivative of potential in k-space!"
-	.align 8
-.LC57:
-	.string	"Data time derivative of potential in k-space assigned!"
-	.section	.rodata.str1.1
-.LC60:
-	.string	"%10d %16.8lf %16.8lf\n"
-	.section	.rodata.str1.8
-	.align 8
-.LC61:
-	.string	"FFT of potential derivative in r finished!"
-	.section	.rodata.str1.1
-.LC62:
-	.string	"FFT_pot_dot code finished!"
-.LC63:
-	.string	"--------------------------"
-	.section	.rodata.str1.8
-	.align 8
-.LC64:
-	.string	"Writing binary file with PotDot"
-	.align 8
-.LC65:
-	.string	"./../../Processed_data/PotDot.bin"
-	.text
-	.p2align 4,,15
-	.globl	potential_dot
-	.type	potential_dot, @function
-potential_dot:
-.LFB49:
-	.cfi_startproc
-	pushq	%r15
-	.cfi_def_cfa_offset 16
-	.cfi_offset 15, -16
-	movq	%rdi, %r15
-	movl	$.LC56, %edi
-	pushq	%r14
-	.cfi_def_cfa_offset 24
-	.cfi_offset 14, -24
-	pushq	%r13
-	.cfi_def_cfa_offset 32
-	.cfi_offset 13, -32
-	pushq	%r12
-	.cfi_def_cfa_offset 40
-	.cfi_offset 12, -40
-	pushq	%rbp
-	.cfi_def_cfa_offset 48
-	.cfi_offset 6, -48
-	xorl	%ebp, %ebp
-	pushq	%rbx
-	.cfi_def_cfa_offset 56
-	.cfi_offset 3, -56
-	xorl	%ebx, %ebx
-	subq	$88, %rsp
-	.cfi_def_cfa_offset 144
-	call	puts
-	movl	$.LC22, %edi
-	call	puts
-	movsd	GV+1080(%rip), %xmm7
-	movl	GV+1020(%rip), %eax
-	movsd	GV+1096(%rip), %xmm5
-	mulsd	%xmm7, %xmm7
-	testl	%eax, %eax
-	mulsd	.LC38(%rip), %xmm7
-	mulsd	GV+1112(%rip), %xmm7
-	divsd	%xmm5, %xmm7
-	jle	.L149
-	movl	$1801439851, %r12d
-	movsd	.LC58(%rip), %xmm12
-	movsd	.LC59(%rip), %xmm11
-	jmp	.L165
-.L168:
-	addsd	%xmm15, %xmm2
-	movapd	%xmm12, %xmm1
-	addsd	%xmm10, %xmm3
-	mulsd	%xmm6, %xmm4
-	movl	%ebx, %eax
-	divsd	%xmm0, %xmm1
-	movapd	%xmm7, %xmm8
-	imull	%r12d
-	movl	%ebx, %eax
-	addsd	%xmm14, %xmm2
-	sarl	$31, %eax
-	addsd	%xmm9, %xmm3
-	sarl	$21, %edx
-	subl	%eax, %edx
-	imull	$5000000, %edx, %edx
-	cmpl	%edx, %ebx
-	xorpd	%xmm11, %xmm2
-	divsd	%xmm5, %xmm3
-	divsd	%xmm5, %xmm2
-	mulsd	%xmm13, %xmm6
-	mulsd	%xmm1, %xmm8
-	addsd	%xmm2, %xmm4
-	movapd	%xmm6, %xmm2
-	addsd	%xmm3, %xmm2
-	mulsd	%xmm8, %xmm4
-	mulsd	%xmm8, %xmm2
-	movsd	%xmm4, 112(%rcx)
-	movsd	%xmm2, 120(%rcx)
-	je	.L167
-.L148:
-	addl	$1, %ebx
-	addq	$160, %rbp
-	cmpl	%ebx, GV+1020(%rip)
-	jle	.L149
-	movsd	GV+1096(%rip), %xmm5
-.L165:
-	movq	%rbp, %rcx
-	addq	gp(%rip), %rcx
-	movsd	GV+1104(%rip), %xmm6
-	movsd	56(%rcx), %xmm0
-	movsd	(%rcx), %xmm4
-	ucomisd	GV+1040(%rip), %xmm0
-	movsd	64(%rcx), %xmm15
-	movsd	80(%rcx), %xmm2
-	movsd	96(%rcx), %xmm14
-	movsd	8(%rcx), %xmm13
-	movsd	72(%rcx), %xmm10
-	movsd	88(%rcx), %xmm3
-	movsd	104(%rcx), %xmm9
-	ja	.L168
-	movq	$0, 112(%rcx)
-	movq	$0, 120(%rcx)
-	jmp	.L148
-.L167:
-	movl	%ebx, %edx
-	movl	$.LC60, %esi
-	movl	$1, %edi
-	movl	$2, %eax
-	movsd	%xmm12, 24(%rsp)
-	movapd	%xmm11, 32(%rsp)
-	movsd	%xmm7, 16(%rsp)
-	call	__printf_chk
-	movsd	16(%rsp), %xmm7
-	movsd	24(%rsp), %xmm12
-	movapd	32(%rsp), %xmm11
-	jmp	.L148
-.L149:
-	movl	$.LC57, %edi
-	call	puts
-	movl	$.LC22, %edi
-	call	puts
-	movslq	GV+1020(%rip), %rdi
-	salq	$4, %rdi
-	call	fftw_malloc
-	movslq	GV+1020(%rip), %rdi
-	movq	%rax, %rbx
-	salq	$4, %rdi
-	call	fftw_malloc
-	movq	%rax, %rbp
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L145
-	movq	gp(%rip), %r9
-	subl	$1, %eax
-	movq	%rbx, %rsi
-	leaq	(%rax,%rax,4), %rax
-	leaq	160(%r9), %rdx
-	salq	$5, %rax
-	addq	%rdx, %rax
-	jmp	.L153
-.L169:
-	addq	$160, %rdx
-.L153:
-	movsd	112(%r9), %xmm0
-	addq	$16, %rsi
-	movsd	%xmm0, -16(%rsi)
-	movsd	120(%r9), %xmm0
-	movq	%rdx, %r9
-	movsd	%xmm0, -8(%rsi)
-	cmpq	%rax, %rdx
-	jne	.L169
-.L145:
-	movl	GV+1016(%rip), %edi
-	movl	$1, %r9d
-	movq	%rbp, %r8
-	movq	%rbx, %rcx
-	movl	$64, (%rsp)
-	movl	%edi, %edx
-	movl	%edi, %esi
-	call	fftw_plan_dft_3d
-	movq	%rax, %rdi
-	movq	%rax, %r12
-	call	fftw_execute
-	movl	$.LC61, %edi
-	call	puts
-	movl	$.LC37, %edi
-	call	puts
-	movl	GV+1020(%rip), %eax
-	testl	%eax, %eax
-	jle	.L152
-	subl	$1, %eax
-	xorl	%edx, %edx
-	leaq	8(,%rax,8), %rsi
-.L156:
-	movsd	GV+1064(%rip), %xmm0
-	movq	(%r15,%rdx), %rcx
-	mulsd	GV+1072(%rip), %xmm0
-	mulsd	0(%rbp,%rdx,2), %xmm0
-	addq	$8, %rdx
-	cmpq	%rsi, %rdx
-	divsd	GV+1048(%rip), %xmm0
-	movsd	%xmm0, (%rcx)
-	jne	.L156
-.L152:
-	movq	%r12, %rdi
-	xorl	%r14d, %r14d
-	call	fftw_destroy_plan
-	movq	%rbx, %rdi
-	call	free
-	movq	%rbp, %rdi
-	call	fftw_free
-	movl	$.LC62, %edi
-	call	puts
-	movl	$.LC63, %edi
-	call	puts
-	movl	$.LC64, %edi
-	call	puts
-	movl	$.LC63, %edi
-	call	puts
-	movl	$.LC47, %esi
-	movl	$.LC65, %edi
-	call	fopen
-	movl	$1, %edx
-	movq	%rax, %r12
-	movq	%rax, %rcx
-	movl	$8, %esi
-	movl	$GV+1008, %edi
-	call	fwrite
-	movq	%r12, %rcx
-	movl	$1, %edx
-	movl	$8, %esi
-	movl	$GV+1112, %edi
-	call	fwrite
-	movq	%r12, %rcx
-	movl	$1, %edx
-	movl	$8, %esi
-	movl	$GV+1120, %edi
-	call	fwrite
-	movq	%r12, %rcx
-	movl	$1, %edx
-	movl	$8, %esi
-	movl	$GV+1088, %edi
-	call	fwrite
-	movq	%r12, %rcx
-	movl	$1, %edx
-	movl	$8, %esi
-	movl	$GV+1080, %edi
-	call	fwrite
-	movl	GV+1016(%rip), %ebp
-	testl	%ebp, %ebp
-	jle	.L155
-.L163:
-	cvtsi2sd	%r14d, %xmm6
-	xorl	%r13d, %r13d
-	movsd	%xmm6, 24(%rsp)
-	.p2align 4,,10
-	.p2align 3
-.L160:
-	cvtsi2sd	%r13d, %xmm7
-	xorl	%ebx, %ebx
-	movsd	%xmm7, 16(%rsp)
-	.p2align 4,,10
-	.p2align 3
-.L159:
-	movsd	GV+1032(%rip), %xmm1
-	leaq	48(%rsp), %rdi
-	movq	%r12, %rcx
-	movsd	24(%rsp), %xmm0
-	movl	$3, %edx
-	movl	$8, %esi
-	mulsd	%xmm1, %xmm0
-	movsd	%xmm0, 48(%rsp)
-	movsd	16(%rsp), %xmm0
-	mulsd	%xmm1, %xmm0
-	movsd	%xmm0, 56(%rsp)
-	cvtsi2sd	%ebx, %xmm0
-	mulsd	%xmm1, %xmm0
-	movsd	%xmm0, 64(%rsp)
-	call	fwrite
-	movl	%r14d, %eax
-	movq	%r12, %rcx
-	movl	$1, %edx
-	imull	%ebp, %eax
-	movl	$8, %esi
-	addl	%r13d, %eax
-	imull	%eax, %ebp
-	addl	%ebx, %ebp
-	addl	$1, %ebx
-	movslq	%ebp, %rbp
-	movq	(%r15,%rbp,8), %rdi
-	call	fwrite
-	movl	GV+1016(%rip), %ebp
-	cmpl	%ebx, %ebp
-	jg	.L159
-	addl	$1, %r13d
-	cmpl	%r13d, %ebp
-	jle	.L158
-	testl	%ebp, %ebp
-	jg	.L160
-.L158:
-	addl	$1, %r14d
-	cmpl	%r14d, %ebp
-	jle	.L155
-	testl	%ebp, %ebp
-	jg	.L163
-.L155:
-	movq	%r12, %rdi
-	call	fclose
-	movq	%r15, %rdi
-	call	free
-	addq	$88, %rsp
-	.cfi_def_cfa_offset 56
-	xorl	%eax, %eax
-	popq	%rbx
-	.cfi_def_cfa_offset 48
-	popq	%rbp
-	.cfi_def_cfa_offset 40
-	popq	%r12
-	.cfi_def_cfa_offset 32
-	popq	%r13
-	.cfi_def_cfa_offset 24
-	popq	%r14
-	.cfi_def_cfa_offset 16
-	popq	%r15
-	.cfi_def_cfa_offset 8
-	ret
-	.cfi_endproc
-.LFE49:
-	.size	potential_dot, .-potential_dot
-	.section	.rodata.str1.1
-.LC68:
 	.string	"First approximation to f(t)"
 	.section	.rodata.str1.8
 	.align 8
-.LC69:
+.LC52:
 	.string	"OmegaL0=%lf,  growth rate f(t)=%lf\n"
 	.text
 	.p2align 4,,15
 	.globl	growth_rate_OmegaL0
 	.type	growth_rate_OmegaL0, @function
 growth_rate_OmegaL0:
-.LFB50:
+.LFB48:
 	.cfi_startproc
 	subq	$24, %rsp
 	.cfi_def_cfa_offset 32
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	call	pow
 	mulsd	GV+1120(%rip), %xmm0
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	addsd	.LC7(%rip), %xmm0
 	call	pow
 	movsd	.LC7(%rip), %xmm2
@@ -1965,10 +1299,10 @@ growth_rate_OmegaL0:
 	divsd	%xmm0, %xmm2
 	movsd	%xmm2, 8(%rsp)
 	call	puts
-	movl	$.LC68, %edi
+	movl	$.LC51, %edi
 	call	puts
 	movsd	8(%rsp), %xmm1
-	movl	$.LC69, %esi
+	movl	$.LC52, %esi
 	movsd	GV+1120(%rip), %xmm0
 	movl	$1, %edi
 	movl	$2, %eax
@@ -1980,40 +1314,40 @@ growth_rate_OmegaL0:
 	.cfi_def_cfa_offset 8
 	ret
 	.cfi_endproc
-.LFE50:
+.LFE48:
 	.size	growth_rate_OmegaL0, .-growth_rate_OmegaL0
 	.section	.rodata.str1.1
-.LC71:
+.LC54:
 	.string	"Second approximation to f(t)"
 	.section	.rodata.str1.8
 	.align 8
-.LC72:
+.LC55:
 	.string	"mu=%lf, OmegaM(a)=%lf, growth rate f(t)=%lf\n"
 	.text
 	.p2align 4,,15
 	.globl	growth_rate_OmegaM
 	.type	growth_rate_OmegaM, @function
 growth_rate_OmegaM:
-.LFB51:
+.LFB49:
 	.cfi_startproc
 	subq	$40, %rsp
 	.cfi_def_cfa_offset 48
 	movsd	%xmm0, 8(%rsp)
 	movsd	GV+1120(%rip), %xmm0
-	movsd	.LC70(%rip), %xmm1
+	movsd	.LC53(%rip), %xmm1
 	divsd	GV+1112(%rip), %xmm0
 	call	pow
 	movsd	8(%rsp), %xmm3
 	movsd	GV+1112(%rip), %xmm4
 	mulsd	%xmm0, %xmm3
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movsd	%xmm4, 8(%rsp)
 	movapd	%xmm3, %xmm0
 	movsd	%xmm3, 24(%rsp)
 	call	pow
 	addsd	.LC7(%rip), %xmm0
 	movsd	8(%rsp), %xmm4
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	divsd	%xmm0, %xmm4
 	movapd	%xmm4, %xmm0
 	movsd	%xmm4, 16(%rsp)
@@ -2021,10 +1355,10 @@ growth_rate_OmegaM:
 	movl	$.LC22, %edi
 	movsd	%xmm0, 8(%rsp)
 	call	puts
-	movl	$.LC71, %edi
+	movl	$.LC54, %edi
 	call	puts
 	movsd	16(%rsp), %xmm4
-	movl	$.LC72, %esi
+	movl	$.LC55, %esi
 	movsd	24(%rsp), %xmm3
 	movl	$1, %edi
 	movsd	8(%rsp), %xmm2
@@ -2039,33 +1373,40 @@ growth_rate_OmegaM:
 	.cfi_def_cfa_offset 8
 	ret
 	.cfi_endproc
-.LFE51:
+.LFE49:
 	.size	growth_rate_OmegaM, .-growth_rate_OmegaM
 	.section	.rodata.str1.8
 	.align 8
-.LC73:
+.LC56:
 	.string	"GR_OmegaL0=%lf GR_OmegaM=%lf a_SF=%lf\n"
 	.align 8
-.LC74:
+.LC57:
 	.string	"Time derivative of potential in k-space saved!"
 	.align 8
-.LC75:
-	.string	"FFT_pot_dot lineal code finished!"
+.LC59:
+	.string	"FFT of potential derivative in r finished!"
 	.align 8
-.LC76:
+.LC60:
+	.string	"FFT_pot_dot lineal code finished!"
+	.section	.rodata.str1.1
+.LC61:
+	.string	"--------------------------"
+	.section	.rodata.str1.8
+	.align 8
+.LC62:
 	.string	"Saving data in binary file for both approximations"
 	.align 8
-.LC77:
+.LC63:
 	.string	"./../../Processed_data/PotDot_app1.bin"
 	.align 8
-.LC78:
+.LC64:
 	.string	"./../../Processed_data/PotDot_app2.bin"
 	.text
 	.p2align 4,,15
 	.globl	potential_dot_linear
 	.type	potential_dot_linear, @function
 potential_dot_linear:
-.LFB52:
+.LFB50:
 	.cfi_startproc
 	pushq	%r15
 	.cfi_def_cfa_offset 16
@@ -2088,12 +1429,12 @@ potential_dot_linear:
 	.cfi_offset 3, -56
 	subq	$104, %rsp
 	.cfi_def_cfa_offset 160
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movq	%rsi, 32(%rsp)
 	movsd	GV+1096(%rip), %xmm0
 	call	pow
 	mulsd	GV+1120(%rip), %xmm0
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	addsd	.LC7(%rip), %xmm0
 	call	pow
 	movsd	.LC7(%rip), %xmm2
@@ -2101,10 +1442,10 @@ potential_dot_linear:
 	divsd	%xmm0, %xmm2
 	movsd	%xmm2, 16(%rsp)
 	call	puts
-	movl	$.LC68, %edi
+	movl	$.LC51, %edi
 	call	puts
 	movsd	16(%rsp), %xmm1
-	movl	$.LC69, %esi
+	movl	$.LC52, %esi
 	movsd	GV+1120(%rip), %xmm0
 	movl	$1, %edi
 	movl	$2, %eax
@@ -2117,20 +1458,20 @@ potential_dot_linear:
 	subsd	16(%rsp), %xmm4
 	movsd	%xmm4, 56(%rsp)
 	movsd	GV+1096(%rip), %xmm3
-	movsd	.LC70(%rip), %xmm1
+	movsd	.LC53(%rip), %xmm1
 	movsd	%xmm3, 16(%rsp)
 	call	pow
 	movsd	16(%rsp), %xmm3
 	movsd	GV+1112(%rip), %xmm5
 	mulsd	%xmm0, %xmm3
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movsd	%xmm5, 16(%rsp)
 	movapd	%xmm3, %xmm0
 	movsd	%xmm3, 40(%rsp)
 	call	pow
 	addsd	.LC7(%rip), %xmm0
 	movsd	16(%rsp), %xmm5
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	divsd	%xmm0, %xmm5
 	movapd	%xmm5, %xmm0
 	movsd	%xmm5, 24(%rsp)
@@ -2138,10 +1479,10 @@ potential_dot_linear:
 	movl	$.LC22, %edi
 	movsd	%xmm0, 16(%rsp)
 	call	puts
-	movl	$.LC71, %edi
+	movl	$.LC54, %edi
 	call	puts
 	movsd	24(%rsp), %xmm5
-	movl	$.LC72, %esi
+	movl	$.LC55, %esi
 	movsd	40(%rsp), %xmm3
 	movl	$1, %edi
 	movsd	16(%rsp), %xmm2
@@ -2157,20 +1498,20 @@ potential_dot_linear:
 	subsd	16(%rsp), %xmm3
 	movsd	%xmm3, 48(%rsp)
 	movsd	GV+1096(%rip), %xmm5
-	movsd	.LC70(%rip), %xmm1
+	movsd	.LC53(%rip), %xmm1
 	movsd	%xmm5, 16(%rsp)
 	call	pow
 	movsd	16(%rsp), %xmm5
 	movsd	GV+1112(%rip), %xmm6
 	mulsd	%xmm0, %xmm5
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movsd	%xmm6, 16(%rsp)
 	movapd	%xmm5, %xmm0
 	movsd	%xmm5, 40(%rsp)
 	call	pow
 	addsd	.LC7(%rip), %xmm0
 	movsd	16(%rsp), %xmm6
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	divsd	%xmm0, %xmm6
 	movapd	%xmm6, %xmm0
 	movsd	%xmm6, 16(%rsp)
@@ -2178,10 +1519,10 @@ potential_dot_linear:
 	movl	$.LC22, %edi
 	movsd	%xmm0, 24(%rsp)
 	call	puts
-	movl	$.LC71, %edi
+	movl	$.LC54, %edi
 	call	puts
 	movsd	40(%rsp), %xmm5
-	movl	$.LC72, %esi
+	movl	$.LC55, %esi
 	movsd	16(%rsp), %xmm6
 	movl	$1, %edi
 	movapd	%xmm5, %xmm0
@@ -2192,12 +1533,12 @@ potential_dot_linear:
 	movl	$.LC22, %edi
 	call	puts
 	movsd	GV+1096(%rip), %xmm2
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movapd	%xmm2, %xmm0
 	movsd	%xmm2, 40(%rsp)
 	call	pow
 	mulsd	GV+1120(%rip), %xmm0
-	movsd	.LC67(%rip), %xmm1
+	movsd	.LC50(%rip), %xmm1
 	addsd	.LC7(%rip), %xmm0
 	call	pow
 	movsd	.LC7(%rip), %xmm2
@@ -2205,10 +1546,10 @@ potential_dot_linear:
 	divsd	%xmm0, %xmm2
 	movsd	%xmm2, 16(%rsp)
 	call	puts
-	movl	$.LC68, %edi
+	movl	$.LC51, %edi
 	call	puts
 	movsd	16(%rsp), %xmm1
-	movl	$.LC69, %esi
+	movl	$.LC52, %esi
 	movsd	GV+1120(%rip), %xmm0
 	movl	$1, %edi
 	movl	$2, %eax
@@ -2216,7 +1557,7 @@ potential_dot_linear:
 	movl	$.LC22, %edi
 	call	puts
 	movsd	40(%rsp), %xmm2
-	movl	$.LC73, %esi
+	movl	$.LC56, %esi
 	movsd	16(%rsp), %xmm0
 	movl	$1, %edi
 	movsd	24(%rsp), %xmm1
@@ -2240,20 +1581,20 @@ potential_dot_linear:
 	divsd	GV+1096(%rip), %xmm0
 	mulsd	%xmm0, %xmm2
 	mulsd	GV+1112(%rip), %xmm2
-	jg	.L202
-	jmp	.L181
+	jg	.L144
+	jmp	.L123
 	.p2align 4,,10
 	.p2align 3
-.L205:
+.L147:
 	movapd	%xmm7, %xmm6
 	addl	$1, %edx
 	movsd	(%rax), %xmm1
-	addq	$160, %rax
+	addq	$96, %rax
 	divsd	%xmm0, %xmm6
 	movapd	%xmm6, %xmm0
 	mulsd	%xmm2, %xmm0
 	mulsd	%xmm0, %xmm1
-	mulsd	-152(%rax), %xmm0
+	mulsd	-88(%rax), %xmm0
 	movapd	%xmm1, %xmm6
 	mulsd	%xmm3, %xmm1
 	mulsd	%xmm4, %xmm6
@@ -2265,21 +1606,21 @@ potential_dot_linear:
 	movsd	%xmm0, -8(%rax)
 	movsd	%xmm6, -24(%rax)
 	cmpl	%ecx, %edx
-	jge	.L181
-.L202:
+	jge	.L123
+.L144:
 	movsd	56(%rax), %xmm0
 	ucomisd	%xmm5, %xmm0
-	ja	.L205
+	ja	.L147
 	addl	$1, %edx
-	movq	$0, 128(%rax)
-	movq	$0, 136(%rax)
-	movq	$0, 144(%rax)
-	movq	$0, 152(%rax)
-	addq	$160, %rax
+	movq	$0, 64(%rax)
+	movq	$0, 72(%rax)
+	movq	$0, 80(%rax)
+	movq	$0, 88(%rax)
+	addq	$96, %rax
 	cmpl	%ecx, %edx
-	jl	.L202
-.L181:
-	movl	$.LC74, %edi
+	jl	.L144
+.L123:
+	movl	$.LC57, %edi
 	call	puts
 	movl	$.LC31, %edi
 	call	puts
@@ -2293,27 +1634,27 @@ potential_dot_linear:
 	movq	%rax, %rbp
 	movl	GV+1020(%rip), %eax
 	testl	%eax, %eax
-	jle	.L177
+	jle	.L119
 	movq	gp(%rip), %rcx
 	subl	$1, %eax
 	movq	%rbx, %rsi
-	leaq	(%rax,%rax,4), %rax
-	leaq	160(%rcx), %rdx
+	leaq	(%rax,%rax,2), %rax
+	leaq	96(%rcx), %rdx
 	salq	$5, %rax
 	addq	%rdx, %rax
-	jmp	.L185
-.L206:
-	addq	$160, %rdx
-.L185:
-	movsd	128(%rcx), %xmm0
+	jmp	.L127
+.L148:
+	addq	$96, %rdx
+.L127:
+	movsd	64(%rcx), %xmm0
 	addq	$16, %rsi
 	movsd	%xmm0, -16(%rsi)
-	movsd	136(%rcx), %xmm0
+	movsd	72(%rcx), %xmm0
 	movq	%rdx, %rcx
 	movsd	%xmm0, -8(%rsi)
 	cmpq	%rax, %rdx
-	jne	.L206
-.L177:
+	jne	.L148
+.L119:
 	movl	GV+1016(%rip), %edi
 	movl	$1, %r9d
 	movq	%rbp, %r8
@@ -2324,17 +1665,17 @@ potential_dot_linear:
 	call	fftw_plan_dft_3d
 	movq	%rax, %rdi
 	call	fftw_execute
-	movl	$.LC61, %edi
+	movl	$.LC59, %edi
 	call	puts
 	movl	$.LC37, %edi
 	call	puts
 	movl	GV+1020(%rip), %eax
 	testl	%eax, %eax
-	jle	.L184
+	jle	.L126
 	subl	$1, %eax
 	xorl	%edx, %edx
 	leaq	8(,%rax,8), %rcx
-.L188:
+.L130:
 	movsd	GV+1064(%rip), %xmm0
 	movq	(%r14,%rdx), %rax
 	mulsd	GV+1072(%rip), %xmm0
@@ -2343,8 +1684,8 @@ potential_dot_linear:
 	cmpq	%rcx, %rdx
 	divsd	GV+1048(%rip), %xmm0
 	movsd	%xmm0, (%rax)
-	jne	.L188
-.L184:
+	jne	.L130
+.L126:
 	movq	%rbx, %rdi
 	call	free
 	movq	%rbp, %rdi
@@ -2359,27 +1700,27 @@ potential_dot_linear:
 	movq	%rax, %rbp
 	movl	GV+1020(%rip), %eax
 	testl	%eax, %eax
-	jle	.L187
+	jle	.L129
 	movq	gp(%rip), %rcx
 	subl	$1, %eax
 	movq	%rbx, %rsi
-	leaq	(%rax,%rax,4), %rax
-	leaq	160(%rcx), %rdx
+	leaq	(%rax,%rax,2), %rax
+	leaq	96(%rcx), %rdx
 	salq	$5, %rax
 	addq	%rdx, %rax
-	jmp	.L191
-.L207:
-	addq	$160, %rdx
-.L191:
-	movsd	144(%rcx), %xmm0
+	jmp	.L133
+.L149:
+	addq	$96, %rdx
+.L133:
+	movsd	80(%rcx), %xmm0
 	addq	$16, %rsi
 	movsd	%xmm0, -16(%rsi)
-	movsd	152(%rcx), %xmm0
+	movsd	88(%rcx), %xmm0
 	movq	%rdx, %rcx
 	movsd	%xmm0, -8(%rsi)
 	cmpq	%rax, %rdx
-	jne	.L207
-.L187:
+	jne	.L149
+.L129:
 	movl	GV+1016(%rip), %edi
 	movl	$1, %r9d
 	movq	%rbp, %r8
@@ -2391,17 +1732,17 @@ potential_dot_linear:
 	movq	%rax, %rdi
 	movq	%rax, %r12
 	call	fftw_execute
-	movl	$.LC61, %edi
+	movl	$.LC59, %edi
 	call	puts
 	movl	$.LC37, %edi
 	call	puts
 	movl	GV+1020(%rip), %eax
 	testl	%eax, %eax
-	jle	.L190
+	jle	.L132
 	subl	$1, %eax
 	xorl	%edx, %edx
 	leaq	8(,%rax,8), %rcx
-.L194:
+.L136:
 	movsd	GV+1064(%rip), %xmm0
 	movq	32(%rsp), %rax
 	mulsd	GV+1072(%rip), %xmm0
@@ -2411,28 +1752,28 @@ potential_dot_linear:
 	cmpq	%rcx, %rdx
 	divsd	GV+1048(%rip), %xmm0
 	movsd	%xmm0, (%rax)
-	jne	.L194
-.L190:
+	jne	.L136
+.L132:
 	movq	%rbx, %rdi
 	call	free
 	movq	%rbp, %rdi
 	call	fftw_free
 	movq	%r12, %rdi
 	call	fftw_destroy_plan
-	movl	$.LC75, %edi
+	movl	$.LC60, %edi
 	call	puts
-	movl	$.LC63, %edi
+	movl	$.LC61, %edi
 	call	puts
-	movl	$.LC76, %edi
+	movl	$.LC62, %edi
 	call	puts
-	movl	$.LC63, %edi
+	movl	$.LC61, %edi
 	call	puts
 	movl	$.LC47, %esi
-	movl	$.LC77, %edi
+	movl	$.LC63, %edi
 	call	fopen
 	movl	$.LC47, %esi
 	movq	%rax, %rbp
-	movl	$.LC78, %edi
+	movl	$.LC64, %edi
 	call	fopen
 	movq	%rbp, %rcx
 	movl	$1, %edx
@@ -2488,20 +1829,20 @@ potential_dot_linear:
 	movl	GV+1016(%rip), %r13d
 	movl	$0, 24(%rsp)
 	testl	%r13d, %r13d
-	jle	.L193
-.L201:
+	jle	.L135
+.L143:
 	cvtsi2sd	24(%rsp), %xmm4
 	movsd	%xmm4, 40(%rsp)
 	xorl	%r12d, %r12d
 	.p2align 4,,10
 	.p2align 3
-.L198:
+.L140:
 	cvtsi2sd	%r12d, %xmm7
 	xorl	%r15d, %r15d
 	movsd	%xmm7, 16(%rsp)
 	.p2align 4,,10
 	.p2align 3
-.L197:
+.L139:
 	movsd	GV+1032(%rip), %xmm1
 	leaq	64(%rsp), %rdi
 	movq	%rbp, %rcx
@@ -2543,19 +1884,19 @@ potential_dot_linear:
 	call	fwrite
 	movl	GV+1016(%rip), %r13d
 	cmpl	%r15d, %r13d
-	jg	.L197
+	jg	.L139
 	addl	$1, %r12d
 	cmpl	%r12d, %r13d
-	jle	.L196
+	jle	.L138
 	testl	%r13d, %r13d
-	jg	.L198
-.L196:
+	jg	.L140
+.L138:
 	addl	$1, 24(%rsp)
 	cmpl	24(%rsp), %r13d
-	jle	.L193
+	jle	.L135
 	testl	%r13d, %r13d
-	jg	.L201
-.L193:
+	jg	.L143
+.L135:
 	movq	%rbp, %rdi
 	call	fclose
 	movq	%rbx, %rdi
@@ -2577,69 +1918,69 @@ potential_dot_linear:
 	.cfi_def_cfa_offset 8
 	ret
 	.cfi_endproc
-.LFE52:
+.LFE50:
 	.size	potential_dot_linear, .-potential_dot_linear
 	.section	.rodata.str1.8
 	.align 8
-.LC79:
+.LC65:
 	.string	"Error: Incomplete number of parameters. Execute as follows:"
 	.section	.rodata.str1.1
-.LC80:
+.LC66:
 	.string	"%s Parameters_file\n"
-.LC82:
+.LC68:
 	.string	"Variables are ready to use!"
 	.section	.rodata.str1.8
 	.align 8
-.LC83:
+.LC69:
 	.string	"Ascii data file has been read succesfully!"
 	.section	.rodata.str1.1
-.LC84:
+.LC70:
 	.string	"Simulation parameters"
 	.section	.rodata.str1.8
 	.align 8
-.LC85:
+.LC71:
 	.string	"GV.NCELLS:%12d GV.NTOTALCELLS:%12d\nGV.BoxSize:%16.8lf GV.CellSize:%16.8lf\n"
 	.align 8
-.LC86:
+.LC72:
 	.string	"----------------------------------------------------------------"
 	.section	.rodata.str1.1
-.LC87:
+.LC73:
 	.string	"Cosmological parameters"
 	.section	.rodata.str1.8
 	.align 8
-.LC88:
+.LC74:
 	.string	"GV.z_RS=%lf GV.H0=%lf \nGV.Hz=%lf GV.a_SF=%lf\n"
 	.align 8
-.LC90:
+.LC76:
 	.string	"r2k norm = %lf, k2r norm = %lf\n"
 	.section	.rodata.str1.1
-.LC91:
+.LC77:
 	.string	"r2k 1D = %lf\n"
 	.section	.rodata.str1.8
 	.align 8
-.LC92:
+.LC78:
 	.string	"FFT of density contrast finished!"
 	.align 8
-.LC93:
+.LC79:
 	.string	"FFT of gravitational potential finished!"
 	.align 8
-.LC94:
+.LC80:
 	.string	"FFT of time derivative of gravitational potential in linear approximation finished!"
 	.align 8
-.LC95:
+.LC81:
 	.string	"All FFT transforms have finished succesfully!"
 	.align 8
-.LC96:
+.LC82:
 	.string	"All codes have run succesfully!"
 	.section	.rodata.str1.1
-.LC97:
+.LC83:
 	.string	"FFT code finished!"
 	.section	.text.startup,"ax",@progbits
 	.p2align 4,,15
 	.globl	main
 	.type	main, @function
 main:
-.LFB53:
+.LFB51:
 	.cfi_startproc
 	pushq	%r14
 	.cfi_def_cfa_offset 16
@@ -2659,12 +2000,12 @@ main:
 	subq	$32, %rsp
 	.cfi_def_cfa_offset 80
 	cmpl	$1, %edi
-	jle	.L224
+	jle	.L166
 	movq	8(%rsi), %rdi
 	call	read_parameters
 	movl	GV+1016(%rip), %eax
-	movsd	.LC81(%rip), %xmm5
-	movl	$.LC82, %edi
+	movsd	.LC67(%rip), %xmm5
+	movl	$.LC68, %edi
 	movsd	%xmm5, GV+1040(%rip)
 	movl	%eax, %edx
 	imull	%eax, %edx
@@ -2675,7 +2016,7 @@ main:
 	call	puts
 	movl	GV+1020(%rip), %ebp
 	movslq	%ebp, %rbx
-	leaq	(%rbx,%rbx,4), %rdi
+	leaq	(%rbx,%rbx,2), %rdi
 	salq	$5, %rdi
 	call	malloc
 	movq	%rbx, %rdi
@@ -2693,23 +2034,23 @@ main:
 	call	calloc
 	testl	%ebp, %ebp
 	movq	%rax, %r12
-	jle	.L217
+	jle	.L159
 	.p2align 4,,10
 	.p2align 3
-.L220:
+.L162:
 	movl	$8, %esi
 	movl	$2, %edi
 	call	calloc
 	movq	%rax, (%r12,%rbx,8)
 	addq	$1, %rbx
 	cmpl	%ebx, %ebp
-	jg	.L220
-.L217:
+	jg	.L162
+.L159:
 	xorl	%edx, %edx
 	movq	%r13, %rsi
 	movl	$GV, %edi
 	call	read_data
-	movl	$.LC83, %edi
+	movl	$.LC69, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
@@ -2718,7 +2059,7 @@ main:
 	addsd	GV+1088(%rip), %xmm0
 	movsd	GV+1120(%rip), %xmm7
 	movsd	GV+1112(%rip), %xmm3
-	movsd	.LC66(%rip), %xmm1
+	movsd	.LC49(%rip), %xmm1
 	movsd	%xmm6, 8(%rsp)
 	movsd	%xmm7, 16(%rsp)
 	movsd	%xmm3, 24(%rsp)
@@ -2727,10 +2068,10 @@ main:
 	addsd	16(%rsp), %xmm0
 	sqrtsd	%xmm0, %xmm1
 	ucomisd	%xmm1, %xmm1
-	jp	.L225
-.L211:
+	jp	.L167
+.L153:
 	mulsd	8(%rsp), %xmm1
-	movl	$.LC84, %edi
+	movl	$.LC70, %edi
 	movsd	GV+1008(%rip), %xmm0
 	movsd	%xmm1, GV+1104(%rip)
 	cvtsi2sd	GV+1016(%rip), %xmm1
@@ -2738,19 +2079,19 @@ main:
 	movsd	%xmm0, GV+1032(%rip)
 	call	puts
 	movl	GV+1020(%rip), %ecx
-	movl	$.LC85, %esi
+	movl	$.LC71, %esi
 	movl	$1, %edi
 	movl	GV+1016(%rip), %edx
 	movsd	GV+1032(%rip), %xmm1
 	movsd	GV+1008(%rip), %xmm0
 	movl	$2, %eax
 	call	__printf_chk
-	movl	$.LC86, %edi
+	movl	$.LC72, %edi
 	call	puts
-	movl	$.LC87, %edi
+	movl	$.LC73, %edi
 	call	puts
 	movsd	GV+1104(%rip), %xmm2
-	movl	$.LC88, %esi
+	movl	$.LC74, %esi
 	movsd	GV+1080(%rip), %xmm1
 	movl	$1, %edi
 	movsd	GV+1088(%rip), %xmm0
@@ -2772,12 +2113,12 @@ main:
 	divsd	%xmm0, %xmm2
 	movsd	%xmm4, GV+1056(%rip)
 	movsd	%xmm2, GV+1048(%rip)
-	jp	.L226
-.L213:
+	jp	.L168
+.L155:
 	movsd	.LC7(%rip), %xmm0
-	movl	$.LC90, %esi
+	movl	$.LC76, %esi
 	movl	$1, %edi
-	movsd	.LC89(%rip), %xmm5
+	movsd	.LC75(%rip), %xmm5
 	movl	$2, %eax
 	divsd	%xmm1, %xmm0
 	movsd	%xmm5, GV+1072(%rip)
@@ -2787,7 +2128,7 @@ main:
 	call	__printf_chk
 	cvtsi2sd	GV+1016(%rip), %xmm1
 	movsd	GV+1008(%rip), %xmm0
-	movl	$.LC91, %esi
+	movl	$.LC77, %esi
 	movl	$1, %edi
 	movl	$1, %eax
 	divsd	%xmm1, %xmm0
@@ -2796,14 +2137,14 @@ main:
 	call	transform
 	movq	%r13, %rdi
 	call	free
-	movl	$.LC92, %edi
+	movl	$.LC78, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
 	movq	%r12, %rsi
 	movq	%r14, %rdi
 	call	potential
-	movl	$.LC93, %edi
+	movl	$.LC79, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
@@ -2819,10 +2160,10 @@ main:
 	call	calloc
 	testl	%ebp, %ebp
 	movq	%rax, %r13
-	jle	.L216
+	jle	.L158
 	.p2align 4,,10
 	.p2align 3
-.L221:
+.L163:
 	movl	$8, %esi
 	movl	$2, %edi
 	call	calloc
@@ -2833,16 +2174,16 @@ main:
 	movq	%rax, 0(%r13,%rbx,8)
 	addq	$1, %rbx
 	cmpl	%ebx, %ebp
-	jg	.L221
-.L216:
+	jg	.L163
+.L158:
 	movq	%r13, %rsi
 	movq	%r12, %rdi
 	call	potential_dot_linear
-	movl	$.LC94, %edi
+	movl	$.LC80, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
-	movl	$.LC95, %edi
+	movl	$.LC81, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
@@ -2850,9 +2191,9 @@ main:
 	call	free
 	movl	$.LC22, %edi
 	call	puts
-	movl	$.LC96, %edi
+	movl	$.LC82, %edi
 	call	puts
-	movl	$.LC97, %edi
+	movl	$.LC83, %edi
 	call	puts
 	movl	$.LC22, %edi
 	call	puts
@@ -2871,29 +2212,29 @@ main:
 	popq	%r14
 	.cfi_def_cfa_offset 8
 	ret
-.L224:
+.L166:
 	.cfi_restore_state
-	movl	$.LC79, %edi
+	movl	$.LC65, %edi
 	movq	%rsi, 8(%rsp)
 	call	puts
 	movq	8(%rsp), %rsi
 	movl	$1, %edi
 	xorl	%eax, %eax
 	movq	(%rsi), %rdx
-	movl	$.LC80, %esi
+	movl	$.LC66, %esi
 	call	__printf_chk
 	xorl	%edi, %edi
 	call	exit
-.L226:
+.L168:
 	call	sqrt
 	movapd	%xmm0, %xmm1
-	jmp	.L213
-.L225:
+	jmp	.L155
+.L167:
 	call	sqrt
 	movapd	%xmm0, %xmm1
-	jmp	.L211
+	jmp	.L153
 	.cfi_endproc
-.LFE53:
+.LFE51:
 	.size	main, .-main
 	.comm	GV,1136,32
 	.comm	gp,8,8
@@ -2923,35 +2264,27 @@ main:
 	.long	0
 	.long	-1074266112
 	.align 8
-.LC58:
-	.long	0
-	.long	-1074790400
-	.section	.rodata.cst16
-	.align 16
-.LC59:
-	.long	0
-	.long	-2147483648
-	.long	0
-	.long	0
-	.section	.rodata.cst8
-	.align 8
-.LC66:
+.LC49:
 	.long	0
 	.long	1074266112
 	.align 8
-.LC67:
+.LC50:
 	.long	858993459
 	.long	1071854387
 	.align 8
-.LC70:
+.LC53:
 	.long	1431655765
 	.long	1070945621
 	.align 8
-.LC81:
+.LC58:
+	.long	0
+	.long	-1074790400
+	.align 8
+.LC67:
 	.long	3271095129
 	.long	27618847
 	.align 8
-.LC89:
+.LC75:
 	.long	3947222911
 	.long	1064338245
 	.ident	"GCC: (Ubuntu 4.8.4-2ubuntu1~14.04.1) 4.8.4"
