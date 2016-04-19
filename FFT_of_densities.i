@@ -3608,7 +3608,7 @@ int conf2dump( char filename[] )
 
 
 
-    sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump",
+    sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | awk -F\"=\" '{print $2}' > %s.dump",
       filename, filename );
     nread = system( cmd );
 
@@ -4029,7 +4029,9 @@ int potential(double *poten_r, double **poten_k)
   printf("Proceeding to the writing of binary file with potential field\n");
   printf("----------------------------\n");
 
-  pf = fopen("./../Processed_data/Potential.bin", "w");
+
+  pf = fopen("./../../Processed_data/Potential.bin", "w");
+
 
   fwrite(&GV.BoxSize, sizeof(double), 1, pf);
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);
@@ -4054,7 +4056,7 @@ int potential(double *poten_r, double **poten_k)
             }
         }
     }
-# 142 "FFT_potential.c"
+# 144 "FFT_potential.c"
   fclose(pf);
 
   free(poten_r);
@@ -4344,7 +4346,7 @@ int potential_dot(double **potDot_r)
   printf("Writing binary file with PotDot\n");
   printf("--------------------------\n");
 
-  pf = fopen("./../Processed_data/PotDot.bin", "w");
+  pf = fopen("./../../Processed_data/PotDot.bin", "w");
 
   fwrite(&GV.BoxSize, sizeof(double), 1, pf);
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);
@@ -4551,8 +4553,8 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   printf("--------------------------\n");
 
 
-  pf1 = fopen("./../Processed_data/PotDot_app1.bin", "w");
-  pf2 = fopen("./../Processed_data/PotDot_app2.bin", "w");
+  pf1 = fopen("./../../Processed_data/PotDot_app1.bin", "w");
+  pf2 = fopen("./../../Processed_data/PotDot_app2.bin", "w");
 
 
   fwrite(&GV.BoxSize, sizeof(double), 1, pf1);

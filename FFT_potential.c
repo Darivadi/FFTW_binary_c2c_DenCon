@@ -106,7 +106,9 @@ int potential(double *poten_r, double **poten_k)
   printf("Proceeding to the writing of binary file with potential field\n");
   printf("----------------------------\n");   
   
-  pf = fopen("./../Processed_data/Potential.bin", "w");
+
+  pf = fopen("./../../Processed_data/Potential.bin", "w");
+
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter

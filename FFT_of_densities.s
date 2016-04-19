@@ -2,7 +2,7 @@
 	.section	.rodata.str1.8,"aMS",@progbits,1
 	.align 8
 .LC0:
-	.string	"grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump"
+	.string	"grep -v \"#\" %s | grep -v \"^$\" | awk -F\"=\" '{print $2}' > %s.dump"
 	.text
 	.p2align 4,,15
 	.globl	conf2dump
@@ -949,7 +949,7 @@ transform:
 	.section	.rodata.str1.8
 	.align 8
 .LC48:
-	.string	"./../Processed_data/Potential.bin"
+	.string	"./../../Processed_data/Potential.bin"
 	.text
 	.p2align 4,,15
 	.globl	potential
@@ -1630,7 +1630,7 @@ momentum_den_cm:
 	.string	"Writing binary file with PotDot"
 	.align 8
 .LC65:
-	.string	"./../Processed_data/PotDot.bin"
+	.string	"./../../Processed_data/PotDot.bin"
 	.text
 	.p2align 4,,15
 	.globl	potential_dot
@@ -2056,10 +2056,10 @@ growth_rate_OmegaM:
 	.string	"Saving data in binary file for both approximations"
 	.align 8
 .LC77:
-	.string	"./../Processed_data/PotDot_app1.bin"
+	.string	"./../../Processed_data/PotDot_app1.bin"
 	.align 8
 .LC78:
-	.string	"./../Processed_data/PotDot_app2.bin"
+	.string	"./../../Processed_data/PotDot_app2.bin"
 	.text
 	.p2align 4,,15
 	.globl	potential_dot_linear

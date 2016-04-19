@@ -260,8 +260,8 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   printf("--------------------------\n");
 
 
-  pf1 = fopen("./../Processed_data/PotDot_app1.bin", "w");
-  pf2 = fopen("./../Processed_data/PotDot_app2.bin", "w");
+  pf1 = fopen("./../../Processed_data/PotDot_app1.bin", "w");
+  pf2 = fopen("./../../Processed_data/PotDot_app2.bin", "w");
   
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize, sizeof(double), 1, pf1);  // Box Size

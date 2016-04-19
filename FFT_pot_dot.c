@@ -151,7 +151,7 @@ int potential_dot(double **potDot_r)
   printf("Writing binary file with PotDot\n");
   printf("--------------------------\n");
 
-  pf = fopen("./../Processed_data/PotDot.bin", "w");
+  pf = fopen("./../../Processed_data/PotDot.bin", "w");
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
