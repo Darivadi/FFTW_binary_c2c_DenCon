@@ -18,12 +18,12 @@ $(PROGRAM):
 debug:
 	echo Compiling for debug $(PROGRAM).c
 	$(CC) $(CFLAGSDEBUG) $(PROGRAM).c -o $(PROGRAM).o
-	$(CC) $(PROGRAM).o $(LFLAGS) -lfftw3 -lm -o $(PROGRAM).x
+	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x
 
 mdr:
 	echo Compiling for MDR $(PROGRAM).c
-	$(CC) $(CFLAGSMDR) $(PROGRAM).c -o $(PROGRAM).o
-	$(CC) $(PROGRAM).o $(LFLAGS) -lfftw3 -lm -o $(PROGRAM).x
+	$(CC) -c -save-temps $(CFLAGSMDR) $(PROGRAM).c -o $(PROGRAM).o
+	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x
 
 clean:
 	rm -rf $(PROGRAM)

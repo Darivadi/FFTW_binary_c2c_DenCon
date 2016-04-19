@@ -3604,13 +3604,17 @@ int conf2dump( char filename[] )
 {
     char cmd[1000];
     int nread;
+
+
+
+
     sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump",
       filename, filename );
     nread = system( cmd );
 
     return 0;
 }
-# 26 "FFT_routines.c"
+# 30 "FFT_routines.c"
 int read_parameters( char filename[] )
 {
   int nread;
@@ -3630,12 +3634,19 @@ int read_parameters( char filename[] )
   conf2dump( filename );
   sprintf( filenamedump, "%s.dump", filename );
   file = fopen( filenamedump, "r" );
-
-
-
+# 60 "FFT_routines.c"
   nread = fscanf(file, "%d", &GV.NCELLS);
+  nread = fscanf(file, "%lf", &GV.BoxSize);
   nread = fscanf(file, "%s", GV.FILENAME);
-# 68 "FFT_routines.c"
+
+
+  nread = fscanf(file, "%lf", &GV.Omega_M0);
+  nread = fscanf(file, "%lf", &GV.Omega_L0);
+  nread = fscanf(file, "%lf", &GV.z_RS);
+  nread = fscanf(file, "%lf", &GV.H0);
+  GV.a_SF = 1.0/(1.0 + GV.z_RS);
+
+
   fclose( file );
 
   printf( "  * The file '%s' has been loaded!\n", filename );
@@ -3648,7 +3659,41 @@ int read_parameters( char filename[] )
 
   return 0;
 }
-# 175 "FFT_routines.c"
+# 93 "FFT_routines.c"
+int read_data(char *infile, double *DenConCell, double **p_r)
+{
+  int m, nread;
+  FILE *pf=((void *)0);
+  char buff[1000];
+  double dummy;
+
+  pf = fopen(infile, "r");
+
+
+  nread = fgets(buff, 1000, pf);
+# 148 "FFT_routines.c"
+  free(p_r);
+
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {
+      nread=fscanf(pf,"%lf %lf %lf %lf",
+     &dummy, &dummy, &dummy,
+     &DenConCell[m]);
+
+      if(m%5000000==0)
+ {
+   printf("%d %lf\n",
+   m, DenConCell[m]);
+ }
+
+    }
+
+
+  fclose(pf);
+
+  return 0;
+}
+# 179 "FFT_routines.c"
 int read_binary(double *DenConCell, double **p_r)
 {
   int m, nread;
@@ -3680,25 +3725,26 @@ int read_binary(double *DenConCell, double **p_r)
   printf("L=%lf\n",
   GV.BoxSize);
   printf("-----------------------------------------------\n");
-
-
+# 232 "FFT_routines.c"
+  free(p_r);
 
   for(m=0; m<GV.NTOTALCELLS; m++ )
     {
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
-      nread = fread(&p_r[m][0], sizeof(double), 3, inFile);
       nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
 
       if(m%5000000==0)
  {
-   printf("Reading m=%d x=%lf y=%lf z=%lf px=%lf py=%lf pz=%lf DenCon=%lf\n",
-   m, pos_aux[0], pos_aux[1], pos_aux[2],
-   p_r[m][0], p_r[m][1], p_r[m][2],
+   printf("Reading m=%d x=%lf y=%lf z=%lf DenCon=%lf\n",
+   m,
+   pos_aux[0], pos_aux[1], pos_aux[2],
    DenConCell[m]);
  }
 
     }
-# 247 "FFT_routines.c"
+
+
+
   fclose(inFile);
   return 0;
 }
@@ -4560,7 +4606,7 @@ int main( int argc, char *argv[] )
   double **p_r = ((void *)0);
 
 
-  double **potDot_r = ((void *)0);
+
 
 
 
@@ -4600,28 +4646,14 @@ int main( int argc, char *argv[] )
     {
       poten_k[m] = (double *) calloc(2, sizeof(double));
     }
-
-
-
-
-
-  p_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
-  potDot_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      p_r[m] = (double *) calloc(3, sizeof(double));
-      potDot_r[m] = (double *) calloc(2, sizeof(double));
-    }
-
-
-
-
-
-  read_binary(DenConCell, p_r);
-  printf("Binary data file has been read succesfully!\n");
+# 107 "FFT_of_densities.c"
+  read_data( GV.FILENAME, DenConCell, p_r );
+  printf("Ascii data file has been read succesfully!\n");
   printf("-----------------------------------------------------------------\n");
-# 114 "FFT_of_densities.c"
+
+
+
+
   GV.Hz = GV.H0 * sqrt(GV.Omega_L0 + GV.Omega_M0 * pow( (1+GV.z_RS), 3 ) );
   GV.CellSize = GV.BoxSize/(1.0*GV.NCELLS);
 
@@ -4647,7 +4679,7 @@ int main( int argc, char *argv[] )
   GV.r2k_norm = (GV.BoxSize * GV.BoxSize * GV.BoxSize ) / (1.0 * GV.NTOTALCELLS);
   GV.k2r_norm = 1.0 / ( GV.BoxSize * GV.BoxSize * GV.BoxSize );
   GV.fftw_norm = 1.0 / sqrt(GV.NTOTALCELLS);
-  GV.conv_norm = 1.0 / ( (2*3.14159265358979323846)*(2*3.14159265358979323846)*(2*3.14159265358979323846) )
+  GV.conv_norm = 1.0 / ( (2*3.14159265358979323846)*(2*3.14159265358979323846)*(2*3.14159265358979323846) );
 
   printf("r2k norm = %lf, k2r norm = %lf\n", GV.r2k_norm, GV.k2r_norm);
   printf("r2k 1D = %lf\n", GV.BoxSize / (1.0*GV.NCELLS) );
@@ -4664,27 +4696,7 @@ int main( int argc, char *argv[] )
   potential( poten_r, poten_k );
   printf("FFT of gravitational potential finished!\n");
   printf("-----------------------------------------------------------------\n");
-
-
-
-
-
-  momentum_den_cm( p_r );
-  free(p_r);
-  printf("FFT of momentum finished!\n");
-  printf("-----------------------------------------------------------------\n");
-
-
-
-  potential_dot( potDot_r );
-  printf("FFT of time derivative of gravitational potential finished!\n");
-  printf("-----------------------------------------------------------------\n");
-
-
-
-
-
-
+# 177 "FFT_of_densities.c"
   potDot_r_l_app1 = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
   potDot_r_l_app2 = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
 

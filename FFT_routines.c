@@ -100,7 +100,7 @@ int read_data(char *infile, double *DenConCell, double **p_r)
   pf = fopen(infile, "r");
 
   /*+++ Ignoring the first line +++*/
-  fgets(buff, 1000, pf);
+  nread = fgets(buff, 1000, pf);
 
   /*+++ Reading from the second line +++*/
 #ifdef NGP
