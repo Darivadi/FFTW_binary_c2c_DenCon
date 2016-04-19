@@ -96,6 +96,7 @@ int read_data(char *infile, double *DenConCell, double **p_r)
   FILE *pf=NULL;
   char buff[1000];
   double dummy;
+  int dummy1;
   
   pf = fopen(infile, "r");
 
@@ -149,8 +150,8 @@ int read_data(char *infile, double *DenConCell, double **p_r)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {      
-      nread=fscanf(pf,"%lf %lf %lf %lf", 
-		   &dummy, &dummy, &dummy,
+      nread=fscanf(pf,"%d %lf %lf %lf %lf", 
+		   &dummy1, &dummy, &dummy, &dummy,
 		   &DenConCell[m]);
       
       if(m%5000000==0)

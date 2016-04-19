@@ -207,7 +207,7 @@ read_parameters:
 	.size	read_parameters, .-read_parameters
 	.section	.rodata.str1.1
 .LC12:
-	.string	"%lf %lf %lf %lf"
+	.string	"%d %lf %lf %lf %lf"
 .LC13:
 	.string	"%d %lf\n"
 	.text
@@ -233,13 +233,13 @@ read_data:
 	.cfi_def_cfa_offset 40
 	.cfi_offset 3, -40
 	movq	%rdx, %rbx
-	subq	$1032, %rsp
-	.cfi_def_cfa_offset 1072
+	subq	$1048, %rsp
+	.cfi_def_cfa_offset 1088
 	movq	%fs:40, %rax
-	movq	%rax, 1016(%rsp)
+	movq	%rax, 1032(%rsp)
 	xorl	%eax, %eax
 	call	fopen
-	leaq	16(%rsp), %rdi
+	leaq	32(%rsp), %rdi
 	movq	%rax, %rdx
 	movl	$1000, %esi
 	movq	%rax, %r12
@@ -259,13 +259,14 @@ read_data:
 	cmpl	%ebx, GV+1020(%rip)
 	jle	.L16
 .L17:
-	leaq	8(%rsp), %r8
+	leaq	24(%rsp), %r9
+	leaq	20(%rsp), %rdx
 	xorl	%eax, %eax
-	movq	%rbp, %r9
+	movq	%rbp, (%rsp)
 	movl	$.LC12, %esi
 	movq	%r12, %rdi
-	movq	%r8, %rdx
-	movq	%r8, %rcx
+	movq	%r9, %r8
+	movq	%r9, %rcx
 	call	__isoc99_fscanf
 	movl	%ebx, %eax
 	imull	%r13d
@@ -290,10 +291,10 @@ read_data:
 	movq	%r12, %rdi
 	call	fclose
 	xorl	%eax, %eax
-	movq	1016(%rsp), %rsi
+	movq	1032(%rsp), %rsi
 	xorq	%fs:40, %rsi
 	jne	.L21
-	addq	$1032, %rsp
+	addq	$1048, %rsp
 	.cfi_remember_state
 	.cfi_def_cfa_offset 40
 	popq	%rbx

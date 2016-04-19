@@ -3666,18 +3666,19 @@ int read_data(char *infile, double *DenConCell, double **p_r)
   FILE *pf=((void *)0);
   char buff[1000];
   double dummy;
+  int dummy1;
 
   pf = fopen(infile, "r");
 
 
   nread = fgets(buff, 1000, pf);
-# 148 "FFT_routines.c"
+# 149 "FFT_routines.c"
   free(p_r);
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      nread=fscanf(pf,"%lf %lf %lf %lf",
-     &dummy, &dummy, &dummy,
+      nread=fscanf(pf,"%d %lf %lf %lf %lf",
+     &dummy1, &dummy, &dummy, &dummy,
      &DenConCell[m]);
 
       if(m%5000000==0)
@@ -3693,7 +3694,7 @@ int read_data(char *infile, double *DenConCell, double **p_r)
 
   return 0;
 }
-# 179 "FFT_routines.c"
+# 180 "FFT_routines.c"
 int read_binary(double *DenConCell, double **p_r)
 {
   int m, nread;
@@ -3725,7 +3726,7 @@ int read_binary(double *DenConCell, double **p_r)
   printf("L=%lf\n",
   GV.BoxSize);
   printf("-----------------------------------------------\n");
-# 232 "FFT_routines.c"
+# 233 "FFT_routines.c"
   free(p_r);
 
   for(m=0; m<GV.NTOTALCELLS; m++ )
