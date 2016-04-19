@@ -9,6 +9,10 @@ int conf2dump( char filename[] )
 {
     char cmd[1000];
     int nread;
+    /*
+    sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump", 
+	     filename, filename );
+    */
     sprintf( cmd, "grep -v \"#\" %s | grep -v \"^$\" | gawk -F\"=\" '{print $2}' > %s.dump", 
 	     filename, filename );
     nread = system( cmd );
@@ -151,7 +155,7 @@ int read_data(char *infile, double *DenConCell, double **p_r)
       
       if(m%5000000==0)
 	{
-	  printf("%d lf\n",
+	  printf("%d %lf\n",
 		 m, DenConCell[m]);
 	}//if
       
@@ -227,7 +231,7 @@ int read_binary(double *DenConCell, double **p_r)
 #ifdef CIC_MDR
   free(p_r);
   
-  for(m=0; m<GV.NTOTALCELLS; i++ )
+  for(m=0; m<GV.NTOTALCELLS; m++ )
     {             
       nread = fread(&pos_aux[0], sizeof(double), 3, inFile);      
       nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
