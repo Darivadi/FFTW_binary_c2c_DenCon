@@ -9,6 +9,7 @@ int momentum_den_cm(double **p_r)
   int m, i, j, k;
   FILE *pf=NULL;
   double norm, Nparts;
+  double aux_mom[3][2];
   
   fftw_complex *in=NULL;
   fftw_complex *out=NULL;
@@ -170,21 +171,7 @@ int momentum_den_cm(double **p_r)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      /*::::: Computing ik.p in k-space :::::*/
-
-      /* Real part of dot product is with the imaginary part of the momentum. */
-      gp[m].p_w_k[X][0] = gp[m].k_vector[X] * gp[m].p_w_k[X][1];
-      gp[m].p_w_k[Y][0] = gp[m].k_vector[Y] * gp[m].p_w_k[Y][1];
-      gp[m].p_w_k[Z][0] = gp[m].k_vector[Z] * gp[m].p_w_k[Z][1];
-
-      /* Imaginary part of dot product is with the real part of the momentum. */
-      gp[m].p_w_k[X][1] = gp[m].k_vector[X] * gp[m].p_w_k[X][0];
-      gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * gp[m].p_w_k[Y][0];
-      gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * gp[m].p_w_k[Z][0];
-
-
-      /* Once the dot product is performed, it's necessary to deconvolve 
-	 with the window function */
+      /* Deconvolving with the window function */
       if( fabs(gp[m].weight) > GV.ZERO )
 	{
 	  //Re
@@ -210,6 +197,25 @@ int momentum_den_cm(double **p_r)
 	  gp[m].p_w_k[Z][1] = 0.0;
 	}//else
 
+      /*::::: Computing ik.p in k-space :::::*/    
+      aux_mom[X][0] = gp[m].p_w_k[X][0];
+      aux_mom[X][1] = gp[m].p_w_k[X][1];
+
+      aux_mom[Y][0] = gp[m].p_w_k[Y][0];
+      aux_mom[Y][1] = gp[m].p_w_k[Y][1];
+
+      aux_mom[Z][0] = gp[m].p_w_k[Z][0];
+      aux_mom[Z][1] = gp[m].p_w_k[Z][1];
+      
+      /* Real part of dot product is with the imaginary part of the momentum. */
+      gp[m].p_w_k[X][0] = gp[m].k_vector[X] * aux_mom[X][1];
+      gp[m].p_w_k[Y][0] = gp[m].k_vector[Y] * aux_mom[Y][1];
+      gp[m].p_w_k[Z][0] = gp[m].k_vector[Z] * aux_mom[Z][1];
+      
+      /* Imaginary part of dot product is with the real part of the momentum. */
+      gp[m].p_w_k[X][1] = gp[m].k_vector[X] * aux_mom[X][0];
+      gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * aux_mom[Y][0];
+      gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * aux_mom[Z][0];
     }//for m
   
 
