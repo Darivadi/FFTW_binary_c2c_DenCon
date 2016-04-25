@@ -100,6 +100,7 @@ int transform(double *DenConCell)
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
 
 	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
+	      
 	      if(aux_k_mod1 < GV.ZERO)
 		{
 		  printf("For m = %d, k_mod is null for Green = %lf\n", m, aux_k_mod1);
@@ -119,7 +120,8 @@ int transform(double *DenConCell)
 	      aux_siny = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
 	      aux_sinz = sin( gp[m].k_vector[Z] * GV.CellSize ) *  sin( gp[m].k_vector[Z] * GV.CellSize );
 
-	      gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize)  * (aux_sinx + aux_siny + aux_sinz);
+	      gp[m].k_mod_sin = (aux_sinx + aux_siny + aux_sinz);
+	      //gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize)  * (aux_sinx + aux_siny + aux_sinz);
 	      
 	      if(gp[m].k_mod_sin < GV.ZERO)
 		{
