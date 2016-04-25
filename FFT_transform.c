@@ -102,7 +102,7 @@ int transform(double *DenConCell)
 	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
 	      if(aux_k_mod1 < GV.ZERO)
 		{
-		  print("For m = %d, k_mod is null for Green = %lf", m, aux_k_mod1);
+		  printf("For m = %d, k_mod is null for Green = %lf", m, aux_k_mod1);
 		}//if
               //gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
 	      
@@ -123,7 +123,7 @@ int transform(double *DenConCell)
 	      
 	      if(gp[m].k_mod_sin < GV.ZERO)
 		{
-		  print("For m = %d, k_mod null for finite diffs  = %lf", m, gp[m].k_mod_sin);
+		  printf("For m = %d, k_mod null for finite diffs  = %lf", m, gp[m].k_mod_sin);
 		}//if
 	      
 	      /*----- Auxiliar file with k_module from different approaches -----*/

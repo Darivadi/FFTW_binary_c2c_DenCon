@@ -3802,12 +3802,21 @@ int transform(double *DenConCell)
               aux_sinz = sin(0.5*gp[m].k_vector[2]) * sin(0.5*gp[m].k_vector[2]);
 
        aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
-# 114 "FFT_transform.c"
+       if(aux_k_mod1 < GV.ZERO)
+  {
+    printf("For m = %d, k_mod is null for Green = %lf", m, aux_k_mod1);
+  }
+# 118 "FFT_transform.c"
        aux_sinx = sin( gp[m].k_vector[0] * GV.CellSize ) * sin( gp[m].k_vector[0] * GV.CellSize );
        aux_siny = sin( gp[m].k_vector[1] * GV.CellSize ) * sin( gp[m].k_vector[1] * GV.CellSize );
        aux_sinz = sin( gp[m].k_vector[2] * GV.CellSize ) * sin( gp[m].k_vector[2] * GV.CellSize );
 
        gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize) * (aux_sinx + aux_siny + aux_sinz);
+
+       if(gp[m].k_mod_sin < GV.ZERO)
+  {
+    printf("For m = %d, k_mod null for finite diffs  = %lf", m, gp[m].k_mod_sin);
+  }
 
 
        fwrite(&gp[m].k_vector[0], sizeof(double), 1, pf);
@@ -3824,7 +3833,7 @@ int transform(double *DenConCell)
   fclose(pf);
   printf("k vectors computed!\n");
   printf("------------------------------------------------\n");
-# 201 "FFT_transform.c"
+# 210 "FFT_transform.c"
   printf("Computing density contrast in k space with CIC weight-function!\n");
   printf("------------------------------------------------\n");
 
@@ -3868,7 +3877,7 @@ int transform(double *DenConCell)
 
 
       gp[m].weight = wx * wy * wz;
-# 253 "FFT_transform.c"
+# 262 "FFT_transform.c"
       if(fabs(gp[m].weight) > GV.ZERO)
  {
    gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
@@ -3885,7 +3894,7 @@ int transform(double *DenConCell)
 
   printf("Density contrast in k-space with CIC weight fn ready!!\n");
   printf("-----------------------------------------------------------------\n");
-# 281 "FFT_transform.c"
+# 290 "FFT_transform.c"
   printf("Destroying plans!\n");
   printf("--------------------------------------------------\n");
   fftw_destroy_plan( plan_r2k );
