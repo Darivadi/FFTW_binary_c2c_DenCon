@@ -28,8 +28,9 @@ int potential(double *poten_r, double **poten_k)
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      if( gp[m].k_module > GV.ZERO )
-	{
+      //if( gp[m].k_module > GV.ZERO )
+      if( gp[m].k_mod_sin > GV.ZERO )
+	{	  
 	  Green_factor  = - 1.0 / gp[m].k_mod_sin;
 	  alpha         = Green_factor * factor;
 	  

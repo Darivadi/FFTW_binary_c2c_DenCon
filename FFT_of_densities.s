@@ -370,10 +370,10 @@ read_binary:
 	.string	"./../../Processed_data/k_module_256.bin"
 	.align 8
 .LC25:
-	.string	"For m = %d, k_mod is null for Green = %lf"
+	.string	"For m = %d, k_mod is null for Green = %lf\n"
 	.align 8
 .LC26:
-	.string	"For m = %d, k_mod null for finite diffs  = %lf"
+	.string	"For m = %d, k_mod null for finite diffs  = %lf\n"
 	.section	.rodata.str1.1
 .LC27:
 	.string	"k vectors computed!"
@@ -1001,8 +1001,8 @@ potential:
 .L110:
 	movsd	.LC41(%rip), %xmm1
 	movq	(%r12), %rdx
+	divsd	%xmm0, %xmm1
 	movsd	(%rax), %xmm0
-	divsd	56(%rax), %xmm1
 	mulsd	%xmm3, %xmm1
 	mulsd	%xmm1, %xmm0
 	movsd	%xmm0, (%rdx)
@@ -1028,7 +1028,7 @@ potential:
 .L105:
 	movq	%rbp, %rax
 	addq	gp(%rip), %rax
-	movsd	40(%rax), %xmm0
+	movsd	56(%rax), %xmm0
 	ucomisd	GV+1040(%rip), %xmm0
 	ja	.L110
 	movq	(%r12), %rax

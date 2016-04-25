@@ -11,7 +11,8 @@ PROGRAM = FFT_of_densities
 
 
 $(PROGRAM):	
-	$(CC) -c -save-temps $@.c $(CFLAGS)
+	#$(CC) -c -save-temps $@.c $(CFLAGS)
+	$(CC) -c $@.c $(CFLAGS)
 	$(CC) $@.o -lm -lfftw3 $(LFLAGS) -o $@.x
 
 
