@@ -8,6 +8,7 @@ int potential(double *poten_r, double **poten_k)
 {
   int m, i, j, k;
   double factor, pos_aux[3];
+  double Green_factor, alpha;
   FILE *pf=NULL, *pf1=NULL;
   
   fftw_complex *in=NULL;
@@ -22,14 +23,21 @@ int potential(double *poten_r, double **poten_k)
   printf("-----------------------------------------\n");
 
   //Factor of the potential
-  factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
+  //factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
+  factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       if( gp[m].k_module > GV.ZERO )
 	{
-	  poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
-	  poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
+	  Green_factor  = - 1.0 / gp[m].k_mod_sin;
+	  alpha         = Green_factor * factor;
+	  
+	  poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
+	  poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
+
+	  //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
+	  //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
 	}//if 
       else
 	{

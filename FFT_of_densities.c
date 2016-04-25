@@ -65,15 +65,14 @@ int main( int argc, char *argv[] )
   /*+++++ Reading parameters file +++++*/  
   read_parameters( infile );
 
-  /*+++++ Some variables +++++*/
-  //GV.ZERO         = 1.0e-30;
+  /*+++++ Some variables +++++*/  
   GV.ZERO         = 1.0e-300;
   GV.NTOTALCELLS  = GV.NCELLS*GV.NCELLS*GV.NCELLS;
   printf("Variables are ready to use!\n");
   printf("-----------------------------------------------------------------\n");
 
   /*--- MEMORY ALLOCATION ---*/
-  gp = (struct grid *) malloc((size_t) GV.NTOTALCELLS*sizeof(struct grid));
+  gp         = (struct grid *) malloc((size_t) GV.NTOTALCELLS*sizeof(struct grid));
   DenConCell = (double *) calloc(GV.NTOTALCELLS, sizeof(double) );
 
   poten_r = (double *) calloc(GV.NTOTALCELLS, sizeof(double) );
@@ -88,12 +87,12 @@ int main( int argc, char *argv[] )
   /*::::: For each cell, it's necessary to allocate memory for 3 momentum 
     components and 2 for potdot, i.e., real and imaginary parts :::::*/
 #ifdef POTDOTEXACT
-  p_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
+  p_r      = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
   potDot_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      p_r[m] = (double *) calloc(3, sizeof(double));
+      p_r[m]      = (double *) calloc(3, sizeof(double));
       potDot_r[m] = (double *) calloc(2, sizeof(double));
     }//for m 
 #endif
@@ -116,8 +115,8 @@ int main( int argc, char *argv[] )
 
   
   /*+++++ Hubble's constant in terms of redshift +++++*/
-  GV.Hz      = GV.H0 * sqrt(GV.Omega_L0 + GV.Omega_M0 * pow( (1+GV.z_RS), 3 ) ); 
-  GV.CellSize     = GV.BoxSize/(1.0*GV.NCELLS); //Size of each cell per axis
+  GV.Hz       = GV.H0 * sqrt(GV.Omega_L0 + GV.Omega_M0 * pow( (1+GV.z_RS), 3 ) ); 
+  GV.CellSize = GV.BoxSize/(1.0*GV.NCELLS); //Size of each cell per axis
   
   printf("Simulation parameters\n");
   printf("GV.NCELLS:%12d GV.NTOTALCELLS:%12d\n" 
@@ -138,8 +137,8 @@ int main( int argc, char *argv[] )
   
 
   /*----- Normalization factors for FT transforms -----*/
-  GV.r2k_norm = (GV.BoxSize * GV.BoxSize * GV.BoxSize ) / (1.0 * GV.NTOTALCELLS);
-  GV.k2r_norm = 1.0 / ( GV.BoxSize * GV.BoxSize * GV.BoxSize );
+  GV.r2k_norm  = (GV.BoxSize * GV.BoxSize * GV.BoxSize ) / (1.0 * GV.NTOTALCELLS);
+  GV.k2r_norm  = 1.0 / ( GV.BoxSize * GV.BoxSize * GV.BoxSize );
   GV.fftw_norm = 1.0 / sqrt(GV.NTOTALCELLS);
   GV.conv_norm = 1.0 / ( (2*M_PI)*(2*M_PI)*(2*M_PI) );
 

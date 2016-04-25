@@ -27,7 +27,7 @@ int potential_dot(double **potDot_r)
   printf("Computing time derivative of potential in k-space!\n");
   printf("-----------------------------------------------------------------\n");
 
-  /*+++ Computing the time derivative of potential in k-space +++*/
+  /*+++ Computing the time derivative of potential in k-space +++*/  
   factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
 
   for(m=0; m<GV.NTOTALCELLS; m++)

@@ -89,13 +89,25 @@ int transform(double *DenConCell)
 	      k2 = gp[m].k_vector[X]*gp[m].k_vector[X] + gp[m].k_vector[Y]*gp[m].k_vector[Y] + gp[m].k_vector[Z]*gp[m].k_vector[Z] ;
 	      gp[m].k_module = sqrt(k2);
 	      
-	      
+	      /*
 	      // Discretized k-vector module         
               aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
               aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
 
               gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
+	      */
+	      
+	      // Discretized k-vector module according to my calculus
+	      //aux_sinx = sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) ;
+	      //aux_siny = sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) ;
+	      //aux_sinz = sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) ;
+	      
+	      aux_sinx = sin( gp[m].k_vector[X] * GV.CellSize ) *  sin( gp[m].k_vector[X] * GV.CellSize );
+	      aux_siny = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
+	      aux_sinz = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
+
+	      gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize)  * (aux_sinx + aux_siny + aux_sinz);
 
 	    }//for k
 	}//for j
