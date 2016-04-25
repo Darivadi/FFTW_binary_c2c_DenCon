@@ -15,6 +15,7 @@ int transform(double *DenConCell)
   int m, i, j, k;
   double fx, fy, fz, k2, wx, wy, wz;
   double aux_sinx, aux_siny, aux_sinz;
+  double aux_k_mod1;
   
   fftw_complex *in=NULL;
   fftw_complex *out=NULL;
@@ -23,6 +24,7 @@ int transform(double *DenConCell)
   //fftw_plan plan_k2r; //plan_backward
 
   FILE *pf=NULL;
+
 
   
   /*----------------------------------------------------------------------------
@@ -59,6 +61,8 @@ int transform(double *DenConCell)
  
 
   /*--- K vector: components and module ---*/
+  pf = fopen("./../../Processed_data/k_module_256.bin", "w");
+
   for(i=0; i<GV.NCELLS; i++)
     {
       for(j=0; j<GV.NCELLS; j++)
@@ -89,30 +93,43 @@ int transform(double *DenConCell)
 	      k2 = gp[m].k_vector[X]*gp[m].k_vector[X] + gp[m].k_vector[Y]*gp[m].k_vector[Y] + gp[m].k_vector[Z]*gp[m].k_vector[Z] ;
 	      gp[m].k_module = sqrt(k2);
 	      
-	      /*
+	      
 	      // Discretized k-vector module         
               aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
               aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
 
-              gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
-	      */
+	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
+              //gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
+	      
 	      
 	      // Discretized k-vector module according to my calculus
-	      //aux_sinx = sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) ;
-	      //aux_siny = sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) ;
-	      //aux_sinz = sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) ;
+	      /*
+	      aux_sinx = sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) ;
+	      aux_siny = sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) ;
+	      aux_sinz = sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) ;
+	      */	      
 	      
+	      //Approach 2
 	      aux_sinx = sin( gp[m].k_vector[X] * GV.CellSize ) *  sin( gp[m].k_vector[X] * GV.CellSize );
 	      aux_siny = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
-	      aux_sinz = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
+	      aux_sinz = sin( gp[m].k_vector[Z] * GV.CellSize ) *  sin( gp[m].k_vector[Z] * GV.CellSize );
 
 	      gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize)  * (aux_sinx + aux_siny + aux_sinz);
+
+	      /*----- Auxiliar file with k_module from different approaches -----*/
+	      fwrite(&gp[m].k_vector[X], sizeof(double), 1, pf);
+	      fwrite(&gp[m].k_vector[Y], sizeof(double), 1, pf);
+	      fwrite(&gp[m].k_vector[Z], sizeof(double), 1, pf);
+	      fwrite(&k2, sizeof(double), 1, pf);
+	      fwrite(&aux_k_mod1, sizeof(double), 1, pf);	      
+	      fwrite(&gp[m].k_mod_sin, sizeof(double), 1, pf);
 
 	    }//for k
 	}//for j
     }//for i
- 
+
+  fclose(pf);
   printf("k vectors computed!\n");
   printf("------------------------------------------------\n");
 
