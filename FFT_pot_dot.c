@@ -63,7 +63,12 @@ int potential_dot(double **potDot_r)
 			}//if
 		      
 		    }//if i, j, k
-		  		  
+		  else
+		    {
+		      gp[m].potDot_k[0] = 0.0; //Re()
+		      gp[m].potDot_k[1] = 0.0; //Im()
+		    }//else i,j,k
+		  
 		}//if
 	      else
 		{
