@@ -61,7 +61,7 @@ int transform(double *DenConCell)
  
 
   /*--- K vector: components and module ---*/
-  pf = fopen("./../../Processed_data/k_module_256.bin", "w");
+  //pf = fopen("./../../Processed_data/k_module_256.bin", "w");
 
   for(i=0; i<GV.NCELLS; i++)
     {
@@ -98,14 +98,15 @@ int transform(double *DenConCell)
               aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
               aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
-
+	      /*
 	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
 	      
 	      if(aux_k_mod1 < GV.ZERO)
 		{
 		  printf("For m = %d, k_mod is null for Green = %lf\n", m, aux_k_mod1);
 		}//if
-              //gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
+	      */
+              gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
 	      
 	      
 	      // Discretized k-vector module according to my calculus
@@ -114,7 +115,7 @@ int transform(double *DenConCell)
 	      aux_siny = sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) ;
 	      aux_sinz = sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) ;
 	      */	      
-	      
+	      /*
 	      //Approach 2
 	      aux_sinx = sin( gp[m].k_vector[X] * GV.CellSize ) *  sin( gp[m].k_vector[X] * GV.CellSize );
 	      aux_siny = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
@@ -127,20 +128,21 @@ int transform(double *DenConCell)
 		{
 		  printf("For m = %d, k_mod null for finite diffs  = %lf\n", m, gp[m].k_mod_sin);
 		}//if
-	      
+	      */
 	      /*----- Auxiliar file with k_module from different approaches -----*/
+	      /*
 	      fwrite(&gp[m].k_vector[X], sizeof(double), 1, pf);
 	      fwrite(&gp[m].k_vector[Y], sizeof(double), 1, pf);
 	      fwrite(&gp[m].k_vector[Z], sizeof(double), 1, pf);
 	      fwrite(&k2, sizeof(double), 1, pf);
 	      fwrite(&aux_k_mod1, sizeof(double), 1, pf);	      
 	      fwrite(&gp[m].k_mod_sin, sizeof(double), 1, pf);
-
+	      */
 	    }//for k
 	}//for j
     }//for i
-
-  fclose(pf);
+  
+  //fclose(pf);
   printf("k vectors computed!\n");
   printf("------------------------------------------------\n");
 
