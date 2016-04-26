@@ -37,25 +37,25 @@ int potential(double *poten_r, double **poten_k)
 	      
 	      //if( gp[m].k_module > GV.ZERO )
 	      if( gp[m].k_mod_sin > GV.ZERO )
-		{	  
+		{	  		  
+		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
+		  //{
+		  Green_factor  = - 1.0 / gp[m].k_mod_sin;
+		  alpha         = Green_factor * factor;
 		  
-		  if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
-		    {
-		      Green_factor  = - 1.0 / gp[m].k_mod_sin;
-		      alpha         = Green_factor * factor;
-		      
-		      poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
-		      poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
+		  poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
+		  poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
 		  
-		      //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
-		      //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
+		  //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
+		  //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
+		  /*
 		    }//if i, j, k
-		  else
+		    else
 		    {
-		      poten_k[m][0] = 0.0; //Re()
-		      poten_k[m][1] = 0.0; //Im()
+		    poten_k[m][0] = 0.0; //Re()
+		    poten_k[m][1] = 0.0; //Im()
 		    }//else i,j,k
-		  
+		  */
 		}//if 
 	      else
 		{

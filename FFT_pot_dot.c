@@ -51,26 +51,26 @@ int potential_dot(double **potDot_r)
 	      //Unifying      
 	      if(gp[m].k_mod_sin > GV.ZERO)
 		{
-		  if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
-		    {		      
-		      Green_factor = -1.0 / gp[m].k_mod_sin;
-		      alpha = factor * Green_factor;
-		      
-		      gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
-		      gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
-		      
-		      if(m%5000000==0)
-			{
-			  printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
-			}//if
-		      
-		    }//if i, j, k
-		  else
-		    {		      
-		      gp[m].potDot_k[0] = 0.0; //Re()
-		      gp[m].potDot_k[1] = 0.0; //Im()
-		    }//else i,j,k
+		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
+		  //{		      
+		  Green_factor = -1.0 / gp[m].k_mod_sin;
+		  alpha = factor * Green_factor;
 		  
+		  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
+		  gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
+		  
+		  if(m%5000000==0)
+		    {
+		      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
+		    }//if
+		  /*
+		    }//if i, j, k
+		    else
+		    {		      
+		    gp[m].potDot_k[0] = 0.0; //Re()
+		    gp[m].potDot_k[1] = 0.0; //Im()
+		    }//else i,j,k
+		  */
 		}//if
 	      else
 		{
