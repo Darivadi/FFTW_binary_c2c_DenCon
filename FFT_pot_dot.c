@@ -38,6 +38,8 @@ int potential_dot(double **potDot_r)
 	{
 	  for(k=0; k<GV.NCELLS; k++)
 	    {
+	      m = INDEX_C_ORDER(i,j,k);
+	      
 	      //Re
 	      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
 	      pot_Re2 = -1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
@@ -50,7 +52,7 @@ int potential_dot(double **potDot_r)
 	      if(gp[m].k_mod_sin > GV.ZERO)
 		{
 		  if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
-		    {
+		    {		      
 		      Green_factor = -1.0 / gp[m].k_mod_sin;
 		      alpha = factor * Green_factor;
 		      
@@ -64,7 +66,7 @@ int potential_dot(double **potDot_r)
 		      
 		    }//if i, j, k
 		  else
-		    {
+		    {		      
 		      gp[m].potDot_k[0] = 0.0; //Re()
 		      gp[m].potDot_k[1] = 0.0; //Im()
 		    }//else i,j,k
