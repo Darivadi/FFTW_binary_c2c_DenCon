@@ -26,32 +26,51 @@ int potential(double *poten_r, double **poten_k)
   //factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
 
-  for(m=0; m<GV.NTOTALCELLS; m++)
+
+  for(i=0; i<GV.NCELLS; i++)
     {
-      //if( gp[m].k_module > GV.ZERO )
-      if( gp[m].k_mod_sin > GV.ZERO )
+      for(j=0; j<GV.NCELLS; j++)
 	{	  
-	  Green_factor  = - 1.0 / gp[m].k_mod_sin;
-	  alpha         = Green_factor * factor;
-	  
-	  poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
-	  poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
-
-	  //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
-	  //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
-	}//if 
-      else
-	{
-	  poten_k[m][0] = 0.0; //Re()
-	  poten_k[m][1] = 0.0; //Im()
-	}//else
-
-      if(m%5000000==0)
-	{
-	  printf("%lf %lf\n", poten_k[m][0], poten_k[m][1]);
-	}//if
-      
-    }//for m
+	  for(k=0; k<GV.NCELLS; k++)
+	    { 
+	      m = INDEX_C_ORDER(i,j,k); //ID in C-order
+	      
+	      //if( gp[m].k_module > GV.ZERO )
+	      if( gp[m].k_mod_sin > GV.ZERO )
+		{	  
+		  
+		  if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
+		    {
+		      Green_factor  = - 1.0 / gp[m].k_mod_sin;
+		      alpha         = Green_factor * factor;
+		      
+		      poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
+		      poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
+		  
+		      //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
+		      //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
+		    }//if i, j, k
+		  else
+		    {
+		      poten_k[m][0] = 0.0; //Re()
+		      poten_k[m][1] = 0.0; //Im()
+		    }//else i,j,k
+		  
+		}//if 
+	      else
+		{
+		  poten_k[m][0] = 0.0; //Re()
+		  poten_k[m][1] = 0.0; //Im()
+		}//else
+	      
+	      if(m%5000000==0)
+		{
+		  printf("%lf %lf\n", poten_k[m][0], poten_k[m][1]);
+		}//if
+	      
+	    }//for k
+	}//for j
+    }//for i
 
   printf("Potential in k-space saved!\n");
   printf("-----------------------------------------\n");
