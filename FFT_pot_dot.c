@@ -15,6 +15,7 @@ int potential_dot(double **potDot_r)
   double Green_factor;
   double pos_aux[3];
   FILE *pf=NULL;
+  //double nyquist_freq;
   
   /*+++ FFTW DEFINITIONS +++*/
   fftw_complex *in=NULL;
@@ -29,45 +30,56 @@ int potential_dot(double **potDot_r)
 
   /*+++ Computing the time derivative of potential in k-space +++*/  
   factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
+  //nyquist_freq = M_PI / GV.CellSize;
+  
+  for(i=0; i<GV.NCELLS; i++)  
     {
-      //Re
-      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
-      pot_Re2 = -1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
-
-      //Im
-      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
-      
-      //Unifying      
-      if(gp[m].k_mod_sin > GV.ZERO)
+      for(j=0; j<GV.NCELLS; j++)
 	{
-	  Green_factor = -1.0 / gp[m].k_mod_sin;
-	  alpha = factor * Green_factor;
-	  
-	  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
-	  gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
-
-	  if(m%5000000==0)
+	  for(k=0; k<GV.NCELLS; k++)
 	    {
-	      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
-	    }//if
-	  
-	}//if
-      else
-	{
-	  gp[m].potDot_k[0] = 0.0; //Re()
-	  gp[m].potDot_k[1] = 0.0; //Im()
-	}//else      
-      
-      Green_factor = 0.0;
-      pot_Re1 = 0.0;
-      pot_Re2 = 0.0;
-      pot_Im1 = 0.0;
-      pot_Im2 = 0.0;
-
-    }//for m
+	      //Re
+	      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
+	      pot_Re2 = -1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
+	      
+	      //Im
+	      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
+	      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
+	      
+	      //Unifying      
+	      if(gp[m].k_mod_sin > GV.ZERO)
+		{
+		  if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
+		    {
+		      Green_factor = -1.0 / gp[m].k_mod_sin;
+		      alpha = factor * Green_factor;
+		      
+		      gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
+		      gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
+		      
+		      if(m%5000000==0)
+			{
+			  printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
+			}//if
+		      
+		    }//if i, j, k
+		  		  
+		}//if
+	      else
+		{
+		  gp[m].potDot_k[0] = 0.0; //Re()
+		  gp[m].potDot_k[1] = 0.0; //Im()
+		}//else      
+	      
+	      Green_factor = 0.0;
+	      pot_Re1 = 0.0;
+	      pot_Re2 = 0.0;
+	      pot_Im1 = 0.0;
+	      pot_Im2 = 0.0;
+	      
+	    }//for k
+	}//for j 
+    }//for i
   
   /*
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
