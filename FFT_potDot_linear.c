@@ -166,8 +166,10 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   /*+++++ Saving data +++++*/
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r_l_app1[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      //potDot_r_l_app1[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       //potDot_r_l_app1[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
+      potDot_r_l_app1[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
+
     }//for m
 
   /*+++++ Recreating input array +++++*/
@@ -220,8 +222,9 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   /*+++++ Saving data +++++*/
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r_l_app2[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      //potDot_r_l_app2[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       //potDot_r_l_app2[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
+      potDot_r_l_app2[m][0] = GV.fftw_norm *  out[m][0] / GV.r2k_norm; //Re()
     }//for m
 
 

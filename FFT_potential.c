@@ -100,7 +100,8 @@ int potential(double *poten_r, double **poten_k)
   
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      //poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      poten_r[m] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
       
       if(m%1000000==0)
 	{

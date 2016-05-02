@@ -145,8 +145,11 @@ int potential_dot(double **potDot_r)
   /*+++++ Saving data +++++*/  
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
+      //potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im() 
+      
+      potDot_r[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
+
     }//for m
    
   /*Recreating input array*/
