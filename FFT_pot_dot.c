@@ -54,6 +54,7 @@ int potential_dot(double **potDot_r)
 		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
 		  //{		      
 		  Green_factor = -1.0 / gp[m].k_mod_sin;
+		  //Green_factor = -1.0 / gp[m].k_mod_HE;
 		  alpha = factor * Green_factor;
 		  
 		  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()

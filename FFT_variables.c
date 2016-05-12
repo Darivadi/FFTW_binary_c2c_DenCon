@@ -42,7 +42,8 @@ struct grid
   double k_vector[3];       // Wave vector components in c-order
   double k_module;          // Wave vector module in c-order
   double weight;             // Weight function for the mass assignment scheme
-  double k_mod_sin;         //Discretized module of k vector
+  double k_mod_sin;         //Discretized module of k vector according to Knebe
+  double k_mod_HE;          //Discretized module of k vector according to Hockney & Eastwood
   
 #ifdef CIC_400
   /*+++ Velocities and momentum density +++*/

@@ -15,7 +15,7 @@ int transform(double *DenConCell)
   int m, i, j, k;
   double fx, fy, fz, k2, wx, wy, wz;
   double aux_sinx, aux_siny, aux_sinz;
-  double aux_k_mod1;
+  double aux_k_mod1, aux_factor;
   
   fftw_complex *in=NULL;
   fftw_complex *out=NULL;
@@ -94,10 +94,21 @@ int transform(double *DenConCell)
 	      gp[m].k_module = sqrt(k2);
 	      
 	      
-	      // Discretized k-vector module         
+	      /*-----  Discretized k-vector module -----*/
+	      //According to Slices from Knebe
               aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
               aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
+	      gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz; 
+
+	      //According to Hockney & Eastwood
+	      aux_sinx = sin( gp[m].k_vector[X]*GV.CellSize/2.0 ) *  sin( gp[m].k_vector[X]*GV.CellSize/2.0 );
+              aux_siny = sin( gp[m].k_vector[Y]*GV.CellSize/2.0 ) *  sin( gp[m].k_vector[Y]* GV.CellSize/2.0 );
+              aux_sinz = sin( gp[m].k_vector[Z]*GV.CellSize/2.0 ) *  sin( gp[m].k_vector[Z]*GV.CellSize/2.0 );
+	      
+	      aux_factor = (GV.CellSize / 2.0) * (GV.CellSize / 2.0);
+	      gp[m].k_mod_HE = (aux_sinx + aux_siny + aux_sinz) / aux_factor; 
+
 	      /*
 	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
 	      
@@ -106,7 +117,8 @@ int transform(double *DenConCell)
 		  printf("For m = %d, k_mod is null for Green = %lf\n", m, aux_k_mod1);
 		}//if
 	      */
-              gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz;
+
+	      
 	      
 	      
 	      // Discretized k-vector module according to my calculus
@@ -223,7 +235,8 @@ int transform(double *DenConCell)
       if(fabs(gp[m].k_vector[X]) > GV.ZERO)
 	{
 	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wx = (sin(fx)/fx)*(sin(fx)/fx);
+	  //wx = (sin(fx)/fx)*(sin(fx)/fx);
+	  wx = GV.CellSize * (sin(fx)/fx)*(sin(fx)/fx); //According to Hockney & Eastwood
 	}//if 1
       else
 	{
@@ -234,7 +247,8 @@ int transform(double *DenConCell)
       if(fabs(gp[m].k_vector[Y]) > GV.ZERO)
 	{
 	  fy = (gp[m].k_vector[Y]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wy = (sin(fy)/fy)*(sin(fy)/fy);
+	  //wy = (sin(fy)/fy)*(sin(fy)/fy);
+	  wy = GV.CellSize * (sin(fy)/fy)*(sin(fy)/fy); //According to Hockney & Eastwood 
 	}//if 1
       else
 	{
@@ -245,7 +259,8 @@ int transform(double *DenConCell)
       if(fabs(gp[m].k_vector[Z]) > GV.ZERO)
 	{
 	  fz = (gp[m].k_vector[Z]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wz = (sin(fz)/fz)*(sin(fz)/fz);  
+	  //wz = (sin(fz)/fz)*(sin(fz)/fz);  
+	  wz = GV.CellSize * (sin(fz)/fz)*(sin(fz)/fz); //According to Hockney & Eastwood 
 	}//if 1
       else
 	{
