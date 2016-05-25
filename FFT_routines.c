@@ -228,6 +228,25 @@ int read_binary(double *DenConCell, double **p_r)
     }//for m
 #endif
   
+
+#ifdef NGP_400
+  for(m=0; m<GV.NTOTALCELLS; m++ )
+    {             
+      nread = fread(&pos_aux[0], sizeof(double), 3, inFile);
+      nread = fread(&p_r[m][0], sizeof(double), 3, inFile);
+      nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
+      
+      if(m%5000000==0)
+	{
+	  printf("Reading m=%d x=%lf y=%lf z=%lf px=%lf py=%lf pz=%lf DenCon=%lf\n", 
+		 m, pos_aux[X], pos_aux[Y], pos_aux[Z],
+		 p_r[m][X], p_r[m][Y], p_r[m][Z], 
+		 DenConCell[m]);
+	}//if
+      
+    }//for m
+#endif
+
   
 #ifdef CIC_MDR
   free(p_r);

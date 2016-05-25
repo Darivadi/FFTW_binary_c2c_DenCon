@@ -33,6 +33,9 @@ int transform(double *DenConCell)
   /* Creating the input/output array  */
   in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
   out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
+
+  /*--- Declaring the FFT ---*/
+  plan_r2k = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_FORWARD, FFTW_ESTIMATE );
   
   /* Sorting the densities array  in C-order (row-major order) */
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -45,8 +48,7 @@ int transform(double *DenConCell)
   printf("Input of contrast density sorted in C-order (row-major order)!\n");
   printf("-----------------------------------------------------------------\n");
   
-  /*--- Making the FFT ---*/
-  plan_r2k = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_FORWARD, FFTW_ESTIMATE );
+  /*--- Executing the FFT ---*/
   fftw_execute( plan_r2k );
 
   printf("FFT: density contrast r2k finished!\n");

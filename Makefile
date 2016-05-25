@@ -1,7 +1,8 @@
 CC = gcc
 
 #CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DASCIIDATA -DPOTDOTEXACT -DPOTDOTLINEAR
-CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYDATA -DPOTDOTEXACT -DPOTDOTLINEAR -DCIC_400
+#CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYDATA -DPOTDOTEXACT -DPOTDOTLINEAR -DCIC_400
+CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DNGP -DASCIIDATA -DPOTDOTEXACT -DPOTDOTLINEAR -DNGP_400
 CFLAGSMDR = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DASCIIDATA -DPOTDOTLINEAR -DCIC_MDR
 CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC -DBINARYDATA	
 CFLAGSASCII = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC -DASCIIDATA
