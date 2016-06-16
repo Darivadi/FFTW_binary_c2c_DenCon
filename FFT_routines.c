@@ -318,3 +318,26 @@ int write_binary(void)
   return 0;  
 }//write_binary
 */
+
+/*                                                                                                              
+ * Function:  mod                                                                                               
+ * --------------------                                                                                         
+ * Calculate the module operation for two numbers a and b (a%b)                                                 
+ * including negative numbers.                                                                                 
+ *                                                                                                              
+ *  a: Numerator of the division.                                                                               
+ *  b: Denominator of the division.                                                                             
+ *                                                                                                              
+ *  returns: The module a%b including the option for negative numbers.                                          
+ */
+
+
+int mod(int a, int b)
+{
+  int mod = a%b;
+  while(mod<0)
+    {
+      mod += b;
+    }
+  return mod;
+}

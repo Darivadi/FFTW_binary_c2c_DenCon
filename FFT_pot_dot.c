@@ -10,9 +10,9 @@ RETURN: File with the input and outputs (sorted in the grid[m] order)
 *************************************************************************************/
 int potential_dot(double **potDot_r)
 {
-  int m, i, j, k;
+  int m, i, j, k, ii, jj, kk, indexaux, counter;
   double alpha, pot_Re1, pot_Re2, pot_Im1, pot_Im2, factor;
-  double Green_factor;
+  double Green_factor, PotDotMean[2];
   double pos_aux[3];
   FILE *pf=NULL;
   //double nyquist_freq;
@@ -74,7 +74,7 @@ int potential_dot(double **potDot_r)
 		  */
 		}//if
 	      else
-		{
+		{		 			
 		  gp[m].potDot_k[0] = 0.0; //Re()
 		  gp[m].potDot_k[1] = 0.0; //Im()
 		}//else      
@@ -89,6 +89,36 @@ int potential_dot(double **potDot_r)
 	}//for j 
     }//for i
   
+  
+  //First approximation to an interpolation in k = 0
+  PotDotMean[0] = PotDotMean[1] = 0.0;
+  counter = 0;
+  i = j = k = 0;
+  
+  for(ii=-1; ii<=1; ii++)
+    {
+      for(jj=-1; jj<=1; jj++)
+	{
+	  for(kk=-1; kk<=1; kk++)
+	    {
+	      indexaux = INDEX_C_ORDER( mod(i+ii,GV.NCELLS),mod(j+jj,GV.NCELLS),mod(k+kk,GV.NCELLS) );
+	      PotDotMean[0] += gp[indexaux].potDot_k[0];
+	      PotDotMean[1] += gp[indexaux].potDot_k[1];
+	      counter += 1;
+	    }//for ii
+	}//for jj
+    }//for kk
+  
+  m = INDEX_C_ORDER(i,j,k);
+  gp[m].potDot_k[0] = PotDotMean[0] / counter;
+  gp[m].potDot_k[1] = PotDotMean[1] / counter;
+
+  printf("******************************************************");
+  printf("Average for m=%d, i=%d, j=%d, k=%d is :\n", m, i, j, k);
+  printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
+  printf("Counter: %d\n", counter);
+  printf("******************************************************");
+
   /*
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   for( m=0; m<GV.NTOTALCELLS; m++ )
