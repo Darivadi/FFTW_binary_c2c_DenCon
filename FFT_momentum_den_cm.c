@@ -172,6 +172,11 @@ int momentum_den_cm(double **p_r)
   double kp[3][2];
   outFile = fopen("./../../Processed_data/DenCon_vs_KDotP.bin", "w");
 
+  fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size                                                      
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter                                     
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter                      
+  fwrite(&GV.z_RS, sizeof(double), 1, pf);  // Redshift                                                         
+  fwrite(&GV.Hz, sizeof(double), 1, pf);  // Hubble parameter 
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
