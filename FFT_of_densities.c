@@ -128,8 +128,9 @@ int main( int argc, char *argv[] )
 
   printf("----------------------------------------------------------------\n");
   printf("Cosmological parameters\n");
-  printf("GV.z_RS=%lf GV.H0=%lf \nGV.Hz=%lf GV.a_SF=%lf\n", 
+  printf("GV.z_RS=%lf GV.h = %lf GV.H0=%lf \nGV.Hz=%lf GV.a_SF=%lf\n", 
 	 GV.z_RS,
+	 GV.h_Hubble,
 	 GV.H0, 
 	 GV.Hz, 
 	 GV.a_SF);
