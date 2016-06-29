@@ -192,16 +192,18 @@ int read_binary(double *DenConCell, double **p_r)
   nread = fread(&GV.Omega_M0, sizeof(double), 1, inFile);  //Matter density parameter
   nread = fread(&GV.Omega_L0, sizeof(double), 1, inFile);  //Cosmological constant density parameter
   nread = fread(&GV.z_RS, sizeof(double), 1, inFile);  //Redshift
-  nread = fread(&GV.H0, sizeof(double), 1, inFile);  //Hubble parameter
+  nread = fread(&GV.h_Hubble, sizeof(double), 1, inFile);  //Hubble parameter
 
+  GV.H0 = 100.0 * GV.h_Hubble;
   GV.a_SF = 1.0 / (1.0 + GV.z_RS);
 
   printf("-----------------------------------------------\n");
   printf("Cosmological parameters:\n");
-  printf("OmegaM0=%lf OmegaL0=%lf redshift=%lf HubbleParam=%lf\n",
+  printf("OmegaM0=%lf OmegaL0=%lf redshift=%lf HubbleParam=%lf H0=%lf\n",
 	 GV.Omega_M0,
 	 GV.Omega_L0,
 	 GV.z_RS,
+	 GV.h_Hubble,
 	 GV.H0);
   printf("-----------------------------------------------\n");
 
