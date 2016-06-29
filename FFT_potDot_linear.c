@@ -31,11 +31,13 @@ RETURN: Growth rate f(t) for second linear approx. proportional to Omega_M(a)
 
 double growth_rate_OmegaM(double a_SF)
 { 
-  double OmegaM_ofa, mu, GR_OmegaM, z;
+  double OmegaM_ofa, mu, GR_OmegaM, z, a_cube;  
+  a_cube = pow(a_SF, 3.0);;
   
-  mu = a_SF * pow((GV.Omega_L0/GV.Omega_M0), 1.0/3.0);
-  OmegaM_ofa = GV.Omega_M0 / ( (double) (1 + pow(mu, 3.0)) ); 
-  GR_OmegaM = pow(OmegaM_ofa, 0.6);
+  //mu = a_SF * pow((GV.Omega_L0/GV.Omega_M0), 1.0/3.0);
+  //OmegaM_ofa = GV.Omega_M0 / ( (double) (1 + pow(mu, 3.0)) ); 
+  OmegaM_ofa = GV.Omega_M0 / ( (GV.Omega_M0 + GV.Omega_L0*a_cube) ); 
+  GR_OmegaM = pow(OmegaM_ofa, 5.0/9.0);
 
   
   printf("-----------------------------------------------------------------\n");
