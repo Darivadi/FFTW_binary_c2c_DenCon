@@ -168,10 +168,15 @@ int momentum_den_cm(double **p_r)
   /*----------------------------------------------------------------------------
                                    Weighted Momentum
   ----------------------------------------------------------------------------*/
+  FILE *outFile=NULL;
+  double kp[3][2];
+  outFile = fopen("./../Processed_data/DenCon_vs_KDotP.bin", "w");
+
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       /* Deconvolving with the window function */
+      /*
       if( fabs(gp[m].weight) > GV.ZERO )
 	{
 	  //Re
@@ -196,7 +201,7 @@ int momentum_den_cm(double **p_r)
 	  gp[m].p_w_k[Y][1] = 0.0;
 	  gp[m].p_w_k[Z][1] = 0.0;
 	}//else
-
+      */
       /*::::: Computing ik.p in k-space :::::*/    
       aux_mom[X][0] = gp[m].p_w_k[X][0];
       aux_mom[X][1] = gp[m].p_w_k[X][1];
@@ -216,8 +221,30 @@ int momentum_den_cm(double **p_r)
       gp[m].p_w_k[X][1] = gp[m].k_vector[X] * aux_mom[X][0];
       gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * aux_mom[Y][0];
       gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * aux_mom[Z][0];
+           
+      
+      //----- Saving data -----
+      kp[X][0] = gp[m].p_w_k[X][0];
+      kp[Y][0] = gp[m].p_w_k[Y][0];
+      kp[Z][0] = gp[m].p_w_k[Z][0];
+      
+      kp[X][1] = gp[m].p_w_k[X][1];
+      kp[Y][1] = gp[m].p_w_k[Y][1];
+      kp[Z][1] = gp[m].p_w_k[Z][1];
+            
+      
+      fwrite(&gp[m].DenCon_K[0], sizeof(double), 2, outFile);  // Density contrast in cell in k-space (Re + Im).
+      fwrite(&kp[X][0],sizeof(double), 1, outFile); //kp real in X
+      fwrite(&kp[X][1],sizeof(double), 1, outFile); //kp im in X
+
+      fwrite(&kp[Y][0],sizeof(double), 1, outFile); //kp real in Y
+      fwrite(&kp[Y][1],sizeof(double), 1, outFile); //kp im in Y
+      
+      fwrite(&kp[Z][0],sizeof(double), 1, outFile); //kp real in Z
+      fwrite(&kp[Z][1],sizeof(double), 1, outFile); //kp im in Z
+      
     }//for m
-  
+  fclose(outFile); 
 
   return 0;
 } // momentum_den_cm
