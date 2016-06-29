@@ -104,7 +104,8 @@ struct GlobalVariables
   double conv_norm; // Normalization according to the convention of the Fourier transform. It is equal to 1/(2 * pi)**3
  
   /*+++ Cosmological Parameters +++*/
-  double H0;      //= 100.0 Hubble's constant in the inner units
+  double h_Hubble; // Hubble's parameter h.
+  double H0;      //= 100.0 * h  Hubble's constant in the inner units
   double z_RS;    // = 0.0 Redshift of the simulation
   double a_SF;    // Scale factor's time derivative
   double Hz;      //Hubble's parameter a_dot/a

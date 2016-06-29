@@ -170,7 +170,7 @@ int momentum_den_cm(double **p_r)
   ----------------------------------------------------------------------------*/
   FILE *outFile=NULL;
   double kp[3][2];
-  outFile = fopen("./../Processed_data/DenCon_vs_KDotP.bin", "w");
+  outFile = fopen("./../../Processed_data/DenCon_vs_KDotP.bin", "w");
 
 
   for(m=0; m<GV.NTOTALCELLS; m++)

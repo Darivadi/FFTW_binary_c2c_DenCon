@@ -65,7 +65,8 @@ int read_parameters( char filename[] )
   nread = fscanf(file, "%lf", &GV.Omega_M0);
   nread = fscanf(file, "%lf", &GV.Omega_L0);
   nread = fscanf(file, "%lf", &GV.z_RS);
-  nread = fscanf(file, "%lf", &GV.H0);    
+  nread = fscanf(file, "%lf", &GV.h_Hubble);    
+  GV.H0 = 100.0 * GV.h_Hubble;
   GV.a_SF = 1.0/(1.0 + GV.z_RS); 
 #endif
 
