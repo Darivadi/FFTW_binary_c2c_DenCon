@@ -171,7 +171,8 @@ int momentum_den_cm(double **p_r)
   FILE *outFile=NULL;
   double kp[3][2];
 
-  outFile = fopen("./../../Processed_data/DenCon_vs_KDotP_wo_deconv.bin", "w");
+  //outFile = fopen("./../../Processed_data/DenCon_vs_KDotP_wo_deconv.bin", "w");
+  outFile = fopen("./../../Processed_data/DenCon_vs_KDotP_W_deconv.bin", "w");
 
   fwrite(&GV.BoxSize, sizeof(double), 1, outFile);  // Box Size                                             
   fwrite(&GV.Omega_M0, sizeof(double), 1, outFile);  // Matter density parameter                           
@@ -182,7 +183,7 @@ int momentum_den_cm(double **p_r)
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       /* Deconvolving with the window function */
-      /*
+      
       if( fabs(gp[m].weight) > GV.ZERO )
 	{
 	  //Re
@@ -207,7 +208,7 @@ int momentum_den_cm(double **p_r)
 	  gp[m].p_w_k[Y][1] = 0.0;
 	  gp[m].p_w_k[Z][1] = 0.0;
 	}//else
-      */
+      
       /*::::: Computing ik.p in k-space :::::*/    
       aux_mom[X][0] = gp[m].p_w_k[X][0];
       aux_mom[X][1] = gp[m].p_w_k[X][1];
