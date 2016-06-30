@@ -42,11 +42,11 @@ int potential_dot(double **potDot_r)
 	      
 	      //Re
 	      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
-	      pot_Re2 = -1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
+	      pot_Re2 = 0.0;//-1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
 	      
 	      //Im
 	      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-	      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
+	      pot_Im2 = 0.0;//( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
 	      
 	      //Unifying      
 	      if(gp[m].k_mod_sin > GV.ZERO)
@@ -95,11 +95,11 @@ int potential_dot(double **potDot_r)
   counter = 0;
   i = j = k = 0;
   
-  for(ii=-1; ii<=1; ii++)
+  for(ii=-2; ii<=2; ii++)
     {
-      for(jj=-1; jj<=1; jj++)
+      for(jj=-2; jj<=2; jj++)
 	{
-	  for(kk=-1; kk<=1; kk++)
+	  for(kk=-2; kk<=2; kk++)
 	    {
 	      indexaux = INDEX_C_ORDER( mod(i+ii,GV.NCELLS),mod(j+jj,GV.NCELLS),mod(k+kk,GV.NCELLS) );
 	      PotDotMean[0] += gp[indexaux].potDot_k[0];
@@ -113,11 +113,11 @@ int potential_dot(double **potDot_r)
   gp[m].potDot_k[0] = PotDotMean[0] / counter;
   gp[m].potDot_k[1] = PotDotMean[1] / counter;
 
-  printf("******************************************************");
+  printf("******************************************************\n");
   printf("Average for m=%d, i=%d, j=%d, k=%d is :\n", m, i, j, k);
   printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
   printf("Counter: %d\n", counter);
-  printf("******************************************************");
+  printf("******************************************************\n");
 
   /*
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;

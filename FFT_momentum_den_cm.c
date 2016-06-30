@@ -168,6 +168,7 @@ int momentum_den_cm(double **p_r)
   /*----------------------------------------------------------------------------
                                    Weighted Momentum
   ----------------------------------------------------------------------------*/
+  /*
   FILE *outFile=NULL;
   double kp[3][2];
 
@@ -179,7 +180,7 @@ int momentum_den_cm(double **p_r)
   fwrite(&GV.Omega_L0, sizeof(double), 1, outFile);  // Cosmological constant density parameter            
   fwrite(&GV.z_RS, sizeof(double), 1, outFile);  // Redshift                                            
   fwrite(&GV.Hz, sizeof(double), 1, outFile);  // Hubble parameter 
-
+  */
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       /* Deconvolving with the window function */
@@ -229,7 +230,7 @@ int momentum_den_cm(double **p_r)
       gp[m].p_w_k[Y][1] = gp[m].k_vector[Y] * aux_mom[Y][0];
       gp[m].p_w_k[Z][1] = gp[m].k_vector[Z] * aux_mom[Z][0];
            
-      
+      /*
       //----- Saving data -----
       kp[X][0] = gp[m].p_w_k[X][0];
       kp[Y][0] = gp[m].p_w_k[Y][0];
@@ -249,9 +250,9 @@ int momentum_den_cm(double **p_r)
       
       fwrite(&kp[Z][0],sizeof(double), 1, outFile); //kp real in Z
       fwrite(&kp[Z][1],sizeof(double), 1, outFile); //kp im in Z
-      
+      */
     }//for m
-  fclose(outFile); 
+  //fclose(outFile); 
 
   return 0;
 } // momentum_den_cm
