@@ -280,6 +280,7 @@ int transform(double *DenConCell)
       */   
       
       /*----- Deconvolution of DenCon with the total weight function -----*/  
+      /*
       if(fabs(gp[m].weight) > GV.ZERO)
 	{
 	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
@@ -290,7 +291,7 @@ int transform(double *DenConCell)
 	  gp[m].DenCon_K[0] = 0.0;
 	  gp[m].DenCon_K[1] = 0.0;	  
       }//else
-      
+      */
     }//for m
 
   //fclose(pf);
