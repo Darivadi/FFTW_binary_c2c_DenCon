@@ -16,8 +16,18 @@ int potential_dot(double **potDot_r)
   double pos_aux[3];
   FILE *pf=NULL;
   //double nyquist_freq;
+
+  /*+++++ For Trilinear Interpolation +++++*/
+  double interp_dx, interp_dy, interp_dz;
+  double x0, x1, y0, y1, z0, z1;
+  double interp_dkx, interp_dky, interp_dkz;
+  double kx0, kx1, ky0, ky1, kz0, kz1;
+  int p000, p100, p110, p010, p001, p101, p111, p011;
+  double c0, c1, c2, c3, c4, c5, c6, c7;
+  double aux1, aux2;
+
   
-  /*+++ FFTW DEFINITIONS +++*/
+  /*+++++ FFTW DEFINITIONS +++++*/
   fftw_complex *in=NULL;
   fftw_complex *out=NULL;
   fftw_plan plan_k2r; // FFTW from k-space to r-space
@@ -91,6 +101,7 @@ int potential_dot(double **potDot_r)
   
   
   //First approximation to an interpolation in k = 0
+  /*
   PotDotMean[0] = PotDotMean[1] = 0.0;
   counter = 0;
   i = j = k = 0;
@@ -118,6 +129,104 @@ int potential_dot(double **potDot_r)
   printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
   printf("Counter: %d\n", counter);
   printf("******************************************************\n");
+  */
+
+  
+  /*+++++ Trilinear Interpolation +++++*/
+  
+  //Indeces of each cell that is around the cell with index m=0 (i=j=k=0)
+  p000 = GV.NTOTALCELLS - 1;
+  p100 = 2*GV.NCELLS*GV.NCELLS - 1;
+  p110 = GV.NCELLS*GV.NCELLS - 1;
+  p010 = GV.NTOTALCELLS - GV.NCELLS*GV.NCELLS + 2*GV.NCELLS - 1;
+  p001 = GV.NTOTALCELLS - GV.NCELLS + 1;
+  p101 = 2*GV.NCELLS*GV.NCELLS - GV.NCELLS + 1;
+  p111 = GV.NCELLS*GV.NCELLS + GV.NCELLS + 1;
+  p011 = GV.NTOTALCELLS - GV.NCELLS*GV.NCELLS + GV.NCELLS + 1;;
+  
+  /*+++++ dx, dy and dz from definition of trilinear interpolation. 
+    x0 is the x-position of the p000 cell, while x1 is the x-position of the p100 cell (with y0 and z0)
+    y0 is the y-position of the p000 cell, while y1 is the y-position of the p010 cell (with x0 and z0)
+    y0 is the z-position of the p000 cell, while z1 is the z-position of the p001 cell (with x0 and y0)
+    
+    kx0 is the kx-component of the p000 cell, while kx1 is the kx-component of the p100 cell (with ky0 and kz0)
+    ky0 is the ky-component of the p000 cell, while ky1 is the ky-component of the p010 cell (with kx0 and kz0)
+    ky0 is the kz-component of the p000 cell, while kz1 is the kz-component of the p001 cell (with kx0 and ky0)
+  +++++*/
+  
+  /*
+  x0 = gp[p000].pos[X];
+  x1 = gp[p100].pos[X];
+  
+  y0 = gp[p000].pos[Y];
+  y1 = gp[p010].pos[Y];
+  
+  z0 = gp[p000].pos[Z];
+  z1 = gp[p001].pos[Z];
+  
+  interp_dx = (gp[0].pos[X] - x0) / (x1 - x0);
+  interp_dy = (gp[0].pos[Y] - y0) / (y1 - y0);
+  interp_dz = (gp[0].pos[Z] - z0) / (z1 - z0);
+  */
+
+  kx0 = gp[p000].k_vector[X];
+  kx1 = gp[p100].k_vector[X];
+  
+  ky0 = gp[p000].k_vector[Y];
+  ky1 = gp[p010].k_vector[Y];
+  
+  kz0 = gp[p000].k_vector[Z];
+  kz1 = gp[p001].k_vector[Z];
+  
+  interp_dkx = ( abs( gp[0].k_vector[X] - kx0 ) ) / ( abs( kx1 - kx0 ) );
+  interp_dky = ( abs( gp[0].k_vector[Y] - ky0 ) ) / ( abs( ky1 - ky0 ) );
+  interp_dkz = ( abs( gp[0].k_vector[Z] - kz0 ) ) / ( abs( kz1 - kz0 ) );
+
+
+  //Definition of the coefficients for interpolation
+  /*----- First: Real part ----- */
+  c0 = gp[p000].potDot_k[0];
+  c1 = gp[p100].potDot_k[0] - gp[p000].potDot_k[0];
+  c2 = gp[p010].potDot_k[0] - gp[p000].potDot_k[0];
+  c3 = gp[p001].potDot_k[0] - gp[p000].potDot_k[0];
+  c4 = gp[p110].potDot_k[0] - gp[p010].potDot_k[0] - gp[p100].potDot_k[0] + gp[p000].potDot_k[0];
+  c5 = gp[p011].potDot_k[0] - gp[p001].potDot_k[0] - gp[p010].potDot_k[0] + gp[p000].potDot_k[0];
+  c6 = gp[p101].potDot_k[0] - gp[p001].potDot_k[0] - gp[p100].potDot_k[0] + gp[p000].potDot_k[0];
+
+  aux1 = gp[p111].potDot_k[0] - gp[p011].potDot_k[0] - gp[p101].potDot_k[0] - gp[p110].potDot_k[0];
+  aux2 = gp[p100].potDot_k[0] + gp[p001].potDot_k[0] + gp[p010].potDot_k[0] - gp[p000].potDot_k[0];
+  c7 =  aux1 + aux2;
+
+  //Computing the interpolated value
+  aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
+  aux2 = c4 * interp_dkx * interp_dky + c5 * interp_dky * interp_dkz + c6 * interp_dkx * interp_dkz;
+  gp[0].potDot_k[0] =  aux1 + aux2 + c7 * interp_dkx * interp_dky * interp_dkz;
+
+
+  /*----- Second: Imaginary part -----*/
+  c0 = gp[p000].potDot_k[1];
+  c1 = gp[p100].potDot_k[1] - gp[p000].potDot_k[1];
+  c2 = gp[p010].potDot_k[1] - gp[p000].potDot_k[1];
+  c3 = gp[p001].potDot_k[1] - gp[p000].potDot_k[1];
+  c4 = gp[p110].potDot_k[1] - gp[p010].potDot_k[1] - gp[p100].potDot_k[1] + gp[p000].potDot_k[1];
+  c5 = gp[p011].potDot_k[1] - gp[p001].potDot_k[1] - gp[p010].potDot_k[1] + gp[p000].potDot_k[1];
+  c6 = gp[p101].potDot_k[1] - gp[p001].potDot_k[1] - gp[p100].potDot_k[1] + gp[p000].potDot_k[1];
+
+  aux1 = gp[p111].potDot_k[1] - gp[p011].potDot_k[1] - gp[p101].potDot_k[1] - gp[p110].potDot_k[1];
+  aux2 = gp[p100].potDot_k[1] + gp[p001].potDot_k[1] + gp[p010].potDot_k[1] - gp[p000].potDot_k[1];
+  c7 =  aux1 + aux2;
+
+  //Computing the interpolated value
+  aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
+  aux2 = c4 * interp_dkx * interp_dky + c5 * interp_dky * interp_dkz + c6 * interp_dkx * interp_dkz;
+  gp[0].potDot_k[1] =  aux1 + aux2 + c7 * interp_dkx * interp_dky * interp_dkz;
+
+
+  printf("******************************************************\n");
+  printf("Interpolated value trough trilinear interoplation\n");
+  printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
+  printf("******************************************************\n");
+
 
   /*
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
