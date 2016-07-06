@@ -178,6 +178,7 @@ int potential_dot(double **potDot_r)
   */
 
   kx0 = gp[p000].k_vector[X];
+  printf("kx0=%lf\n", kx0);
   kx1 = gp[p100].k_vector[X];
   
   ky0 = gp[p000].k_vector[Y];
