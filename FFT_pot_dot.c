@@ -133,7 +133,9 @@ int potential_dot(double **potDot_r)
 
   
   /*+++++ Trilinear Interpolation +++++*/
-  
+  printf("******************************************************\n");
+  printf("Computing trilinear interpolation\n");
+  printf("******************************************************\n");
   //Indeces of each cell that is around the cell with index m=0 (i=j=k=0)
   p000 = GV.NTOTALCELLS - 1;
   p100 = 2*GV.NCELLS*GV.NCELLS - 1;
@@ -142,8 +144,14 @@ int potential_dot(double **potDot_r)
   p001 = GV.NTOTALCELLS - GV.NCELLS + 1;
   p101 = 2*GV.NCELLS*GV.NCELLS - GV.NCELLS + 1;
   p111 = GV.NCELLS*GV.NCELLS + GV.NCELLS + 1;
-  p011 = GV.NTOTALCELLS - GV.NCELLS*GV.NCELLS + GV.NCELLS + 1;;
+  p011 = GV.NTOTALCELLS - GV.NCELLS*GV.NCELLS + GV.NCELLS + 1;
   
+  printf("******************************************************\n");
+  printf("Computed indeces\n");
+  printf("p000=%d, p100=%d, p110=%d, p010=%d\n", p000, p100, p110, p010);
+  printf("p001=%d, p101=%d, p111=%d, p011=%d\n", p001, p101, p111, p011);
+  printf("******************************************************\n");
+
   /*+++++ dx, dy and dz from definition of trilinear interpolation. 
     x0 is the x-position of the p000 cell, while x1 is the x-position of the p100 cell (with y0 and z0)
     y0 is the y-position of the p000 cell, while y1 is the y-position of the p010 cell (with x0 and z0)
@@ -182,6 +190,10 @@ int potential_dot(double **potDot_r)
   interp_dky = ( abs( gp[0].k_vector[Y] - ky0 ) ) / ( abs( ky1 - ky0 ) );
   interp_dkz = ( abs( gp[0].k_vector[Z] - kz0 ) ) / ( abs( kz1 - kz0 ) );
 
+  printf("******************************************************\n");
+  printf("Computed deltas\n");
+  printf("dkx=%lf, dky=%lf, dkz=%lf\n", interp_dkx, interp_dky, interp_dkz);
+  printf("******************************************************\n");
 
   //Definition of the coefficients for interpolation
   /*----- First: Real part ----- */
@@ -196,6 +208,13 @@ int potential_dot(double **potDot_r)
   aux1 = gp[p111].potDot_k[0] - gp[p011].potDot_k[0] - gp[p101].potDot_k[0] - gp[p110].potDot_k[0];
   aux2 = gp[p100].potDot_k[0] + gp[p001].potDot_k[0] + gp[p010].potDot_k[0] - gp[p000].potDot_k[0];
   c7 =  aux1 + aux2;
+
+  printf("******************************************************\n");
+  printf("Computed coefficients for real part\n");
+  printf("c0=%lf, c1=%lf, c2=%lf, c3=%lf\n", c0, c1, c2, c3);
+  printf("c4=%lf, c5=%lf, c6=%lf, c7=%lf\n", c4, c5, c6, c7);
+  printf("******************************************************\n");
+
 
   //Computing the interpolated value
   aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
@@ -215,6 +234,13 @@ int potential_dot(double **potDot_r)
   aux1 = gp[p111].potDot_k[1] - gp[p011].potDot_k[1] - gp[p101].potDot_k[1] - gp[p110].potDot_k[1];
   aux2 = gp[p100].potDot_k[1] + gp[p001].potDot_k[1] + gp[p010].potDot_k[1] - gp[p000].potDot_k[1];
   c7 =  aux1 + aux2;
+
+  printf("******************************************************\n");
+  printf("Computed coefficients for imaginary part\n");
+  printf("c0=%lf, c1=%lf, c2=%lf, c3=%lf\n", c0, c1, c2, c3);
+  printf("c4=%lf, c5=%lf, c6=%lf, c7=%lf\n", c4, c5, c6, c7);
+  printf("******************************************************\n");
+
 
   //Computing the interpolated value
   aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
