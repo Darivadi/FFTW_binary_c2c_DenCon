@@ -178,18 +178,24 @@ int potential_dot(double **potDot_r)
   */
 
   kx0 = gp[p000].k_vector[X];
-  printf("kx0=%lf\n", kx0);
   kx1 = gp[p100].k_vector[X];
-  
+  printf("kx0=%lf, kx1=%lf\n", kx0, kx1);
+
   ky0 = gp[p000].k_vector[Y];
   ky1 = gp[p010].k_vector[Y];
+  printf("ky0=%lf, ky1=%lf\n", ky0, ky1);
   
   kz0 = gp[p000].k_vector[Z];
   kz1 = gp[p001].k_vector[Z];
+  printf("kz0=%lf, kz1=%lf\n", kz0, kz1);
   
-  interp_dkx = ( abs( gp[0].k_vector[X] - kx0 ) ) / ( abs( kx1 - kx0 ) );
-  interp_dky = ( abs( gp[0].k_vector[Y] - ky0 ) ) / ( abs( ky1 - ky0 ) );
-  interp_dkz = ( abs( gp[0].k_vector[Z] - kz0 ) ) / ( abs( kz1 - kz0 ) );
+  printf("kx = %lf\n", gp[0].k_vector[X]);
+  
+  printf("kx1 - kx0 = %lf\n", kx1 - kx0);
+  
+  interp_dkx = ( fabs( gp[0].k_vector[X] - kx0 ) ) / ( fabs( kx1 - kx0 ) );
+  interp_dky = ( fabs( gp[0].k_vector[Y] - ky0 ) ) / ( fabs( ky1 - ky0 ) );
+  interp_dkz = ( fabs( gp[0].k_vector[Z] - kz0 ) ) / ( fabs( kz1 - kz0 ) );
 
   printf("******************************************************\n");
   printf("Computed deltas\n");
