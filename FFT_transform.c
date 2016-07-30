@@ -101,16 +101,18 @@ int transform(double *DenConCell)
               aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
               aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
               aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
+	      
 	      gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz; 
 
+	      
 	      //According to Hockney & Eastwood
 	      aux_sinx = sin( gp[m].k_vector[X]*GV.CellSize*0.5 ) *  sin( gp[m].k_vector[X]*GV.CellSize*0.5 );
-              aux_siny = sin( gp[m].k_vector[Y]*GV.CellSize*0.5 ) *  sin( gp[m].k_vector[Y]* GV.CellSize*0.5 );
+              aux_siny = sin( gp[m].k_vector[Y]*GV.CellSize*0.5 ) *  sin( gp[m].k_vector[Y]*GV.CellSize*0.5 );
               aux_sinz = sin( gp[m].k_vector[Z]*GV.CellSize*0.5 ) *  sin( gp[m].k_vector[Z]*GV.CellSize*0.5 );
 	      
 	      aux_factor = (GV.CellSize *0.5) * (GV.CellSize *0.5);
 	      gp[m].k_mod_HE = (aux_sinx + aux_siny + aux_sinz) / aux_factor; 
-
+	      
 	      /*
 	      aux_k_mod1 = aux_sinx + aux_siny + aux_sinz;
 	      

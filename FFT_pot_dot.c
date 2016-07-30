@@ -39,7 +39,7 @@ int potential_dot(double **potDot_r)
   printf("-----------------------------------------------------------------\n");
 
   /*+++ Computing the time derivative of potential in k-space +++*/  
-  factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
+  factor = -1.0;//(-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   //nyquist_freq = M_PI / GV.CellSize;
   
   for(i=0; i<GV.NCELLS; i++)  
@@ -59,12 +59,13 @@ int potential_dot(double **potDot_r)
 	      pot_Im2 = 0.0;//( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
 	      
 	      //Unifying      
-	      if(gp[m].k_mod_sin > GV.ZERO)
+	      //if(gp[m].k_mod_sin > GV.ZERO)
+	      if(gp[m].k_mod_HE > GV.ZERO)
 		{
 		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
 		  //{		      
-		  Green_factor = -1.0 / gp[m].k_mod_sin;
-		  //Green_factor = -1.0 / gp[m].k_mod_HE;
+		  //Green_factor = -1.0 / gp[m].k_mod_sin;
+		  Green_factor = -1.0 / gp[m].k_mod_HE;
 		  alpha = factor * Green_factor;
 		  
 		  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
@@ -72,7 +73,8 @@ int potential_dot(double **potDot_r)
 		  
 		  if(m%5000000==0)
 		    {
-		      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
+		      //printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
+		      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_HE, Green_factor);
 		    }//if
 		  /*
 		    }//if i, j, k
