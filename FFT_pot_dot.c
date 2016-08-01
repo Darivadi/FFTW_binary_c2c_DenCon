@@ -39,7 +39,7 @@ int potential_dot(double **potDot_r)
   printf("-----------------------------------------------------------------\n");
 
   /*+++ Computing the time derivative of potential in k-space +++*/  
-  factor = -1.0;//(-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
+  factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   //nyquist_freq = M_PI / GV.CellSize;
   
   for(i=0; i<GV.NCELLS; i++)  
@@ -52,11 +52,11 @@ int potential_dot(double **potDot_r)
 	      
 	      //Re
 	      pot_Re1 = GV.Hz*gp[m].DenCon_K[0];
-	      pot_Re2 = 0.0;//-1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
+	      pot_Re2 = -1.0*( gp[m].p_w_k[X][0] + gp[m].p_w_k[Y][0] + gp[m].p_w_k[Z][0] )/GV.a_SF;
 	      
 	      //Im
 	      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
-	      pot_Im2 = 0.0;//( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
+	      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
 	      
 	      //Unifying      
 	      //if(gp[m].k_mod_sin > GV.ZERO)
@@ -135,6 +135,7 @@ int potential_dot(double **potDot_r)
 
   
   /*+++++ Trilinear Interpolation +++++*/
+  /*
   printf("******************************************************\n");
   printf("Computing trilinear interpolation\n");
   printf("******************************************************\n");
@@ -153,7 +154,7 @@ int potential_dot(double **potDot_r)
   printf("p000=%d, p100=%d, p110=%d, p010=%d\n", p000, p100, p110, p010);
   printf("p001=%d, p101=%d, p111=%d, p011=%d\n", p001, p101, p111, p011);
   printf("******************************************************\n");
-
+  */
   /*+++++ dx, dy and dz from definition of trilinear interpolation. 
     x0 is the x-position of the p000 cell, while x1 is the x-position of the p100 cell (with y0 and z0)
     y0 is the y-position of the p000 cell, while y1 is the y-position of the p010 cell (with x0 and z0)
@@ -165,20 +166,6 @@ int potential_dot(double **potDot_r)
   +++++*/
   
   /*
-  x0 = gp[p000].pos[X];
-  x1 = gp[p100].pos[X];
-  
-  y0 = gp[p000].pos[Y];
-  y1 = gp[p010].pos[Y];
-  
-  z0 = gp[p000].pos[Z];
-  z1 = gp[p001].pos[Z];
-  
-  interp_dx = (gp[0].pos[X] - x0) / (x1 - x0);
-  interp_dy = (gp[0].pos[Y] - y0) / (y1 - y0);
-  interp_dz = (gp[0].pos[Z] - z0) / (z1 - z0);
-  */
-
   kx0 = gp[p000].k_vector[X];
   kx1 = gp[p100].k_vector[X];
   printf("kx0=%lf, kx1=%lf\n", kx0, kx1);
@@ -203,9 +190,10 @@ int potential_dot(double **potDot_r)
   printf("Computed deltas\n");
   printf("dkx=%lf, dky=%lf, dkz=%lf\n", interp_dkx, interp_dky, interp_dkz);
   printf("******************************************************\n");
-
+  */
   //Definition of the coefficients for interpolation
   /*----- First: Real part ----- */
+  /*
   c0 = gp[p000].potDot_k[0];
   c1 = gp[p100].potDot_k[0] - gp[p000].potDot_k[0];
   c2 = gp[p010].potDot_k[0] - gp[p000].potDot_k[0];
@@ -229,9 +217,10 @@ int potential_dot(double **potDot_r)
   aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
   aux2 = c4 * interp_dkx * interp_dky + c5 * interp_dky * interp_dkz + c6 * interp_dkx * interp_dkz;
   gp[0].potDot_k[0] =  aux1 + aux2 + c7 * interp_dkx * interp_dky * interp_dkz;
-
+  */
 
   /*----- Second: Imaginary part -----*/
+  /*
   c0 = gp[p000].potDot_k[1];
   c1 = gp[p100].potDot_k[1] - gp[p000].potDot_k[1];
   c2 = gp[p010].potDot_k[1] - gp[p000].potDot_k[1];
@@ -261,7 +250,7 @@ int potential_dot(double **potDot_r)
   printf("Interpolated value trough trilinear interoplation\n");
   printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
   printf("******************************************************\n");
-
+  */
 
   /*
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
