@@ -36,11 +36,11 @@ int potential(double *poten_r, double **poten_k)
 	      m = INDEX_C_ORDER(i,j,k); //ID in C-order
 	      
 	      //if( gp[m].k_module > GV.ZERO )
-	      if( gp[m].k_mod_sin > GV.ZERO )
+	      if( gp[m].k_mod_HE > GV.ZERO )		
 		{	  		  
 		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
 		  //{
-		  Green_factor  = - 1.0 / gp[m].k_mod_sin;
+		  Green_factor  = - 1.0 / gp[m].k_mod_HE;
 		  alpha         = Green_factor * factor;
 		  
 		  poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
