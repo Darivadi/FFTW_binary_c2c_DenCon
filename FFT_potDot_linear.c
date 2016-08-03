@@ -90,7 +90,7 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      if(gp[m].k_mod_sin > GV.ZERO)
+      if(gp[m].k_mod_HE > GV.ZERO)
   	{
   	  Green_factor = -1.0 / gp[m].k_mod_sin;
   	  alpha = factor * Green_factor;
