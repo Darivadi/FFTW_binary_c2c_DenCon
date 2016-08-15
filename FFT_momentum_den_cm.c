@@ -4,6 +4,39 @@ FUNCTION: Calculates the momentum density using the contrast density and the cen
 INPUT: density contrast and center of mass velocities in r-space, grid[m]-ordered
 RETURN: FFT of momentums
 **********************************************************************/
+int read_vels(double **p_r)
+{  
+  int m, nread;
+  double vel_aux[3], norm_factor;
+  FILE *inFile=NULL;
+  
+  inFile = fopen(GV.FILENAMEVELS, "r");
+    
+  norm_factor = GV.a_SF * ( (1.0*GV.NTOTALCELLS) / (1.0*GV.Total_NParts) ); 
+
+  for(m=0; m<GV.NTOTALCELLS; m++ )
+    {             
+      //nread = fread(&vel_aux[0], sizeof(double), 3, inFile);
+      nread = fread(&vel_aux[0], sizeof(double), 1, inFile);
+      nread = fread(&vel_aux[1], sizeof(double), 1, inFile);
+      nread = fread(&vel_aux[2], sizeof(double), 1, inFile);
+
+      p_r[m][X] = norm_factor * vel_aux[X];
+      p_r[m][Y] = norm_factor * vel_aux[Y];
+      p_r[m][Z] = norm_factor * vel_aux[Z];            
+    }//for m
+  
+  fclose(inFile);
+}//read_vels
+
+
+
+/********************************************************************
+NAME: momentum_den_cm
+FUNCTION: Calculates the momentum density using the contrast density and the center of mass velocities (both in r-space) in the grid[m] order
+INPUT: density contrast and center of mass velocities in r-space, grid[m]-ordered
+RETURN: FFT of momentums
+**********************************************************************/
 int momentum_den_cm(double **p_r)
 {  
   int m, i, j, k;
@@ -16,8 +49,6 @@ int momentum_den_cm(double **p_r)
   fftw_plan plan_r2k; // FFTW from r-space to k-space
   //fftw_complex *in2=NULL;
   //fftw_plan plan_k2r; // FFTW from k-space to r-space
-
- 
 
     
   /*--- Momentun density in position-space ---*/
@@ -32,14 +63,19 @@ int momentum_den_cm(double **p_r)
     }//for m
 #endif	  
   */
+
+
   /*----------------------------------------------------------------------------
                                FFT of momentum in X
   ----------------------------------------------------------------------------*/
   printf("Dealing with FFT momentum_cm in X!\n");
   printf("---------------------------------\n");
   
-  in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
+  in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+
+  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, 
+    in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 
   /*--- Assigning momentum to the input of the fft ---*/
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -50,7 +86,6 @@ int momentum_den_cm(double **p_r)
   
   
   /*--- Making the FFT ---*/
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
   fftw_execute( plan_r2k );
   printf("FFT of momentum_cm in X finished!\n");
   printf("---------------------------------\n");
@@ -71,7 +106,7 @@ int momentum_den_cm(double **p_r)
   printf("Inverse FFT for momentum in y finished!\n");
   */  
 
-  free(in);
+  fftw_free(in);
   //free(in2);
   fftw_free(out);
   
@@ -82,8 +117,11 @@ int momentum_den_cm(double **p_r)
   printf(" Dealing with FFT momentum_cm in Y!\n");
   printf("---------------------------------\n");
   
-  in = (fftw_complex *)  fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
-  out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex )*GV.NTOTALCELLS);
+  in  = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+  out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+  
+  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, 
+    in, out, FFTW_FORWARD, FFTW_ESTIMATE);
   
   /* Sorting the momentum density in Y as input of the FFT */
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -93,14 +131,12 @@ int momentum_den_cm(double **p_r)
     }//for m
 
   
-  /* Making the FFT */
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+  /* Making the FFT */  
   fftw_execute( plan_r2k );
   printf("FFT of momentum_cm in Y finished!\n");
   printf("---------------------------------\n");
   
-  /* Saving output data */
-  norm = GV.CellSize * GV.CellSize * GV.CellSize;
+  /* Saving output data */  
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       gp[m].p_w_k[Y][0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
@@ -115,7 +151,7 @@ int momentum_den_cm(double **p_r)
   fftw_execute( plan_k2r );
   */
     
-  free(in);
+  fftw_free(in);
   //free(in2);
   fftw_free(out);
   
@@ -129,16 +165,20 @@ int momentum_den_cm(double **p_r)
   /* Creating input array */
   in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+  
+  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, 
+    in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       in[m][0] = p_r[m][Z]; //Re()
       in[m][1] = 0.0; //Im()
     }//for m
-  
+
+  /*----- Freeing up memory of momentum in coordinates-space -----*/
+  free(p_r);
  
-  /* Making the FFT */
-  plan_r2k = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+  /* Making the FFT */  
   fftw_execute( plan_r2k );
   printf("FFT of momentum_cm in Z finished!\n");
   printf("---------------------------------\n");
@@ -163,7 +203,7 @@ int momentum_den_cm(double **p_r)
   fftw_free(in);
   //fftw_free(in2);
   fftw_free(out);
- 
+
   
   /*----------------------------------------------------------------------------
                                    Weighted Momentum

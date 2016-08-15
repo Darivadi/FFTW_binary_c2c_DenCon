@@ -4,7 +4,7 @@ FUNCTION: Calculates the potential of the contrast density in the k-space (from 
 INPUT: density contrast in the k-space
 RETURN: File with the input and outputs (sorted in the grid[m] order)
 **********************************************************************/
-int potential(double *poten_r, double **poten_k)
+int potential(double *poten_r)
 {
   int m, i, j, k;
   double factor, pos_aux[3];
@@ -21,6 +21,14 @@ int potential(double *poten_r, double **poten_k)
   /*----- Computing the potential in k-space -----*/
   printf("Computing potential in k-space\n");
   printf("-----------------------------------------\n");
+
+
+  /* Creating input/output arrays for FFT */
+  in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
+  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
+
+  plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+
 
   //Factor of the potential
   //factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
@@ -43,8 +51,8 @@ int potential(double *poten_r, double **poten_k)
 		  Green_factor  = - 1.0 / gp[m].k_mod_HE;
 		  alpha         = Green_factor * factor;
 		  
-		  poten_k[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
-		  poten_k[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
+		  in[m][0] = alpha * gp[m].DenCon_K[0]; //Re()
+		  in[m][1] = alpha * gp[m].DenCon_K[1]; //Im()
 		  
 		  //poten_k[m][0] = factor * gp[m].DenCon_K[0]/(gp[m].k_module * gp[m].k_module); //Re()
 		  //poten_k[m][1] = factor * gp[m].DenCon_K[1]/(gp[m].k_module * gp[m].k_module); //Im()
@@ -59,15 +67,10 @@ int potential(double *poten_r, double **poten_k)
 		}//if 
 	      else
 		{
-		  poten_k[m][0] = 0.0; //Re()
-		  poten_k[m][1] = 0.0; //Im()
+		  in[m][0] = 0.0; //Re()
+		  in[m][1] = 0.0; //Im()
 		}//else
-	      
-	      if(m%5000000==0)
-		{
-		  printf("%lf %lf\n", poten_k[m][0], poten_k[m][1]);
-		}//if
-	      
+	      	      
 	    }//for k
 	}//for j
     }//for i
@@ -75,21 +78,8 @@ int potential(double *poten_r, double **poten_k)
   printf("Potential in k-space saved!\n");
   printf("-----------------------------------------\n");
   
-
-  /* Creating input/output arrays */
-  in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
-  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
   
-  /* Saving the potential input of the FFT */
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      in[m][0] = poten_k[m][0]; //Re()
-      in[m][1] = poten_k[m][1]; //Im()
-    }//for m
-
-  
-  /* Making the FFT */
-  plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+  /* Making the FFT */  
   fftw_execute( plan_k2r );
   
   printf("FFT potential k2r finished!\n");
@@ -102,12 +92,7 @@ int potential(double *poten_r, double **poten_k)
     {
       //poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       poten_r[m] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
-      
-      if(m%1000000==0)
-	{
-	  printf("%d %lf\n", m,  poten_r[m]);
-	}//if
-	          
+            	          
     }//for m
   
   printf("---------------------------------------\n");
@@ -138,12 +123,28 @@ int potential(double *poten_r, double **poten_k)
 
   pf = fopen("./../../Processed_data/Potential.bin", "w");
 
-  /*+++++ Saving Simulation parameters +++++*/
-  fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
+#ifdef SUPERCIC
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS, sizeof(double), 1, pf);  // Redshift
-  fwrite(&GV.H0, sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
+    
+  for(m=0; m< GV.NTOTALCELLS; m++)
+    {
+      fwrite(&poten_r[m], sizeof(double), 1, pf);
+    }//for m
+  
+#endif
+
+#ifdef CIC_400
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
 
 
   for(i=0; i<GV.NCELLS; i++)  
@@ -162,18 +163,9 @@ int potential(double *poten_r, double **poten_k)
             }//for k      
         }//for j
     }//for i
-
-  /*  
-  for(m=0; m< GV.NTOTALCELLS; m++)
-    {
-      fwrite(&poten_r[m], sizeof(double), 1, pf);
-    }//for m
-  */
-
+#endif
+ 
   fclose(pf);
-
-  free(poten_r);
-  free(poten_k);
 
   return 0;
 }//potential

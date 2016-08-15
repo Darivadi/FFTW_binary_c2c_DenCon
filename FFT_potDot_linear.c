@@ -32,7 +32,7 @@ RETURN: Growth rate f(t) for second linear approx. proportional to Omega_M(a)
 double growth_rate_OmegaM(double a_SF)
 { 
   double OmegaM_ofa, mu, GR_OmegaM, z, a_cube;  
-  a_cube = pow(a_SF, 3.0);;
+  a_cube = POW3(a_SF);
   
   //mu = a_SF * pow((GV.Omega_L0/GV.Omega_M0), 1.0/3.0);
   //OmegaM_ofa = GV.Omega_M0 / ( (double) (1 + pow(mu, 3.0)) ); 
@@ -77,8 +77,8 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   
 
   /*----- Computing the approximations to the linear growth rate f -----*/
-  fn_app1 = 1.0 - ( growth_rate_OmegaL0(GV.a_SF) );
-  fn_app2 = 1.0 - ( growth_rate_OmegaM(GV.a_SF) );  
+  fn_app1 = 1.0 - ( growth_rate_OmegaL0( GV.a_SF ) );
+  fn_app2 = 1.0 - ( growth_rate_OmegaM(  GV.a_SF ) );  
 
   printf("GR_OmegaL0=%lf GR_OmegaM=%lf a_SF=%lf\n", 
 	 growth_rate_OmegaL0(GV.a_SF), growth_rate_OmegaM(GV.a_SF), GV.a_SF);
@@ -92,7 +92,7 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
     {
       if(gp[m].k_mod_HE > GV.ZERO)
   	{
-  	  Green_factor = -1.0 / gp[m].k_mod_sin;
+  	  Green_factor = -1.0 / gp[m].k_mod_HE;
   	  alpha = factor * Green_factor;
 	  
 	  /*::::: Approximation proportional to 1/\Omega_{L0} :::::*/
@@ -150,7 +150,9 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   /*+++++ Creating input/output  arrays +++++*/
   in  = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
-    
+
+  plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
+
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {      
       in[m][0] = gp[m].potDot_k_l_app1[0];
@@ -158,10 +160,9 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
     }//for m
   
 
-  /*+++++ Making the FFT +++++*/
-  plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
+  /*+++++ Making the FFT +++++*/  
   fftw_execute(plan_k2r);  
-  printf("FFT of potential derivative in r finished!\n");
+  printf("FFT of PotDot App1 in r finished!\n");
   printf("-----------------------------------------\n");
    
   
@@ -207,15 +208,16 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   in  = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
     
+  plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
+  
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {      
       in[m][0] = gp[m].potDot_k_l_app2[0];
       in[m][1] = gp[m].potDot_k_l_app2[1]; 
     }//for m
+    
   
-
-  /*+++++ Making the FFT +++++*/
-  plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
+  /*+++++ Making the FFT +++++*/  
   fftw_execute(plan_k2r);  
   printf("FFT of potential derivative in r finished!\n");
   printf("-----------------------------------------\n");
@@ -268,18 +270,50 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   pf1 = fopen("./../../Processed_data/PotDot_app1.bin", "w");
   pf2 = fopen("./../../Processed_data/PotDot_app2.bin", "w");
   
-  /*+++++ Saving Simulation parameters +++++*/
-  fwrite(&GV.BoxSize, sizeof(double), 1, pf1);  // Box Size
+  
+#ifdef SUPERCIC
+  /*..... File app1 .....*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf1);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS, sizeof(double), 1, pf1);  // Redshift
-  fwrite(&GV.H0, sizeof(double), 1, pf1);  // Hubble parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf1);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf1);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf1);  // Number of cells
 
-  fwrite(&GV.BoxSize, sizeof(double), 1, pf2);  // Box Size
+  /*..... File app2 .....*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf2);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf2);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf2);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS, sizeof(double), 1, pf2);  // Redshift
-  fwrite(&GV.H0, sizeof(double), 1, pf2);  // Hubble parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf2);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf2);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf2);  // Number of cells
+  
+
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {
+      /*..... File app1 .....*/
+      fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf1);
+      
+      /*..... File app2 .....*/
+      fwrite(&potDot_r_l_app2[m][0], sizeof(double), 1, pf2);
+    }//for m	  
+
+#endif
+
+
+#ifdef CIC_400
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf1);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf1);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf1);  // Hubble parameter
+
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf2);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf2);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf2);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf2);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf2);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -300,9 +334,12 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 	    }//for k	  
 	}//for j
     }//for i
+#endif
+
   
   fclose(pf1);
   fclose(pf2);
+
 
   return 0;  
 }//potential_dot_linear

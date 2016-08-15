@@ -48,9 +48,13 @@ int read_parameters( char filename[] )
   file = fopen( filenamedump, "r" );
   
   /*+++++ Parameters for binary data +++++*/
-#ifdef BINARYDATA
+#ifdef BINARYPARAMS
   nread = fscanf(file, "%d", &GV.NCELLS);
   nread = fscanf(file, "%s", GV.FILENAME);    
+#endif
+
+#ifdef SUPERCIC
+  nread = fscanf(file, "%s", GV.FILENAMEVELS);
 #endif
 
 
@@ -74,6 +78,7 @@ int read_parameters( char filename[] )
   
   printf( "  * The file '%s' has been loaded!\n", filename );
   printf("File to read is %s ", GV.FILENAME);
+  printf("File to read is %s ", GV.FILENAMEVELS);
   printf("with %d cells per axis\n", GV.NCELLS);
   
   
@@ -163,6 +168,7 @@ int read_data(char *infile, double *DenConCell, double **p_r)
       
     }//for m
 #endif
+
   
   fclose(pf);
   
@@ -274,6 +280,89 @@ int read_binary(double *DenConCell, double **p_r)
   fclose(inFile);
   return 0;
 }//read_binary
+
+
+
+/**************************************************************************************************** 
+NAME: read_binary_super_CIC
+FUNCTION: Reads the binary data file
+INPUT: None
+RETURN: 0 
+****************************************************************************************************/
+
+int read_binary_super_CIC(double *DenConCell)
+{
+  int m, nread;
+  double pos_aux[3];
+  double dummy_d;
+  int dummy_int;
+  char dummy_char;
+  
+  FILE *inFile=NULL;
+  
+  inFile = fopen(GV.FILENAME, "r");
+
+  /* Saving cosmological parameters of the simulation */
+  nread = fread( &(GV.Omega_M0), sizeof(double), 1, inFile);
+  nread = fread( &(GV.Omega_L0), sizeof(double), 1, inFile);
+  nread = fread( &(GV.z_RS),     sizeof(double), 1, inFile);
+  nread = fread( &(GV.h_Hubble), sizeof(double), 1, inFile);
+  
+  /* Saving simulation parameters */
+  nread = fread(         &(GV.NCELLS),           sizeof(int), 1, inFile);
+  nread = fread(         &(dummy_int),           sizeof(int), 1, inFile);
+  nread = fread(        &(GV.BoxSize),        sizeof(double), 1, inFile);
+  nread = fread(   &(GV.Total_NParts), sizeof(unsigned long), 1, inFile);
+  nread = fread(           &(dummy_d),        sizeof(double), 1, inFile);
+  nread = fread(        &(GV.MeanDen),        sizeof(double), 1, inFile);
+  nread = fread(           &(dummy_d),        sizeof(double), 1, inFile);
+  nread = fread(           &(dummy_d),        sizeof(double), 1, inFile);
+  nread = fread(        &(dummy_char),          sizeof(char), 1, inFile);
+  nread = fread(        &(dummy_char),          sizeof(char), 1, inFile);
+  nread = fread(        &(dummy_char),          sizeof(char), 1, inFile);
+  
+  GV.NTOTALCELLS = POW3(GV.NCELLS);
+  
+  /*+++++ Saving Simulation parameters +++++*/
+  GV.H0 = 100.0 * GV.h_Hubble;
+  GV.a_SF = 1.0 / (1.0 + GV.z_RS);
+
+  printf("-----------------------------------------------\n");
+  printf("Cosmological parameters:\n");
+  printf("OmegaM0=%lf OmegaL0=%lf redshift=%lf HubbleParam=%lf H0=%lf\n",
+	 GV.Omega_M0,
+	 GV.Omega_L0,
+	 GV.z_RS,
+	 GV.h_Hubble,
+	 GV.H0);
+  printf("-----------------------------------------------\n");
+
+  printf("Simulation parameters:\n");
+  printf("L=%lf\n",
+	 GV.BoxSize);
+  printf("-----------------------------------------------\n");
+
+
+  //fwrite( &(denCon[index_cell]), sizeof(double), 1, outfile );
+  //fwrite( &(vx[index_cell]), sizeof(double), 1, outfile_vel );
+  //fwrite( &(vy[index_cell]), sizeof(double), 1, outfile_vel );
+  //fwrite( &(vz[index_cell]), sizeof(double), 1, outfile_vel );
+  
+  for(m=0; m<GV.NTOTALCELLS; m++ )
+    {
+      nread = fread(&DenConCell[m], sizeof(double), 1, inFile);
+      
+      if(m%100000000==0)
+	{
+	  printf("Reading m=%d DenCon=%lf\n", m, DenConCell[m]);
+	}//if
+    }//for m
+  
+
+  fclose(inFile);
+  return 0;
+}//read_binary
+
 
 
 

@@ -30,6 +30,18 @@ Gravitational constant in the interal units G = 43.0071
  *******************************************************************/
 
 
+/***************************************************************
+               DEFINITIONS AND PREPROCESOR DIRECTIVES
+ ***************************************************************/
+#define X 0
+#define Y 1
+#define Z 2
+
+#define POW2(x) ((x)*(x))
+#define POW3(x) ((x)*(x)*(x))
+#define INDEX_C_ORDER(i,j,k) (k)+GV.NCELLS*((j)+GV.NCELLS*(i)) //Index in C-order
+
+
 /*****************************************************************
                             STRUCTURES
 ******************************************************************/
@@ -44,22 +56,9 @@ struct grid
   double weight;             // Weight function for the mass assignment scheme
   double k_mod_sin;         //Discretized module of k vector according to Knebe
   double k_mod_HE;          //Discretized module of k vector according to Hockney & Eastwood
-
-
-#ifdef NGP_400
-  /*+++ Velocities and momentum density +++*/
-  double p_w_k[3][2];   /* Momentum density (from v_cm) in k-space.  [0][i] is X, \		   
-			   [1][i] is Y, [2][i] is Z.  [i][0] is Re(),                    
-			   [i][1]  is Im(). This momentum is deconvolved with                                     
-			   the weight function of the mass assignment scheme */
   
-  /*+++ Potential and its time derivative +++*/
-  double potDot_k[2];     /* pot_dot_k; Potential's time derivative in
-                             k-space, FFTW[p] order.  [0] is Re(), [1]
-                             is Im() */
-#endif
-  
-#ifdef CIC_400
+
+#ifdef POTDOTEXACT
   /*+++ Velocities and momentum density +++*/
   double p_w_k[3][2];   /* Momentum density (from v_cm) in k-space.  [0][i] is X,                                            
                          [1][i] is Y, [2][i] is Z.  [i][0] is Re(),                                             
@@ -67,10 +66,11 @@ struct grid
 			 the weight function of the mass assignment scheme */
 
   /*+++ Potential and its time derivative +++*/
-  double potDot_k[2];     /* pot_dot_k; Potential's time derivative in                                          
+  /*double potDot_k[2];*/     /* pot_dot_k; Potential's time derivative in                                          
                              k-space, FFTW[p] order.  [0] is Re(), [1]                                          
                              is Im() */
 #endif
+
 
   /*+++ Linear approximation for the time derivative of the potential +++*/
 #ifdef POTDOTLINEAR
@@ -88,38 +88,32 @@ struct grid
 
 struct GlobalVariables
 {
-  char FILENAME[1000]; //Path of the data file
+  char  FILENAME[1000];      //Path of the data file
+  char  FILENAMEVELS[1000]; //Path of the data file
   
   /*+++ Grid constants +++*/
-  int Total_NParts; // Total number of particles
-  double BoxSize;      // Size of the simulation box in one axis (all must be the same)
-  int NCELLS;       // Number of cells in one axis
-  int NTOTALCELLS;  // Total number of cell
-  double Mpart;     // Mass of the particles
-  double CellSize;  // Size of the cell
-  double ZERO;      // Zero for the computer
-  double r2k_norm;  // Normalization factor from r2k
-  double k2r_norm;  // Normalization factor from k2r
-  double fftw_norm; // Normalization from fftw equal to 1/sqrt(NTOTALCELLS)
-  double conv_norm; // Normalization according to the convention of the Fourier transform. It is equal to 1/(2 * pi)**3
+  unsigned long  Total_NParts; // Total number of particles
+  double         BoxSize;      // Size of the simulation box in one axis (all must be the same)
+  int            NCELLS;       // Number of cells in one axis
+  unsigned long  NTOTALCELLS;  // Total number of cell
+  double         Mpart;        // Mass of the particles
+  double         CellSize;     // Size of the cell
+  double         ZERO;         // Zero for the computer
+  double         r2k_norm;     // Normalization factor from r2k
+  double         k2r_norm;     // Normalization factor from k2r
+  double         fftw_norm;    // Normalization from fftw equal to 1/sqrt(NTOTALCELLS)
+  double         conv_norm;    // Normalization according to the convention of the Fourier transform. It is equal to 1/(2 * pi)**3
  
   /*+++ Cosmological Parameters +++*/
-  double h_Hubble; // Hubble's parameter h.
-  double H0;      //= 100.0 * h  Hubble's constant in the inner units
-  double z_RS;    // = 0.0 Redshift of the simulation
-  double a_SF;    // Scale factor's time derivative
-  double Hz;      //Hubble's parameter a_dot/a
-  double Omega_M0; //= 0.258 Density parameter of matter
-  double Omega_L0; //= 0.742 Density parameter of cosmological constant
-  double MeanDen; // MeanDens;= 7.160809 Units *1E10 M_Sun/h
+  double  h_Hubble; // Hubble's parameter h.
+  double  H0;       //= 100.0 * h  Hubble's constant in the inner units
+  double  z_RS;     // = 0.0 Redshift of the simulation
+  double  a_SF;     // Scale factor's time derivative
+  double  Hz;       //Hubble's parameter a_dot/a
+  double  Omega_M0; //= 0.258 Density parameter of matter
+  double  Omega_L0; //= 0.742 Density parameter of cosmological constant
+  double  MeanDen;  // MeanDens;= 7.160809 Units *1E10 M_Sun/h
 
 }GV;//globalVariables
 
 
-/***************************************************************
-                       DEFINITIONS
- ***************************************************************/
-#define X 0
-#define Y 1
-#define Z 2
-#define INDEX_C_ORDER(i,j,k) (k)+GV.NCELLS*((j)+GV.NCELLS*(i)) //Index in C-order

@@ -61,42 +61,20 @@ int main( int argc, char *argv[] )
     }//if   
 
   infile     = argv[1];             // Parameters file
-
+  
   /*+++++ Reading parameters file +++++*/  
   read_parameters( infile );
-
+  
   /*+++++ Some variables +++++*/  
   GV.ZERO         = 1.0e-300;
-  GV.NTOTALCELLS  = GV.NCELLS*GV.NCELLS*GV.NCELLS;
+  GV.NTOTALCELLS  = POW3(GV.NCELLS);
   printf("Variables are ready to use!\n");
   printf("-----------------------------------------------------------------\n");
-
+  
   /*--- MEMORY ALLOCATION ---*/
   gp         = (struct grid *) malloc((size_t) GV.NTOTALCELLS*sizeof(struct grid));
   DenConCell = (double *) calloc(GV.NTOTALCELLS, sizeof(double) );
-
-  poten_r = (double *) calloc(GV.NTOTALCELLS, sizeof(double) );
-  poten_k = (double **) calloc(GV.NTOTALCELLS, sizeof(double *) );
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {      
-      poten_k[m] = (double *) calloc(2, sizeof(double));
-    }//for m
-
   
-  /*::::: For each cell, it's necessary to allocate memory for 3 momentum 
-    components and 2 for potdot, i.e., real and imaginary parts :::::*/
-#ifdef POTDOTEXACT
-  p_r      = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
-  potDot_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {
-      p_r[m]      = (double *) calloc(3, sizeof(double));
-      potDot_r[m] = (double *) calloc(2, sizeof(double));
-    }//for m 
-#endif
-
   
   /*+++++ Reading binary file +++++*/
 #ifdef BINARYDATA
@@ -106,8 +84,17 @@ int main( int argc, char *argv[] )
 #endif
 
 
-#ifdef ASCIIDATA  
+  /*+++++ Reading binary file from super_CIC code+++++*/
+#ifdef SUPERCIC
+  read_binary_super_CIC(DenConCell);
+  printf("Binary data file from super_CIC has been read succesfully!\n");
+  printf("-----------------------------------------------------------------\n");
+#endif
+
+
+
   /*--- READING ASCII DATAFILE ---*/
+#ifdef ASCIIDATA    
   read_data( GV.FILENAME,  DenConCell, p_r );
   printf("Ascii data file has been read succesfully!\n");
   printf("-----------------------------------------------------------------\n");
@@ -119,7 +106,7 @@ int main( int argc, char *argv[] )
   GV.CellSize = GV.BoxSize/(1.0*GV.NCELLS); //Size of each cell per axis
   
   printf("Simulation parameters\n");
-  printf("GV.NCELLS:%12d GV.NTOTALCELLS:%12d\n" 
+  printf("GV.NCELLS:%12d GV.NTOTALCELLS:%12lu\n" 
 	 "GV.BoxSize:%16.8lf GV.CellSize:%16.8lf\n", 
 	 GV.NCELLS,
 	 GV.NTOTALCELLS,
@@ -149,32 +136,20 @@ int main( int argc, char *argv[] )
 
   /*--- FFT OF THE DENSITY CONTRAST ---*/
   transform( DenConCell ); //In C-order
-  free(DenConCell);
+  free( DenConCell );
   printf("FFT of density contrast finished!\n");
   printf("-----------------------------------------------------------------\n");
 
+      
   
   /*--- FFT OF GRAVITATIONAL POTENTIAL ---*/
-  potential( poten_r, poten_k ); //In C-order
+  poten_r = (double *) calloc(GV.NTOTALCELLS, sizeof(double) );  
+
+  potential( poten_r ); //In C-order  
+  free(poten_r);
   printf("FFT of gravitational potential finished!\n");
   printf("-----------------------------------------------------------------\n");
 
-  
-  
-#ifdef POTDOTEXACT
-  /*--- FFT OF THE MOMENTUM OF THE CENTER OF MASS IN EACH AXIS ---*/
-  momentum_den_cm( p_r ); //In C-order 
-  free(p_r);
-  printf("FFT of momentum finished!\n");
-  printf("-----------------------------------------------------------------\n");
-  
-  
-  /*--- FFT OF THE TIME DERIVATIVE OF THE POTENTIAL ---*/
-  potential_dot( potDot_r ); //In C-order 
-  printf("FFT of time derivative of gravitational potential finished!\n");
-  printf("-----------------------------------------------------------------\n");
-#endif
-  
 
   /*--- FFT OF THE LINEAR APPROXIMATIONS TO THE ---
     --- TIME DERIVATIVE OF THE POTENTIAL        ---*/
@@ -189,9 +164,54 @@ int main( int argc, char *argv[] )
     }//for m 
   
   potential_dot_linear(potDot_r_l_app1, potDot_r_l_app2); //In C-order
+  free(potDot_r_l_app1);
+  free(potDot_r_l_app2);
   printf("FFT of time derivative of gravitational potential in linear approximation finished!\n");
   printf("-----------------------------------------------------------------\n");
 #endif
+
+
+    /*--- FFT OF THE EXACT SOLUTION TO THE ---
+      --- TIME DERIVATIVE OF THE POTENTIAL ---*/ 
+
+#ifdef POTDOTEXACT
+  /*::::: For each cell, it's necessary to allocate memory for 3 momentum 
+    components and 2 for potdot, i.e., real and imaginary parts :::::*/
+  
+  
+  /*--- FFT OF THE MOMENTUM OF THE CENTER OF MASS IN EACH AXIS ---*/
+  p_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
+  
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {
+      p_r[m] = (double *) calloc(3, sizeof(double));     
+    }//for m 
+
+# ifdef SUPERCIC
+  read_vels( p_r );
+  printf("Velocities from superCIC read!\n");
+  printf("-----------------------------------------------------------------\n");
+# endif
+
+  momentum_den_cm( p_r ); //In C-order 
+  printf("FFT of momentum finished!\n");
+  printf("-----------------------------------------------------------------\n");
+  
+  
+  /*--- FFT OF THE TIME DERIVATIVE OF THE POTENTIAL ---*/
+  potDot_r = (double **) calloc(GV.NTOTALCELLS, sizeof(double *));
+  
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {      
+      potDot_r[m] = (double *) calloc(2, sizeof(double));
+    }//for m 
+
+  potential_dot( potDot_r ); //In C-order 
+  free(potDot_r);
+  printf("FFT of time derivative of gravitational potential finished!\n");
+  printf("-----------------------------------------------------------------\n");
+#endif
+  
 
   /*--- FINISHING THE FFTs ---*/
   printf("All FFT transforms have finished succesfully!\n");

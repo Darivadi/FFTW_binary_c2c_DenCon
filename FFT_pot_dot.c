@@ -18,6 +18,7 @@ int potential_dot(double **potDot_r)
   //double nyquist_freq;
 
   /*+++++ For Trilinear Interpolation +++++*/
+#ifdef TRILINEARINTERP
   double interp_dx, interp_dy, interp_dz;
   double x0, x1, y0, y1, z0, z1;
   double interp_dkx, interp_dky, interp_dkz;
@@ -25,7 +26,7 @@ int potential_dot(double **potDot_r)
   int p000, p100, p110, p010, p001, p101, p111, p011;
   double c0, c1, c2, c3, c4, c5, c6, c7;
   double aux1, aux2;
-
+#endif
   
   /*+++++ FFTW DEFINITIONS +++++*/
   fftw_complex *in=NULL;
@@ -37,6 +38,13 @@ int potential_dot(double **potDot_r)
 
   printf("Computing time derivative of potential in k-space!\n");
   printf("-----------------------------------------------------------------\n");
+
+  /*+++ Creating input/output  arrays +++*/
+  in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+  out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
+
+  plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+  
 
   /*+++ Computing the time derivative of potential in k-space +++*/  
   factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
@@ -62,33 +70,24 @@ int potential_dot(double **potDot_r)
 	      //if(gp[m].k_mod_sin > GV.ZERO)
 	      if(gp[m].k_mod_HE > GV.ZERO)
 		{
-		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
-		  //{		      
+		  
 		  //Green_factor = -1.0 / gp[m].k_mod_sin;
 		  Green_factor = -1.0 / gp[m].k_mod_HE;
 		  alpha = factor * Green_factor;
 		  
-		  gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
-		  gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
+		  //gp[m].potDot_k[0] = alpha * ( pot_Re1 + pot_Re2 ); //Re()
+		  //gp[m].potDot_k[1] = alpha * ( pot_Im1 + pot_Im2 ); //Im()
 		  
-		  if(m%5000000==0)
-		    {
-		      //printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_sin, Green_factor);
-		      printf("%10d %16.8lf %16.8lf\n", m, gp[m].k_mod_HE, Green_factor);
-		    }//if
-		  /*
-		    }//if i, j, k
-		    else
-		    {		      
-		    gp[m].potDot_k[0] = 0.0; //Re()
-		    gp[m].potDot_k[1] = 0.0; //Im()
-		    }//else i,j,k
-		  */
+		  in[m][0] =  alpha * ( pot_Re1 + pot_Re2 ); //Re()
+		  in[m][1] = alpha * ( pot_Im1 + pot_Im2 ); //Im() 
+		  
 		}//if
 	      else
 		{		 			
-		  gp[m].potDot_k[0] = 0.0; //Re()
-		  gp[m].potDot_k[1] = 0.0; //Im()
+		  //gp[m].potDot_k[0] = 0.0; //Re()
+		  //gp[m].potDot_k[1] = 0.0; //Im()
+		  in[m][0] = 0.0;
+		  in[m][1] = 0.0;
 		}//else      
 	      
 	      Green_factor = 0.0;
@@ -135,10 +134,11 @@ int potential_dot(double **potDot_r)
 
   
   /*+++++ Trilinear Interpolation +++++*/
-  /*
+#ifdef TRILINEARINTERP
   printf("******************************************************\n");
   printf("Computing trilinear interpolation\n");
   printf("******************************************************\n");
+
   //Indeces of each cell that is around the cell with index m=0 (i=j=k=0)
   p000 = GV.NTOTALCELLS - 1;
   p100 = 2*GV.NCELLS*GV.NCELLS - 1;
@@ -154,7 +154,8 @@ int potential_dot(double **potDot_r)
   printf("p000=%d, p100=%d, p110=%d, p010=%d\n", p000, p100, p110, p010);
   printf("p001=%d, p101=%d, p111=%d, p011=%d\n", p001, p101, p111, p011);
   printf("******************************************************\n");
-  */
+  
+  
   /*+++++ dx, dy and dz from definition of trilinear interpolation. 
     x0 is the x-position of the p000 cell, while x1 is the x-position of the p100 cell (with y0 and z0)
     y0 is the y-position of the p000 cell, while y1 is the y-position of the p010 cell (with x0 and z0)
@@ -165,7 +166,6 @@ int potential_dot(double **potDot_r)
     ky0 is the kz-component of the p000 cell, while kz1 is the kz-component of the p001 cell (with kx0 and ky0)
   +++++*/
   
-  /*
   kx0 = gp[p000].k_vector[X];
   kx1 = gp[p100].k_vector[X];
   printf("kx0=%lf, kx1=%lf\n", kx0, kx1);
@@ -190,10 +190,10 @@ int potential_dot(double **potDot_r)
   printf("Computed deltas\n");
   printf("dkx=%lf, dky=%lf, dkz=%lf\n", interp_dkx, interp_dky, interp_dkz);
   printf("******************************************************\n");
-  */
+  
   //Definition of the coefficients for interpolation
   /*----- First: Real part ----- */
-  /*
+  
   c0 = gp[p000].potDot_k[0];
   c1 = gp[p100].potDot_k[0] - gp[p000].potDot_k[0];
   c2 = gp[p010].potDot_k[0] - gp[p000].potDot_k[0];
@@ -217,10 +217,10 @@ int potential_dot(double **potDot_r)
   aux1 = c0 + c1 * interp_dkx + c2 * interp_dky + c3 * interp_dkz;
   aux2 = c4 * interp_dkx * interp_dky + c5 * interp_dky * interp_dkz + c6 * interp_dkx * interp_dkz;
   gp[0].potDot_k[0] =  aux1 + aux2 + c7 * interp_dkx * interp_dky * interp_dkz;
-  */
+  
 
   /*----- Second: Imaginary part -----*/
-  /*
+  
   c0 = gp[p000].potDot_k[1];
   c1 = gp[p100].potDot_k[1] - gp[p000].potDot_k[1];
   c2 = gp[p010].potDot_k[1] - gp[p000].potDot_k[1];
@@ -250,9 +250,9 @@ int potential_dot(double **potDot_r)
   printf("Interpolated value trough trilinear interoplation\n");
   printf("potDot_k[0] = %16.8lf potDot_k[1] = %16.8lf\n", gp[m].potDot_k[0], gp[m].potDot_k[1]);
   printf("******************************************************\n");
-  */
+  
 
-  /*
+  
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
@@ -281,13 +281,18 @@ int potential_dot(double **potDot_r)
       pot_Im2 = 0.0;
       
     }//for m
-  */
+  
+    printf("Trilinear interpolation finished\n");
+  printf("-----------------------------------------------------------------\n");
+  
+#endif
   
   printf("Data time derivative of potential in k-space assigned!\n");
   printf("-----------------------------------------------------------------\n");
 
   
   /*+++ Creating input/output  arrays +++*/
+  /*
   in  = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = (fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
     
@@ -296,10 +301,11 @@ int potential_dot(double **potDot_r)
       in[m][0] = gp[m].potDot_k[0];
       in[m][1] = gp[m].potDot_k[1]; 
     }//for m
+  */
 
   
   /*+++ Making the FFT +++*/
-  plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
+  //plan_k2r = fftw_plan_dft_3d(GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE);
   fftw_execute(plan_k2r);
   
   printf("FFT of potential derivative in r finished!\n");
@@ -310,8 +316,7 @@ int potential_dot(double **potDot_r)
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
       //potDot_r[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
-      //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im() 
-      
+      //potDot_r[m][1] = GV.k2r_norm * out[m][1]; //Im()       
       potDot_r[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
 
     }//for m
@@ -326,7 +331,7 @@ int potential_dot(double **potDot_r)
   fftw_destroy_plan( plan_k2r );
   //fftw_destroy_plan( plan_r2k );
   
-  free(in);
+  fftw_free(in);
   //fftw_free(in2);
   fftw_free(out);
   
@@ -337,8 +342,27 @@ int potential_dot(double **potDot_r)
   printf("Writing binary file with PotDot\n");
   printf("--------------------------\n");
 
-  //pf = fopen("./../../Processed_data/PotDot.bin", "w");
-  pf = fopen("./../../Processed_data/PotDot_Green_nokp.bin", "w");
+  pf = fopen("./../../Processed_data/PotDot.bin", "w");
+  //pf = fopen("./../../Processed_data/PotDot_Green_nokp.bin", "w");
+  
+  
+#ifdef SUPERCIC
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
+    
+  for(m=0; m< GV.NTOTALCELLS; m++)
+    {
+      fwrite(&potDot_r[m][0], sizeof(double), 1, pf);
+    }//for m
+
+#endif
+
+
+#ifdef CIC_400
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize, sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
@@ -363,6 +387,8 @@ int potential_dot(double **potDot_r)
 	    }//for k	  
 	}//for j
     }//for i
+#endif
+
   fclose(pf);
 
   free(potDot_r);
