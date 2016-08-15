@@ -44,6 +44,7 @@ int transform(double *DenConCell)
       in[m][1] = 0.0; //Im(den_in)	     	     
     }//for m
 
+  free(DenConCell);
   
   printf("Input of contrast density sorted in C-order (row-major order)!\n");
   printf("-----------------------------------------------------------------\n");
@@ -60,8 +61,23 @@ int transform(double *DenConCell)
       gp[m].DenCon_K[0] = GV.r2k_norm * GV.fftw_norm * out[m][0]; //Re()
       gp[m].DenCon_K[1] = GV.r2k_norm * GV.fftw_norm * out[m][1]; //Im()
     }//for m
- 
 
+
+    /*--- Destroying plans ---*/
+  printf("Destroying plans!\n");
+  printf("--------------------------------------------------\n");
+  fftw_destroy_plan( plan_r2k );
+  printf("plan_r2k destroyed!");
+  //fftw_destroy_plan( plan_k2r );
+  //printf("plan_r2k destroyed!");
+
+  /*--- Freeing up memory! ---*/
+  printf("Freeing up memory!\n");
+  printf("--------------------------------------------------\n");
+  fftw_free(in);
+  //free(in2);
+  fftw_free(out);
+ 
   /*--- K vector: components and module ---*/
   //pf = fopen("./../../Processed_data/k_module_256.bin", "w");
 
@@ -159,6 +175,7 @@ int transform(double *DenConCell)
 
 
   /*----- Testing periodicity of G(k) -----*/
+  /*
   for(i=0; i<GV.NCELLS; i++)
     {
       for(j=0; j<GV.NCELLS; j++)
@@ -188,7 +205,7 @@ int transform(double *DenConCell)
 
 	}//for j
     }//for i
-
+  */
   
   /*--- Density contrast in k-space with NGP weight function ---*/
 #ifdef NGP
@@ -336,21 +353,6 @@ int transform(double *DenConCell)
   fftw_execute( plan_k2r );
   printf("Inverse FFT for contrast density finished!\n");
   */
-
-  /*--- Destroying plans ---*/
-  printf("Destroying plans!\n");
-  printf("--------------------------------------------------\n");
-  fftw_destroy_plan( plan_r2k );
-  printf("plan_r2k destroyed!");
-  //fftw_destroy_plan( plan_k2r );
-  //printf("plan_r2k destroyed!");
-
-  /*--- Freeing up memory! ---*/
-  printf("Freeing up memory!\n");
-  printf("--------------------------------------------------\n");
-  free(in);
-  //free(in2);
-  fftw_free(out);
 
   printf("FFT_transform code finished!\n");
   printf("--------------------------------------------------\n");

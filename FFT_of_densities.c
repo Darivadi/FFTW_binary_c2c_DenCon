@@ -136,7 +136,6 @@ int main( int argc, char *argv[] )
 
   /*--- FFT OF THE DENSITY CONTRAST ---*/
   transform( DenConCell ); //In C-order
-  free( DenConCell );
   printf("FFT of density contrast finished!\n");
   printf("-----------------------------------------------------------------\n");
 
