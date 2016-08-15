@@ -1,0 +1,10 @@
+#---------------------------------------
+#--------- PARAMETERS FILE -------------
+#---------------------------------------
+#+++++++++++++++++++++++++++++++++++++++
+#Number of cells per axis is N
+#Total number of cells is N^3
+N = 1024
+#Path of data file
+FILENAME = /home/dvalencia/MDPL_Simulation/Data/NGrid1024/CIC/out/snap_130_NGRID_1024_CIC.dens
+FILENAMEVELS = /home/dvalencia/MDPL_Simulation/Data/NGrid1024/CIC/out/snap_130_NGRID_1024_CIC.vel
