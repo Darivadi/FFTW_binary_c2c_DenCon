@@ -52,9 +52,9 @@ struct grid
   double DenCon_K[2];       /* Density contrast in Fourier space deconvolved with weight function. 
 			       [0] is real, [1] imaginary */
   double k_vector[3];       // Wave vector components in c-order
-  double k_module;          // Wave vector module in c-order
+  //double k_module;          // Wave vector module in c-order
   double weight;             // Weight function for the mass assignment scheme
-  double k_mod_sin;         //Discretized module of k vector according to Knebe
+  //double k_mod_sin;         //Discretized module of k vector according to Knebe
   double k_mod_HE;          //Discretized module of k vector according to Hockney & Eastwood
   
 
@@ -74,11 +74,11 @@ struct grid
 
   /*+++ Linear approximation for the time derivative of the potential +++*/
 #ifdef POTDOTLINEAR
-  double potDot_k_l_app1[2]; /*Time derivative of gravitational potentia in 
+  /*double potDot_k_l_app1[2];*/ /*Time derivative of gravitational potentia in 
 			       k-space with linear approximation. [0] is 
 			       Re(), [1] is Im() */
 
-  double potDot_k_l_app2[2]; /* Time derivative of gravitational potentia in 
+  /*double potDot_k_l_app2[2];*/ /* Time derivative of gravitational potentia in 
 				k-space with linear approximation. [0] is 
 				Re(), [1] is Im() */
 #endif

@@ -60,13 +60,14 @@ RETURN: none
 ****************************************************************************************************/
 
 /****** COMPUTING LINEAR POTDOT ******/
-int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
+//int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
+int potential_dot_linear( void )
 {  
   int m, i, j, k;
   double pos_aux[3];
   double alpha, fn_app1, fn_app2, factor;
   double Green_factor;
-  FILE *pf1=NULL, *pf2=NULL;
+  FILE *pf=NULL;
   
   /*+++++ FFTW DEFINITIONS +++++*/
   fftw_complex *in=NULL;
@@ -123,37 +124,37 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   printf("FFT of PotDot App1 in r finished!\n");
   printf("-----------------------------------------\n");
   
+  /*+++++ Freeing up memory +++++*/  
+  fftw_free(in);
   
   /*+++++ Saving data +++++*/
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
       //potDot_r_l_app1[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
       //potDot_r_l_app1[m][1] = GV.k2r_norm * out[m][1]; //Im()	     
-      potDot_r_l_app1[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()      
+      out[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()      
     }//for m
 
-  fftw_free(in);
-  //fftw_free(in2);
-  fftw_free(out);
   
   printf("Saving data in binary file for the first approximation\n");
   printf("--------------------------\n");
   
-  pf1 = fopen("./../../Processed_data/PotDot_app1.bin", "w");
+  pf = fopen("./../../Processed_data/PotDot_app1.bin", "w");
 
 #ifdef SUPERCIC
   /*..... File app1 .....*/
-  fwrite(&GV.BoxSize,  sizeof(double), 1, pf1);  // Box Size
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS,     sizeof(double), 1, pf1);  // Redshift
-  fwrite(&GV.H0,       sizeof(double), 1, pf1);  // Hubble parameter
-  fwrite(&GV.NCELLS,   sizeof(int),    1, pf1);  // Number of cells
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Number of cells
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       /*..... File app1 .....*/
-      fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf1);
+      //fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf);
+      fwrite(&out[m][0], sizeof(double), 1, pf);
     }//for m	  
   
 #endif
@@ -161,11 +162,11 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 
 #ifdef CIC_400
   /*+++++ Saving Simulation parameters +++++*/
-  fwrite(&GV.BoxSize,  sizeof(double), 1, pf1);  // Box Size
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS,     sizeof(double), 1, pf1);  // Redshift
-  fwrite(&GV.H0,       sizeof(double), 1, pf1);  // Hubble parameter
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -178,16 +179,16 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 	      pos_aux[Y] = j * GV.CellSize;
 	      pos_aux[Z] = k * GV.CellSize;
 	      
-	      fwrite(&pos_aux[0], sizeof(double), 3, pf1);
-	      fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf1);
+	      fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&out[m][0], sizeof(double), 1, pf);
 	    }//for k	  
 	}//for j
     }//for i
 #endif
   
-  fclose(pf1);
-  
-  free(potDot_r_l_app1);
+  fclose(pf);
+  fftw_free(out);
+  //free(potDot_r_l_app1);
   
   /**************************************************************************************/
   /* Linear PotDot with the second approximation to the linear growth rate f */
@@ -224,55 +225,48 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
   printf("FFT of potential derivative in r finished!\n");
   printf("-----------------------------------------\n");
   
+  /*+++++ Freeing up memory +++++*/
+  fftw_free(in);
   
   /*+++++ Saving data +++++*/
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
-      potDot_r_l_app2[m][0] = GV.fftw_norm *  out[m][0] / GV.r2k_norm; //Re()
+      out[m][0] = GV.fftw_norm *  out[m][0] / GV.r2k_norm; //Re()
     }//for m
-  
-  fftw_free(in);  
-  fftw_free(out);
 
 
   printf("Saving data in binary file for the second approximation\n");
   printf("--------------------------\n");
 
 
-  pf2 = fopen("./../../Processed_data/PotDot_app2.bin", "w");
+  pf = fopen("./../../Processed_data/PotDot_app2.bin", "w");
   
 #ifdef SUPERCIC
   
   /*..... File app2 .....*/
-  fwrite(&GV.BoxSize,  sizeof(double), 1, pf2);  // Box Size
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf2);  // Matter density parameter
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf2);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS,     sizeof(double), 1, pf2);  // Redshift
-  fwrite(&GV.H0,       sizeof(double), 1, pf2);  // Hubble parameter
-  fwrite(&GV.NCELLS,   sizeof(int),    1, pf2);  // Number of cells
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Number of cells
   
   
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
       /*..... File app2 .....*/
-      fwrite(&potDot_r_l_app2[m][0], sizeof(double), 1, pf2);
+      fwrite(&out[m][0], sizeof(double), 1, pf);
     }//for m	  
 #endif  
 
 
 #ifdef CIC_400
   /*+++++ Saving Simulation parameters +++++*/
-  fwrite(&GV.BoxSize,  sizeof(double), 1, pf1);  // Box Size
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf1);  // Matter density parameter
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf1);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS,     sizeof(double), 1, pf1);  // Redshift
-  fwrite(&GV.H0,       sizeof(double), 1, pf1);  // Hubble parameter
-
-  fwrite(&GV.BoxSize,  sizeof(double), 1, pf2);  // Box Size
-  fwrite(&GV.Omega_M0, sizeof(double), 1, pf2);  // Matter density parameter
-  fwrite(&GV.Omega_L0, sizeof(double), 1, pf2);  // Cosmological constant density parameter
-  fwrite(&GV.z_RS,     sizeof(double), 1, pf2);  // Redshift
-  fwrite(&GV.H0,       sizeof(double), 1, pf2);  // Hubble parameter
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -285,19 +279,16 @@ int potential_dot_linear( double **potDot_r_l_app1, double **potDot_r_l_app2 )
 	      pos_aux[Y] = j * GV.CellSize;
 	      pos_aux[Z] = k * GV.CellSize;
 	      
-	      fwrite(&pos_aux[0], sizeof(double), 3, pf1);
-	      fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf1);
-
-	      fwrite(&pos_aux[0], sizeof(double), 3, pf2);
-	      fwrite(&potDot_r_l_app2[m][0], sizeof(double), 1, pf2);
+	      fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&out[m][0], sizeof(double), 1, pf);
 	    }//for k	  
 	}//for j
     }//for i
 #endif
   
-  fclose(pf2);
-
-  free(potDot_r_l_app2);
+  fclose(pf);
+  fftw_free(out);
+  //free(potDot_r_l_app2);
 
   /*+++++ Finishing +++++*/
   fftw_destroy_plan( plan_k2r );

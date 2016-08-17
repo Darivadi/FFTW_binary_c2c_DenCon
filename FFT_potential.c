@@ -4,7 +4,8 @@ FUNCTION: Calculates the potential of the contrast density in the k-space (from 
 INPUT: density contrast in the k-space
 RETURN: File with the input and outputs (sorted in the grid[m] order)
 **********************************************************************/
-int potential(double *poten_r)
+//int potential(double *poten_r)
+int potential( void )
 {
   int m, i, j, k;
   double factor, pos_aux[3];
@@ -79,9 +80,12 @@ int potential(double *poten_r)
   printf("-----------------------------------------\n");
   
   
-  /* Making the FFT */  
+  /*----- Making the FFT -----*/ 
   fftw_execute( plan_k2r );
   
+  /*----- Freeing up memory -----*/ 
+  fftw_free( in );
+
   printf("FFT potential k2r finished!\n");
   printf("---------------------------------------\n");
   
@@ -91,8 +95,7 @@ int potential(double *poten_r)
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
       //poten_r[m] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
-      poten_r[m] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()
-            	          
+      out[m][0] = GV.fftw_norm * out[m][0] / GV.r2k_norm; //Re()            	          
     }//for m
   
   printf("---------------------------------------\n");
@@ -110,9 +113,7 @@ int potential(double *poten_r)
   fftw_destroy_plan( plan_k2r );
   //fftw_destroy_plan( plan_r2k );
   
-  free( in );
   //fftw_free( in2 );
-  fftw_free( out );
   
   printf("FFT_potential code finished!\n");
   printf("----------------------------\n");   
@@ -133,7 +134,7 @@ int potential(double *poten_r)
     
   for(m=0; m< GV.NTOTALCELLS; m++)
     {
-      fwrite(&poten_r[m], sizeof(double), 1, pf);
+      fwrite(&out[m][0], sizeof(double), 1, pf);
     }//for m
   
 #endif
@@ -159,13 +160,14 @@ int potential(double *poten_r)
               pos_aux[Z] = k * GV.CellSize;
               
               fwrite(&pos_aux[0], sizeof(double), 3, pf);
-	      fwrite(&poten_r[m], sizeof(double), 1, pf);
+	      fwrite(&out[m][0], sizeof(double), 1, pf);
             }//for k      
         }//for j
     }//for i
 #endif
  
   fclose(pf);
+  fftw_free( out );
 
   return 0;
 }//potential

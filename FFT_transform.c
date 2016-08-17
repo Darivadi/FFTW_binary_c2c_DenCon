@@ -108,9 +108,10 @@ int transform(double *DenConCell)
 		gp[m].k_vector[Z] = (2.0*M_PI*(k-GV.NCELLS)) / GV.BoxSize;
 	      
 	      // k-vector module 
+	      /*
 	      k2 = gp[m].k_vector[X]*gp[m].k_vector[X] + gp[m].k_vector[Y]*gp[m].k_vector[Y] + gp[m].k_vector[Z]*gp[m].k_vector[Z] ;
 	      gp[m].k_module = sqrt(k2);
-	      
+	      */
 	      
 	      /*-----  Discretized k-vector module -----*/
 	      //According to Slices from Knebe
@@ -218,7 +219,7 @@ int transform(double *DenConCell)
       if(fabs(gp[m].k_vector[X]) > GV.ZERO)
 	{
 	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
-	  wx= (sin(fx)/fx);
+	  wx = (sin(fx)/fx);
 	}//if 1
       else
 	{
