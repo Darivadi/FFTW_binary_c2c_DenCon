@@ -160,13 +160,14 @@ int potential_dot_linear( void )
 #endif
 
 
-#ifdef CIC_400
+#if defined(CIC_400) || defined(CIC_MDR)
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
   fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
   fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -260,13 +261,14 @@ int potential_dot_linear( void )
 #endif  
 
 
-#ifdef CIC_400
+#if defined(CIC_400) || defined(CIC_MDR)
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
   fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
   fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {

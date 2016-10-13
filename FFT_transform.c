@@ -113,16 +113,7 @@ int transform(double *DenConCell)
 	      gp[m].k_module = sqrt(k2);
 	      */
 	      
-	      /*-----  Discretized k-vector module -----*/
-	      //According to Slices from Knebe
-	      /*
-              aux_sinx = sin(0.5*gp[m].k_vector[X]) * sin(0.5*gp[m].k_vector[X]);
-              aux_siny = sin(0.5*gp[m].k_vector[Y]) * sin(0.5*gp[m].k_vector[Y]);
-              aux_sinz = sin(0.5*gp[m].k_vector[Z]) * sin(0.5*gp[m].k_vector[Z]);
-	      
-	      gp[m].k_mod_sin = aux_sinx + aux_siny + aux_sinz; 
-	      */
-	      
+	      /*-----  Discretized k-vector module -----*/	      
 	      //According to Hockney & Eastwood                                                                 
               aux_factor = gp[m].k_vector[X]*GV.CellSize*0.5;
               aux_sinx = sin(aux_factor)*sin(aux_factor);
@@ -135,37 +126,7 @@ int transform(double *DenConCell)
 
               aux_factor = (GV.CellSize*0.5) * (GV.CellSize*0.5);
               gp[m].k_mod_HE = (aux_sinx + aux_siny + aux_sinz) / aux_factor;
-	      
-	      
-	      // Discretized k-vector module according to my calculus
-	      /*
-	      aux_sinx = sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[X]/(1.0*GV.NCELLS) ) ;
-	      aux_siny = sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Y]/(1.0*GV.NCELLS) ) ;
-	      aux_sinz = sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) *  sin( 2.0*M_PI*gp[m].k_vector[Z]/(1.0*GV.NCELLS) ) ;
-	      */	      
-	      /*
-	      //Approach 2
-	      aux_sinx = sin( gp[m].k_vector[X] * GV.CellSize ) *  sin( gp[m].k_vector[X] * GV.CellSize );
-	      aux_siny = sin( gp[m].k_vector[Y] * GV.CellSize ) *  sin( gp[m].k_vector[Y] * GV.CellSize );
-	      aux_sinz = sin( gp[m].k_vector[Z] * GV.CellSize ) *  sin( gp[m].k_vector[Z] * GV.CellSize );
-
-	      gp[m].k_mod_sin = (aux_sinx + aux_siny + aux_sinz);
-	      //gp[m].k_mod_sin = (1.0/GV.CellSize) * (1.0/GV.CellSize)  * (aux_sinx + aux_siny + aux_sinz);
-	      
-	      if(gp[m].k_mod_sin < GV.ZERO)
-		{
-		  printf("For m = %d, k_mod null for finite diffs  = %lf\n", m, gp[m].k_mod_sin);
-		}//if
-	      */
-	      /*----- Auxiliar file with k_module from different approaches -----*/
-	      /*
-	      fwrite(&gp[m].k_vector[X], sizeof(double), 1, pf);
-	      fwrite(&gp[m].k_vector[Y], sizeof(double), 1, pf);
-	      fwrite(&gp[m].k_vector[Z], sizeof(double), 1, pf);
-	      fwrite(&k2, sizeof(double), 1, pf);
-	      fwrite(&aux_k_mod1, sizeof(double), 1, pf);	      
-	      fwrite(&gp[m].k_mod_sin, sizeof(double), 1, pf);
-	      */
+	      	     
 	    }//for k
 	}//for j
     }//for i
@@ -174,39 +135,6 @@ int transform(double *DenConCell)
   printf("k vectors computed!\n");
   printf("------------------------------------------------\n");
 
-
-  /*----- Testing periodicity of G(k) -----*/
-  /*
-  for(i=0; i<GV.NCELLS; i++)
-    {
-      for(j=0; j<GV.NCELLS; j++)
-	{	
-	  if( (i%32==0) && (j%32==0) )
-	    {
-	      snprintf(buffer, sizeof(char)*50, "./../../Processed_data/GofK_VS_posZ_i%d_j%d.txt", i, j);
-	      
-	      pf = fopen(buffer, "w");
-	      
-	      for(k=-GV.NCELLS; k<GV.NCELLS; k++)
-		{
-		  if(k<0)
-		    l = k+GV.NCELLS;
-		  else
-		    l = k;
-		  
-		  m = INDEX_C_ORDER(i,j,l); //ID in C-order		      
-		  
-		  fprintf(pf, "%16.8lf %16.8lf\n", 
-			  1.0*k*GV.CellSize, gp[m].k_mod_HE);
-		  
-		}//for k
-	      fclose(pf);	      
-
-	    }//if
-
-	}//for j
-    }//for i
-  */
   
   /*--- Density contrast in k-space with NGP weight function ---*/
 #ifdef NGP
@@ -274,10 +202,8 @@ int transform(double *DenConCell)
 #ifdef CIC  
   printf("Computing density contrast in k space with CIC weight-function!\n");
   printf("------------------------------------------------\n");
+
   
-  //pf = fopen("Weight_fn.dat", "w");
-  //fprintf(pf, "%s%10s %10s %10s %10s %10s\n", "#", "ID", "Wx", "Wy", "Wz", "W_tot");
-	
   for(m=0; m<GV.NTOTALCELLS; m++)
     {	     
       /*----- Weight function in x -----*/
@@ -285,7 +211,7 @@ int transform(double *DenConCell)
 	{
 	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
 	  wx = (sin(fx)/fx)*(sin(fx)/fx);
-	  //wx = GV.CellSize * (sin(fx)/fx)*(sin(fx)/fx); //According to Hockney & Eastwood
+	  //wx = GV.CellSize * (sin(fx)/fx)*(sin(fx)/fx); //According to H&E but we are not using this
 	}//if 1
       else
 	{
@@ -297,7 +223,7 @@ int transform(double *DenConCell)
 	{
 	  fy = (gp[m].k_vector[Y]*GV.BoxSize)/(2.0*GV.NCELLS);
 	  wy = (sin(fy)/fy)*(sin(fy)/fy);
-	  //wy = GV.CellSize * (sin(fy)/fy)*(sin(fy)/fy); //According to Hockney & Eastwood 
+	  //wy = GV.CellSize * (sin(fy)/fy)*(sin(fy)/fy); //According to H&E but we are not using this
 	}//if 1
       else
 	{
@@ -309,7 +235,7 @@ int transform(double *DenConCell)
 	{
 	  fz = (gp[m].k_vector[Z]*GV.BoxSize)/(2.0*GV.NCELLS);
 	  wz = (sin(fz)/fz)*(sin(fz)/fz);  
-	  //wz = GV.CellSize * (sin(fz)/fz)*(sin(fz)/fz); //According to Hockney & Eastwood 
+	  //wz = GV.CellSize * (sin(fz)/fz)*(sin(fz)/fz); //According to H&E but we are not using this
 	}//if 1
       else
 	{
@@ -319,15 +245,8 @@ int transform(double *DenConCell)
       /*----- Total weight function -----*/
       gp[m].weight = wx * wy * wz;
 
-      /*
-      fprintf(pf, "%10d %16.8lf %16.8lf %16.8lf %16.8lf\n",
-	      m,
-	      wx, wy, wz,
-	      gp[m].weight);
-      */   
       
-      /*----- Deconvolution of DenCon with the total weight function -----*/  
-      
+      /*----- Deconvolution of DenCon with the total weight function -----*/        
       if(fabs(gp[m].weight) > GV.ZERO)
 	{
 	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
@@ -341,7 +260,6 @@ int transform(double *DenConCell)
       
     }//for m
 
-  //fclose(pf);
   printf("Density contrast in k-space with CIC weight fn ready!!\n");
   printf("-----------------------------------------------------------------\n");
 #endif

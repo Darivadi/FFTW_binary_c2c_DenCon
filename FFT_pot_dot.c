@@ -8,7 +8,6 @@ INPUT: density contrast in the k-space, wave vectors, momentum field
 in k-space.
 RETURN: File with the input and outputs (sorted in the grid[m] order)
 *************************************************************************************/
-//int potential_dot(double **potDot_r)
 int potential_dot( void )
 {
   int m, i, j, k, ii, jj, kk, indexaux, counter;
@@ -49,7 +48,6 @@ int potential_dot( void )
   
   /*+++ Computing the time derivative of potential in k-space +++*/  
   factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
-  //nyquist_freq = M_PI / GV.CellSize;
   
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -66,13 +64,9 @@ int potential_dot( void )
 	      //Im
 	      pot_Im1 = GV.Hz*gp[m].DenCon_K[1];
 	      pot_Im2 = ( gp[m].p_w_k[X][1] + gp[m].p_w_k[Y][1] + gp[m].p_w_k[Z][1] ) / GV.a_SF;
-	      
-	      //Unifying      
-	      //if(gp[m].k_mod_sin > GV.ZERO)
+
 	      if(gp[m].k_mod_HE > GV.ZERO)
-		{
-		  
-		  //Green_factor = -1.0 / gp[m].k_mod_sin;
+		{		  		  
 		  Green_factor = -1.0 / gp[m].k_mod_HE;
 		  alpha = factor * Green_factor;
 		  
@@ -354,7 +348,7 @@ int potential_dot( void )
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
   fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
   fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
-  
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -368,7 +362,6 @@ int potential_dot( void )
 	      pos_aux[Z] = k * GV.CellSize;
 	      
 	      fwrite(&pos_aux[0], sizeof(double), 3, pf);
-	      //fwrite(&potDot_r[m][0], sizeof(double), 1, pf);
 	      fwrite(&out[m][0], sizeof(double), 1, pf);
 	    }//for k	  
 	}//for j
@@ -378,7 +371,7 @@ int potential_dot( void )
   fclose(pf);
 
   fftw_free(out);
-  //free(potDot_r);
+
   
   return 0;
 }//potential_dot

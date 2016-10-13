@@ -28,7 +28,7 @@ debug:
 	$(CC) $(CFLAGSDEBUG) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x
 
-mdr:
+MDR:
 	echo Compiling for MDR $(PROGRAM).c
 	$(CC) -c -save-temps $(CFLAGSMDR) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x

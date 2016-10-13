@@ -61,7 +61,7 @@ int read_parameters( char filename[] )
   /*+++++ Parameters for ASCII data +++++*/
 #ifdef ASCIIDATA
   /*+++++ Simulation parameters +++++*/
-  nread = fscanf(file, "%d", &GV.NCELLS);
+  nread = fscanf(file, "%d",  &GV.NCELLS);
   nread = fscanf(file, "%lf", &GV.BoxSize);
   nread = fscanf(file, "%s", GV.FILENAME);
   
@@ -95,8 +95,8 @@ FUNCTION: reads the input file
 INPUT: data file: data_complete_NCELLSXXX.dat (densities data file) 
 RETURN: 0
 *****************************************************************************/
-#ifdef ASCIIDATA
-int read_data(char *infile, double *DenConCell, double **p_r)
+#ifdef CIC_MDR
+int read_data(char *infile, double *DenConCell)
 {
   int m, nread;
   FILE *pf=NULL;
@@ -110,51 +110,22 @@ int read_data(char *infile, double *DenConCell, double **p_r)
   nread = fgets(buff, 1000, pf);
 
   /*+++ Reading from the second line +++*/
-#ifdef NGP
+
   for(m=0; m<GV.NTOTALCELLS; m++)
     {      
-      nread=fscanf(pf,"%lf %lf %lf %lf %lf %lf %lf %lf",
-		   &dummy, &dummy, &dummy,
-		   &p_r[m][X], &p_r[m][Y], &p_r[m][Z],
-		   &DenConCell[m]);
-
+      nread = fscanf(pf,"%d%*[,] %d%*[,] %d%*[,] %d%*[,] %lf%*[,]", 
+		     &dummy1, &dummy1, &dummy1, &dummy1, &DenConCell[m]);
+      
       if(m%5000000==0)
 	{
-	  printf("%d %lf %lf %lf %lf\n",
-		 m,
-		 p_r[m][X], p_r[m][Y], p_r[m][Z],
-		 DenConCell[m]);
-	}//if
-
-
-    }//for m
-#endif 
-
-
-#ifdef CIC_400
-  for(m=0; m<GV.NTOTALCELLS; m++)
-    {      
-      nread=fscanf(pf,"%lf %lf %lf %lf %lf %lf %lf", 
-		   &dummy, &dummy, &dummy,
-		   &p_r[m][X], &p_r[m][Y], &p_r[m][Z],
-		   &DenConCell[m]);
-
-      if(m%5000000==0)
-	{
-	  printf("%d %lf %lf %lf %lf\n",
-		 m,
-		 p_r[m][X], p_r[m][Y], p_r[m][Z],
-		 DenConCell[m]);
+	  printf("%d %lf\n",
+		 m, DenConCell[m]);
 	}//if
       
     }//for m
-#endif
   
-  
-#ifdef CIC_MDR
-  free(p_r);
-
-  for(m=0; m<GV.NTOTALCELLS; m++)
+  /*
+    for(m=0; m<GV.NTOTALCELLS; m++)
     {      
       nread=fscanf(pf,"%d %lf %lf %lf %lf", 
 		   &dummy1, &dummy, &dummy, &dummy,
@@ -167,14 +138,13 @@ int read_data(char *infile, double *DenConCell, double **p_r)
 	}//if
       
     }//for m
-#endif
-
-  
+  */
   fclose(pf);
   
   return 0;  
 }//read_data
 #endif
+
 
 
 /**************************************************************************************************** 

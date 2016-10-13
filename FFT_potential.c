@@ -32,9 +32,7 @@ int potential( void )
 
 
   //Factor of the potential
-  //factor = (-3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
   factor = (3.0/2.0) * (GV.H0*GV.H0) * GV.Omega_M0 / GV.a_SF;
-
 
   for(i=0; i<GV.NCELLS; i++)
     {
@@ -43,12 +41,10 @@ int potential( void )
 	  for(k=0; k<GV.NCELLS; k++)
 	    { 
 	      m = INDEX_C_ORDER(i,j,k); //ID in C-order
-	      
-	      //if( gp[m].k_module > GV.ZERO )
+	      	      
 	      if( gp[m].k_mod_HE > GV.ZERO )		
 		{	  		  
-		  //if( (i <= GV.NCELLS/2) && (j <= GV.NCELLS/2) && (k <= GV.NCELLS/2) )
-		  //{
+	
 		  Green_factor  = - 1.0 / gp[m].k_mod_HE;
 		  alpha         = Green_factor * factor;
 		  
@@ -139,14 +135,14 @@ int potential( void )
   
 #endif
 
-#ifdef CIC_400
+#if defined(CIC_400) || defined(CIC_MDR)
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
   fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
   fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
-
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
 
   for(i=0; i<GV.NCELLS; i++)  
     {
@@ -166,6 +162,7 @@ int potential( void )
     }//for i
 #endif
  
+
   fclose(pf);
   fftw_free( out );
 
