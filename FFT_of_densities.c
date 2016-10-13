@@ -132,7 +132,7 @@ int main( int argc, char *argv[] )
   printf("r2k norm = %lf, k2r norm = %lf\n", GV.r2k_norm, GV.k2r_norm);
   printf("r2k 1D = %lf\n", GV.BoxSize / (1.0*GV.NCELLS) );
 
-  exit(0);
+  //exit(0);
     
 
   /*--- FFT OF THE DENSITY CONTRAST ---*/
