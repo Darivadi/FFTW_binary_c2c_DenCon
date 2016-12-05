@@ -135,7 +135,7 @@ int potential( void )
   
 #endif
 
-#if defined(CIC_400) || defined(CIC_MDR)
+#ifdef CIC_400 
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
@@ -161,7 +161,35 @@ int potential( void )
         }//for j
     }//for i
 #endif
- 
+
+
+#ifdef CIC_MDR
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
+
+  for(i=0; i<GV.NCELLS; i++)  
+    {
+      for(j=0; j<GV.NCELLS; j++)
+        {
+          for(k=0; k<GV.NCELLS; k++)
+            {
+              m = INDEX_C_ORDER(i,j,k);
+              //pos_aux[X] = i * GV.CellSize;
+              //pos_aux[Y] = j * GV.CellSize;
+              //pos_aux[Z] = k * GV.CellSize;
+              
+              //fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&out[m][0], sizeof(double), 1, pf);
+            }//for k      
+        }//for j
+    }//for i
+#endif
+
 
   fclose(pf);
   fftw_free( out );

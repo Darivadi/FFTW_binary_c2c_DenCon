@@ -34,7 +34,7 @@ MDR:
 	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x
 
 MDPL:	
-	echo Compiling for MDR $(PROGRAM).c
+	echo Compiling for MDPL $(PROGRAM).c
 	$(CC) -c $(CFLAGSMDPL) $(PROGRAM).c -o $(PROGRAM).o
 	$(CC) $(PROGRAM).o $(LFLAGS) -lm -lfftw3 -o $(PROGRAM).x
 

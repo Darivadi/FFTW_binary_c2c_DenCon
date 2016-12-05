@@ -185,6 +185,16 @@ int transform(double *DenConCell)
 	{
 	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
 	  gp[m].DenCon_K[1] = gp[m].DenCon_K[1] / gp[m].weight;
+
+#ifdef CIC_MDR
+	  /*::::: Deconvolution with gaussian smoothing function :::::*/
+	  k2 = gp[m].k_vector[X]*gp[m].k_vector[X] + gp[m].k_vector[Y]*gp[m].k_vector[Y] + gp[m].k_vector[Z]*gp[m].k_vector[Z]; 
+	  aux_factor = -0.5*GV.CellSize*GV.CellSize*k2;
+	  aux_factor = exp(aux_factor);
+	  aux_factor = 1.0 / aux_factor;
+	  gp[m].DenCon_K[0] *= aux_factor;
+	  gp[m].DenCon_K[1] *= aux_factor;	    
+#endif	  
 	}//if
       else
 	{
@@ -251,6 +261,16 @@ int transform(double *DenConCell)
 	{
 	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
 	  gp[m].DenCon_K[1] = gp[m].DenCon_K[1] / gp[m].weight;
+
+#ifdef CIC_MDR
+	  /*::::: Deconvolution with gaussian smoothing function :::::*/
+	  k2 = gp[m].k_vector[X]*gp[m].k_vector[X] + gp[m].k_vector[Y]*gp[m].k_vector[Y] + gp[m].k_vector[Z]*gp[m].k_vector[Z]; 
+	  aux_factor = -0.5*GV.CellSize*GV.CellSize*k2;
+	  aux_factor = exp(aux_factor);
+	  aux_factor = 1.0 / aux_factor;
+	  gp[m].DenCon_K[0] *= aux_factor;
+	  gp[m].DenCon_K[1] *= aux_factor;	    
+#endif
 	}//if
       else
 	{
@@ -263,6 +283,74 @@ int transform(double *DenConCell)
   printf("Density contrast in k-space with CIC weight fn ready!!\n");
   printf("-----------------------------------------------------------------\n");
 #endif
+
+
+
+    /*--- Density contrast in k-space with TSC weight function ---*/
+#ifdef TSC  
+  printf("Computing density contrast in k space with CIC weight-function!\n");
+  printf("------------------------------------------------\n");
+  
+  for(m=0; m<GV.NTOTALCELLS; m++)
+    {	     
+      /*----- Weight function in x -----*/
+      if(fabs(gp[m].k_vector[X]) > GV.ZERO)
+	{
+	  fx = (gp[m].k_vector[X]*GV.BoxSize)/(2.0*GV.NCELLS);
+	  wx = (sin(fx)/fx)*(sin(fx)/fx)*(sin(fx)/fx);
+	  //wx = GV.CellSize * (sin(fx)/fx)*(sin(fx)/fx); //According to H&E but we are not using this
+	}//if 1
+      else
+	{
+	  wx = 1.0;
+	}//else
+      
+      /*----- Weight function in y -----*/
+      if(fabs(gp[m].k_vector[Y]) > GV.ZERO)
+	{
+	  fy = (gp[m].k_vector[Y]*GV.BoxSize)/(2.0*GV.NCELLS);
+	  wy = (sin(fy)/fy)*(sin(fy)/fy)*(sin(fy)/fy);
+	  //wy = GV.CellSize * (sin(fy)/fy)*(sin(fy)/fy); //According to H&E but we are not using this
+	}//if 1
+      else
+	{
+	  wy = 1.0;
+	}//else
+      
+      /*----- Weight function in z -----*/
+      if(fabs(gp[m].k_vector[Z]) > GV.ZERO)
+	{
+	  fz = (gp[m].k_vector[Z]*GV.BoxSize)/(2.0*GV.NCELLS);
+	  wz = (sin(fz)/fz)*(sin(fz)/fz)*(sin(fz)/fz);
+	  //wz = GV.CellSize * (sin(fz)/fz)*(sin(fz)/fz); //According to H&E but we are not using this
+	}//if 1
+      else
+	{
+	  wz = 1.0;
+	}//else
+      
+      /*----- Total weight function -----*/
+      gp[m].weight = wx * wy * wz;
+
+      
+      /*----- Deconvolution of DenCon with the total weight function -----*/        
+      if(fabs(gp[m].weight) > GV.ZERO)
+	{
+	  gp[m].DenCon_K[0] = gp[m].DenCon_K[0] / gp[m].weight;
+	  gp[m].DenCon_K[1] = gp[m].DenCon_K[1] / gp[m].weight;
+	}//if
+      else
+	{
+	  gp[m].DenCon_K[0] = 0.0;
+	  gp[m].DenCon_K[1] = 0.0;	  
+      }//else
+      
+    }//for m
+
+  printf("Density contrast in k-space with CIC weight fn ready!!\n");
+  printf("-----------------------------------------------------------------\n");
+#endif
+
 
    
   /* Recreating the input */

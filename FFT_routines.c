@@ -69,8 +69,8 @@ int read_parameters( char filename[] )
   nread = fscanf(file, "%lf", &GV.Omega_M0);
   nread = fscanf(file, "%lf", &GV.Omega_L0);
   nread = fscanf(file, "%lf", &GV.z_RS);
-  nread = fscanf(file, "%lf", &GV.h_Hubble);    
-  GV.H0 = 100.0 * GV.h_Hubble;
+  nread = fscanf(file, "%lf", &GV.h_Hubble);
+  GV.H0 = 100.0;// * GV.h_Hubble;
   GV.a_SF = 1.0/(1.0 + GV.z_RS); 
 #endif
 
@@ -107,7 +107,8 @@ int read_data(char *infile, double *DenConCell)
   pf = fopen(infile, "r");
 
   /*+++ Ignoring the first line +++*/
-  nread = fgets(buff, 1000, pf);
+  //nread = fgets(buff, 1000, pf);
+  fgets(buff, 1000, pf);
 
   /*+++ Reading from the second line +++*/
 
@@ -170,7 +171,7 @@ int read_binary(double *DenConCell, double **p_r)
   nread = fread(&GV.z_RS, sizeof(double), 1, inFile);  //Redshift
   nread = fread(&GV.h_Hubble, sizeof(double), 1, inFile);  //Hubble parameter
 
-  GV.H0 = 100.0 * GV.h_Hubble;
+  GV.H0 = 100.0;// * GV.h_Hubble;
   GV.a_SF = 1.0 / (1.0 + GV.z_RS);
 
   printf("-----------------------------------------------\n");
@@ -294,7 +295,7 @@ int read_binary_super_CIC(double *DenConCell)
   GV.NTOTALCELLS = POW3(GV.NCELLS);
   
   /*+++++ Saving Simulation parameters +++++*/
-  GV.H0 = 100.0 * GV.h_Hubble;
+  GV.H0 = 100.0; // * GV.h_Hubble;
   GV.a_SF = 1.0 / (1.0 + GV.z_RS);
 
   printf("-----------------------------------------------\n");

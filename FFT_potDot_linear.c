@@ -4,7 +4,7 @@ FUNCTION: Computes the growth rate f(t) for first linear approx. proportional to
 INPUT: Scale factor
 RETURN: Growth rate f(t) for first approx. proportional to Omega_Lambda0
 ****************************************************************************************************/
-
+/*
 double growth_rate_OmegaL0(double a_SF)
 { 
   double GR_OmegaL0, a_cube;  
@@ -20,7 +20,7 @@ double growth_rate_OmegaL0(double a_SF)
   return GR_OmegaL0;
   
 }//growth_rate_app1
-
+*/
 
 /****************************************************************************************************
 NAME: growth_rate_OmegaM
@@ -78,25 +78,32 @@ int potential_dot_linear( void )
   
 
   /*----- Computing the approximations to the linear growth rate f -----*/
-  fn_app1 = 1.0 - ( growth_rate_OmegaL0( GV.a_SF ) );
+  //fn_app1 = 1.0 - ( growth_rate_OmegaL0( GV.a_SF ) );
   fn_app2 = 1.0 - ( growth_rate_OmegaM(  GV.a_SF ) );  
 
+  /*
   printf("GR_OmegaL0=%lf GR_OmegaM=%lf a_SF=%lf\n", 
 	 growth_rate_OmegaL0(GV.a_SF), growth_rate_OmegaM(GV.a_SF), GV.a_SF);
   printf("---------------------------------------\n");
- 
+  */
+
+  printf("GR_OmegaM=%lf a_SF=%lf\n", 
+	 growth_rate_OmegaM(GV.a_SF), GV.a_SF);
+  printf("---------------------------------------\n");
   
   /**************************************************************************************/
   /* Linear PotDot with the first approximation to the linear growth rate f */
   /**************************************************************************************/
   /*+++++ Creating input/output  arrays +++++*/
+  /*
   in  = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
   
   plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
-
+  */
 
   /*----- Computing the time derivative of potential in k-space -----*/
+  /*
   factor = (-3.0/2.0) * GV.H0 * GV.H0 * (GV.Hz / GV.a_SF) * GV.Omega_M0;
   
   for(m=0; m<GV.NTOTALCELLS; m++)
@@ -106,7 +113,7 @@ int potential_dot_linear( void )
   	  Green_factor = -1.0 / gp[m].k_mod_HE;
   	  alpha = factor * Green_factor;
 	  
-	  /*::::: Approximation proportional to 1/\Omega_{L0} :::::*/
+	  //::::: Approximation proportional to 1/\Omega_{L0} :::::
   	  in[m][0] = alpha * gp[m].DenCon_K[0] * fn_app1; //Re()
   	  in[m][1] = alpha * gp[m].DenCon_K[1] * fn_app1; //Im()	  
   	}//if
@@ -119,15 +126,15 @@ int potential_dot_linear( void )
       Green_factor = 0.0;      
     }//for m
   
-  /*+++++ Making the FFT +++++*/  
+    //+++++ Making the FFT +++++
   fftw_execute(plan_k2r);  
   printf("FFT of PotDot App1 in r finished!\n");
   printf("-----------------------------------------\n");
   
-  /*+++++ Freeing up memory +++++*/  
+  //+++++ Freeing up memory +++++
   fftw_free(in);
   
-  /*+++++ Saving data +++++*/
+  //+++++ Saving data +++++
   for( m=0; m<GV.NTOTALCELLS; m++ )
     {
       //potDot_r_l_app1[m][0] = GV.fftw_norm * GV.conv_norm * out[m][0] / GV.r2k_norm; //Re()
@@ -142,7 +149,7 @@ int potential_dot_linear( void )
   pf = fopen("./../../Processed_data/PotDot_app1.bin", "w");
 
 #ifdef SUPERCIC
-  /*..... File app1 .....*/
+  //..... File app1 .....
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
@@ -152,7 +159,7 @@ int potential_dot_linear( void )
 
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
-      /*..... File app1 .....*/
+    //..... File app1 .....
       //fwrite(&potDot_r_l_app1[m][0], sizeof(double), 1, pf);
       fwrite(&out[m][0], sizeof(double), 1, pf);
     }//for m	  
@@ -161,7 +168,7 @@ int potential_dot_linear( void )
 
 
 #if defined(CIC_400) || defined(CIC_MDR)
-  /*+++++ Saving Simulation parameters +++++*/
+  //+++++ Saving Simulation parameters +++++
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
   fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
@@ -190,16 +197,20 @@ int potential_dot_linear( void )
   fclose(pf);
   fftw_free(out);
   //free(potDot_r_l_app1);
-  
+  */
+
+
   /**************************************************************************************/
   /* Linear PotDot with the second approximation to the linear growth rate f */
   /**************************************************************************************/
   /*+++++ Creating input/output  arrays +++++*/
+  
   in  = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS);
   out = ( fftw_complex *) fftw_malloc( sizeof( fftw_complex ) * GV.NTOTALCELLS );
   
   plan_k2r = fftw_plan_dft_3d( GV.NCELLS, GV.NCELLS, GV.NCELLS, in, out, FFTW_BACKWARD, FFTW_ESTIMATE );
 
+  factor = (-3.0/2.0) * GV.H0 * GV.H0 * (GV.Hz / GV.a_SF) * GV.Omega_M0;
   
   for(m=0; m<GV.NTOTALCELLS; m++)
     {
@@ -261,7 +272,7 @@ int potential_dot_linear( void )
 #endif  
 
 
-#if defined(CIC_400) || defined(CIC_MDR)
+#ifdef CIC_400
   /*+++++ Saving Simulation parameters +++++*/
   fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
   fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
@@ -288,6 +299,37 @@ int potential_dot_linear( void )
     }//for i
 #endif
   
+
+#ifdef CIC_MDR
+  /*+++++ Saving Simulation parameters +++++*/
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
+
+  for(i=0; i<GV.NCELLS; i++)  
+    {
+      for(j=0; j<GV.NCELLS; j++)
+	{
+	  for(k=0; k<GV.NCELLS; k++)
+	    {
+	      m = INDEX_C_ORDER(i,j,k);
+	      //pos_aux[X] = i * GV.CellSize;
+	      //pos_aux[Y] = j * GV.CellSize;
+	      //pos_aux[Z] = k * GV.CellSize;
+	      
+	      //fwrite(&pos_aux[0], sizeof(double), 3, pf);
+	      fwrite(&out[m][0], sizeof(double), 1, pf);
+	    }//for k	  
+	}//for j
+    }//for i
+#endif
+
+
+
+
   fclose(pf);
   fftw_free(out);
   //free(potDot_r_l_app2);
