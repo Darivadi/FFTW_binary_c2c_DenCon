@@ -6,7 +6,7 @@ CFLAGS = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYDATA -D
 
 CFLAGSMDR = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DASCIIDATA -DPOTDOTLINEAR -DCIC_MDR
 
-CFLAGSMDPL = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYPARAMS -DPOTDOTEXACT -DPOTDOTLINEAR -DSUPERCIC
+CFLAGSMDPL = -O3 -I/home/$(USER)/local/include -I/usr/include/ -DCIC -DBINARYPARAMS -DPOTDOTEXACT -DPOTDOTLINEAR -DSUPERCIC -DFOURIERFIELDS
 
 CFLAGSDEBUG = -g -Wall -c -I/home/$(USER)/local/include/ -I/usr/include/ -DCIC -DBINARYDATA	
 

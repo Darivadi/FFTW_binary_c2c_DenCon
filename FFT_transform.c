@@ -63,6 +63,25 @@ int transform(double *DenConCell)
     }//for m
 
 
+#ifdef FOURIERFIELDS
+  pf = fopen("./../../Processed_data/DenCon_k.bin", "w");
+
+  fwrite(&GV.BoxSize,  sizeof(double), 1, pf);  // Box Size
+  fwrite(&GV.Omega_M0, sizeof(double), 1, pf);  // Matter density parameter
+  fwrite(&GV.Omega_L0, sizeof(double), 1, pf);  // Cosmological constant density parameter
+  fwrite(&GV.z_RS,     sizeof(double), 1, pf);  // Redshift
+  fwrite(&GV.H0,       sizeof(double), 1, pf);  // Hubble parameter
+  fwrite(&GV.NCELLS,   sizeof(int),    1, pf);  // Hubble parameter
+  
+  for(m=0; m< GV.NTOTALCELLS; m++)
+    {
+      fwrite(&(gp[m].DenCon_K[0]), sizeof(double), 2, pf);
+    }//for m
+  
+  fclose(pf);
+#endif
+
+
     /*--- Destroying plans ---*/
   printf("Destroying plans!\n");
   printf("--------------------------------------------------\n");
